@@ -162,7 +162,7 @@ input:focus, textarea:focus, select:focus {
 
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 15px); gap: 15px; }
 
 button {
   padding: 12px 24px;
@@ -252,17 +252,116 @@ tr:hover {
   transition: width 0.3s ease;
 }
 
-/* أنماط واجهة الطباعة التنفيذية العالمية الصارمة */
+/* الترويسة المخصصة للطباعة فقط */
+#print-header {
+  display: none;
+}
+
+/* أنماط واجهة الطباعة التنفيذية الصارمة - إصلاح شامل */
 @media print {
-  .sidebar, .header-panel, .card:not(.printable-card), button, .progress-bar, input, select, textarea {
+  /* إخفاء واجهة التحكم وعناصر الإدخال */
+  .sidebar, .header-panel, .card:not(.printable-card), button, .progress-bar, input, select, textarea, .print-actions {
     display: none !important;
   }
-  body { background: white; padding: 0; }
-  .main-content { margin-right: 0; padding: 0; width: 100%; }
-  .output-section.active { display: block !important; }
-  .output-window { border: none !important; padding: 0 !important; box-shadow: none !important; color: black !important; }
-  table { border: 1px solid #000 !important; width: 100% !important; }
-  th, td { border: 1px solid #000 !important; color: black !important; padding: 8px !important; }
+  
+  /* إعادة ضبط تخطيط الجسم والمحتوى الرئيسي */
+  body { 
+    background: white !important; 
+    color: black !important;
+    padding: 0 !important; 
+    margin: 0 !important;
+    display: block !important;
+  }
+  
+  .main-content { 
+    margin-right: 0 !important; 
+    padding: 0 !important; 
+    width: 100% !important; 
+    display: block !important;
+  }
+
+  /* إجبار التبويب النشط حالياً فقط على الظهور بشكل كامل */
+  .output-section {
+    display: none !important;
+  }
+  .output-section.active { 
+    display: block !important; 
+  }
+  
+  .card.printable-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  .output-window { 
+    border: none !important; 
+    padding: 0 !important; 
+    box-shadow: none !important; 
+    color: black !important; 
+    display: block !important;
+    white-space: pre-wrap !important;
+  }
+  
+  /* إظهار الترويسة الرسمية في أعلى المستند المطبوع */
+  #print-header {
+    display: block !important;
+    margin-bottom: 30px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 2px solid #000 !important;
+  }
+  
+  #print-header table {
+    border: none !important;
+    margin: 0 !important;
+  }
+  
+  #print-header td {
+    border: none !important;
+    padding: 5px !important;
+    text-align: right !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+  }
+
+  /* تنسيق الجداول والمدخلات الرقمية للطباعة الفورية */
+  table { 
+    border: 1px solid #000 !important; 
+    width: 100% !important; 
+    border-collapse: collapse !important;
+    margin-top: 15px !important;
+    display: table !important;
+  }
+  
+  th, td { 
+    border: 1px solid #000 !important; 
+    color: black !important; 
+    padding: 8px !important; 
+    font-size: 12px !important;
+  }
+  
+  th {
+    background-color: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* تحويل حقول الإدخال الرقمية إلى نصوص ظاهرة داخل الخلايا عند الطباعة */
+  td input[type="number"] {
+    display: none !important;
+  }
+  
+  td .print-value {
+    display: inline !important;
+    font-weight: bold !important;
+  }
+}
+
+/* إخفاء قيم التقييم المطبوعة في الواجهة العادية */
+td .print-value {
+  display: none;
 }
 </style>
 </head>
@@ -291,6 +390,19 @@ tr:hover {
     <div class="enterprise-badge">Enterprise Edition v4.0</div>
   </header>
 
+  <div id="print-header">
+    <table style="width: 100%;">
+      <tr>
+        <td style="width: 33%;">المعـلـم: <span id="p-teacher"></span></td>
+        <td style="width: 33%; text-align: center;">المدارس: <span id="p-school"></span></td>
+        <td style="width: 33%; text-align: left;">المديرية: <span id="p-directorate"></span></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align: center; font-size: 16px; padding-top: 10px;" id="p-title">المستند التنفيذي الرسمي المعتمد</td>
+      </tr>
+    </table>
+  </div>
+
   <div id="setup" class="output-section active">
     
     <div class="card">
@@ -302,7 +414,7 @@ tr:hover {
         </div>
         <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
           <button onclick="saveSecureKey()" class="btn-success" style="width: 100%;">اعتماد وتشفير المفتاح محلياً</button>
-          <button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')" class="btn-dark">توليد</button>
+          <button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')", class="btn-dark">توليد</button>
         </div>
       </div>
     </div>
@@ -310,9 +422,9 @@ tr:hover {
     <div class="card">
       <h3>🏫 الهوية المؤسسية ومحددات الاعتماد</h3>
       <div class="grid-3">
-        <div class="form-group"><label>القائد التربوي / المعلم المعتمد:</label><input id="teacher" placeholder="مثال: محمد وجيه غنام"></div>
-        <div class="form-group"><label>المؤسسة التعليمية / المدرسة:</label><input id="school" placeholder="مثال: مدرسة عاطوف المختلطة"></div>
-        <div class="form-group"><label>سلطة الإشراف / المديرية:</label><input id="directorate" placeholder="مثال: مديرية طوباس"></div>
+        <div class="form-group"><label>القائد التربوي / المعلم المعتمد:</label><input id="teacher" placeholder="مثال: محمد وجيه غنام" oninput="updatePrintMetadata()"></div>
+        <div class="form-group"><label>المؤسسة التعليمية / المدرسة:</label><input id="school" placeholder="مثال: مدرسة عاطوف المختلطة" oninput="updatePrintMetadata()"></div>
+        <div class="form-group"><label>سلطة الإشراف / المديرية:</label><input id="directorate" placeholder="مثال: مديرية طوباس" oninput="updatePrintMetadata()"></div>
       </div>
     </div>
 
@@ -359,7 +471,7 @@ tr:hover {
     <div class="card printable-card">
       <h3>📘 الخطط الاستراتيجية والجدولة التشغيلية للدروس</h3>
       <div class="print-actions">
-        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+        <button onclick="triggerPrint('الخطة التشغيلية والجدولة الاستراتيجية للدروس')" class="btn-dark">🖨️ طباعة المستند التنفيذي الحالي</button>
       </div>
       <div id="plans" class="output-window">بانتظار معالجة محرك التوليد...</div>
     </div>
@@ -369,7 +481,7 @@ tr:hover {
     <div class="card printable-card">
       <h3>📝 بنك أوراق العمل القابلة للقياس والأنشطة التطبيقية</h3>
       <div class="print-actions">
-        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+        <button onclick="triggerPrint('كراسة أنشطة وبنك أوراق العمل الأكاديمية')" class="btn-dark">🖨️ طباعة المستند التنفيذي الحالي</button>
       </div>
       <div id="worksheets" class="output-window">بانتظار معالجة محرك التوليد...</div>
     </div>
@@ -379,7 +491,7 @@ tr:hover {
     <div class="card printable-card">
       <h3>🧪 تقييمات الامتحانات الرسمية ومصفوفات الإجابة النموذجية</h3>
       <div class="print-actions">
-        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+        <button onclick="triggerPrint('الاختبارات التقويمية المركزية المعتمدة ونماذج الإجابة')" class="btn-dark">🖨️ طباعة المستند التنفيذي الحالي</button>
       </div>
       <div id="exams" class="output-window">بانتظار معالجة محرك التوليد...</div>
     </div>
@@ -389,7 +501,7 @@ tr:hover {
     <div class="card printable-card">
       <h3>📊 مؤشرات الأداء وبطاقات الملاحظة والرصد الثلاثية</h3>
       <div class="print-actions">
-        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+        <button onclick="triggerPrint('مصفوفة مؤشرات الأداء وبطاقات الرصد والملاحظة')" class="btn-dark">🖨️ طباعة المستند التنفيذي الحالي</button>
       </div>
       <div id="rubrics" class="output-window">بانتظار معالجة محرك التوليد...</div>
     </div>
@@ -401,7 +513,7 @@ tr:hover {
       <div class="print-actions">
         <button onclick="generateDynamicGrades()" class="btn-primary">تحديث وبناء مصفوفة رصد الطلاب</button>
         <button onclick="exportToAdvancedExcel()" class="btn-success">تصدير مصفوفة الدرجات إلى Excel (XLSX)</button>
-        <button onclick="window.print()" class="btn-dark">🖨️ طباعة الفهرس والسجل الحالي</button>
+        <button onclick="triggerPrint('سجل الرصد العام وعلامات الأداء السنوي للطلاب')" class="btn-dark">🖨️ طباعة الفهرس والسجل الحالي</button>
       </div>
       <div id="gradeTableContainer" style="overflow-x: auto; margin-top: 20px;">
         <p style="color: var(--text-muted);">المصفوفة غير نشطة. يرجى ملء بيانات أسماء الكادر الطلابي في علامة تبويب التهيئة.</p>
@@ -419,6 +531,7 @@ let enterpriseOutputs = { plans: "", worksheets: "", exams: "", rubrics: "" };
 window.onload = function() {
   const secureKey = localStorage.getItem('enterprise_key');
   if(secureKey) document.getElementById('key').value = secureKey;
+  updatePrintMetadata();
 };
 
 function saveSecureKey() {
@@ -426,6 +539,19 @@ function saveSecureKey() {
   if(!keyInput) { alert("خطأ: حقل المفتاح فارغ."); return; }
   localStorage.setItem('enterprise_key', keyInput);
   alert("تمت الحوسبة الآمنة وتشفير المفتاح داخل البيئة المحلية.");
+}
+
+// مزامنة البيانات الأساسية لترويسة المطبعة الرسمية
+function updatePrintMetadata() {
+  document.getElementById('p-teacher').innerText = document.getElementById('teacher').value.trim() || ".......";
+  document.getElementById('p-school').innerText = document.getElementById('school').value.trim() || ".......";
+  document.getElementById('p-directorate').innerText = document.getElementById('directorate').value.trim() || ".......";
+}
+
+// استدعاء نظام الطباعة الفيزيائي بعد عنونة المستند بشكل واضح للوزارة
+function triggerPrint(docTitle) {
+  document.getElementById('p-title').innerText = docTitle;
+  window.print();
 }
 
 // معالجة مرنة وسريعة لملفات الـ PDF المعقدة مع مؤشر تقدم رسومي
@@ -446,7 +572,6 @@ async function processEnterprisePDF() {
     const pdfDocument = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     let extractedText = "";
     
-    // سقف القراءة الآمن لبيئات الأنظمة السحابية لضمان سرعة المعالجة واستخلاص السياق الحاسم (75 صفحة)
     const securePageCeiling = Math.min(pdfDocument.numPages, 75);
     
     for(let pageNum = 1; pageNum <= securePageCeiling; pageNum++) {
@@ -455,7 +580,6 @@ async function processEnterprisePDF() {
       const pageMergedText = content.items.map(item => item.str).join(" ");
       extractedText += pageMergedText + "\n";
       
-      // تحديث مؤشر التقدم الرياضي للمستخدم
       let percentage = Math.floor((pageNum / securePageCeiling) * 100);
       pFill.style.width = `${percentage}%`;
     }
@@ -489,7 +613,7 @@ function buildEnterprisePrompt(mode, topic, targetModule) {
   
   if(targetModule === "plans") {
     targetedTask = `المخرج المطلوب حصرياً (دون دمج أو تداخل): توليد الخطط التعليمية والتشغيلية المنهجية الكاملة والمفصلة لـ: (${mode === 'full' ? 'كامل الوثيقة والمقرر الدراسي المرجعي المعروض حالياً' : topic}).
-يجب حوسبة وبناء مصفوفة الخطة التعليمية لكل درس على حدة متضمنة العناصر الإلزامية التالية:
+يجب حوسبة وبناء مصفوفة الخطة التعليمية لكل درس على حدة متمنة العناصر الإلزامية التالية:
 1. الرقم التعريفي للدرس وعنوانه الدقيق.
 2. نواتج التعلم والأهداف السلوكية الإجرائية القابلة للقياس المباشر (معرفي، مهاري، وجداني).
 3. سيناريو التمهيد التربوي الاستهلالي المشوق والجاذب للانتباه.
@@ -552,33 +676,27 @@ async function executeEnterprisePipeline() {
     return;
   }
 
-  // ضبط شاشات العرض المباشرة في حالة الانتظار التشغيلي النشط للأنظمة الكبرى
   document.getElementById("plans").innerText = "⏳ نظام الإنتاج الاستراتيجي يقوم حالياً بصياغة خطط وجدولة الدروس...";
   document.getElementById("worksheets").innerText = "⏳ بنك أوراق العمل يقوم حالياً بإنتاج الأنشطة والتطبيقات المستقلة...";
   document.getElementById("exams").innerText = "⏳ لجنة التقييم الآلية تقوم حالياً ببناء الامتحانات وتطوير أدلة الإجابة النموذجية...";
   document.getElementById("rubrics").innerText = "⏳ محرك KPIs يقوم حالياً بهندسة قوائم ومصفوفات الرصد الفردية للطلاب...";
 
-  // 1. تشغيل مسار معالجة الخطط والجدولة
   const prompt1 = buildEnterprisePrompt(currentMode, currentTopic, "plans");
   enterpriseOutputs.plans = await requestEnterpriseAIStream(prompt1);
   document.getElementById("plans").innerText = enterpriseOutputs.plans;
 
-  // 2. تشغيل مسار معالجة وبناء بنك أوراق العمل
   const prompt2 = buildEnterprisePrompt(currentMode, currentTopic, "worksheets");
   enterpriseOutputs.worksheets = await requestEnterpriseAIStream(prompt2);
   document.getElementById("worksheets").innerText = enterpriseOutputs.worksheets;
 
-  // 3. تشغيل مسار معالجة وصياغة الاختبارات الرسمية وأدلة الحلول
   const prompt3 = buildEnterprisePrompt(currentMode, currentTopic, "exams");
   enterpriseOutputs.exams = await requestEnterpriseAIStream(prompt3);
   document.getElementById("exams").innerText = enterpriseOutputs.exams;
 
-  // 4. تشغيل مسار معالجة وهندسة مؤشرات الأداء وقوائم الرصد
   const prompt4 = buildEnterprisePrompt(currentMode, currentTopic, "rubrics");
   enterpriseOutputs.rubrics = await requestEnterpriseAIStream(prompt4);
   document.getElementById("rubrics").innerText = enterpriseOutputs.rubrics;
 
-  // الحوسبة والتوليد التلقائي الفوري لمصفوفة علامات الطلاب المتكاملة
   generateDynamicGrades();
   alert("✔ نجحت معالجة النظام المؤسسي الشامل. تم ترحيل وفرز كافة التقارير والمخرجات داخل تبويباتها المعزولة بنجاح.");
 }
@@ -623,10 +741,22 @@ function generateDynamicGrades() {
     if(studentName.trim() === "") return;
     tableStructure += `<tr>
       <td style="font-weight: 600; text-align: right; color: var(--primary-color);">${studentName.trim()}</td>
-      <td><input type="number" id="cognitive_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
-      <td><input type="number" id="skills_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
-      <td><input type="number" id="behavior_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
-      <td><input type="number" id="final_exam_${sIndex}" min="0" max="40" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
+      <td>
+        <input type="number" id="cognitive_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})">
+        <span class="print-value" id="p_cognitive_${sIndex}">0</span>
+      </td>
+      <td>
+        <input type="number" id="skills_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})">
+        <span class="print-value" id="p_skills_${sIndex}">0</span>
+      </td>
+      <td>
+        <input type="number" id="behavior_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})">
+        <span class="print-value" id="p_behavior_${sIndex}">0</span>
+      </td>
+      <td>
+        <input type="number" id="final_exam_${sIndex}" min="0" max="40" placeholder="0" oninput="runEnterpriseMath(${sIndex})">
+        <span class="print-value" id="p_final_exam_${sIndex}">0</span>
+      </td>
       <td id="grand_total_${sIndex}" style="font-weight: bold; color: var(--text-main); font-size: 16px; background-color: #f8fafc;">0</td>
     </tr>`;
   });
@@ -642,11 +772,16 @@ function runEnterpriseMath(sIndex) {
   const behValue = parseFloat(document.getElementById(`behavior_${sIndex}`).value) || 0;
   const finValue = parseFloat(document.getElementById(`final_exam_${sIndex}`).value) || 0;
   
+  // نقل القيمة المدخلة إلى الحقل الخاص بالطباعة الفورية لمنع اختفائها
+  document.getElementById(`p_cognitive_${sIndex}`).innerText = cogValue;
+  document.getElementById(`p_skills_${sIndex}`).innerText = skValue;
+  document.getElementById(`p_behavior_${sIndex}`).innerText = behValue;
+  document.getElementById(`p_final_exam_${sIndex}`).innerText = finValue;
+  
   const combinedSum = cogValue + skValue + behValue + finValue;
   const targetCell = document.getElementById(`grand_total_${sIndex}`);
   targetCell.innerText = combinedSum;
   
-  // تغيير بصري ديناميكي بناءً على حالة نجاح أو رسوب الطالب لمعايير التدخل المبكر
   if(combinedSum >= 50) {
     targetCell.style.color = "var(--success-color)";
   } else {
@@ -654,16 +789,14 @@ function runEnterpriseMath(sIndex) {
   }
 }
 
-// تصدير متطور واحترافي كامل لمصفوفة كشوف العلامات إلى ملفات Excel رسمية (XLSX) عبر مكتبة SheetJS
+// تصدير كشوف العلامات إلى ملفات Excel رسمية (XLSX) عبر مكتبة SheetJS
 function exportToAdvancedExcel() {
   const tableElement = document.getElementById("enterprise_grades_table");
   if(!tableElement) { alert("خطأ: لا يوجد جدول نشط لتصديره حالياً."); return; }
   
-  // إنشاء كائن العمل وتحويل الجداول البرمجية إلى جداول بيانات رسمية متوافقة مع ميكروسوفت إكسل
   const workBook = XLSX.utils.book_new();
   const workSheet = XLSX.utils.table_to_sheet(tableElement);
   
-  // ضبط اتجاه ورقة العمل لتكون من اليمين إلى اليسار تلقائياً لملائمة اللغة العربية في برامج الأوفيس
   workSheet['!dir'] = "rtl";
   
   XLSX.utils.book_append_sheet(workBook, workSheet, "سجل العلامات العام المؤسسي");
