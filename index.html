@@ -2,14 +2,14 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>وكيل المعلم الذكي</title>
+<title>وكيل المعلم الذكي - تلقائي</title>
 
 <style>
 body{
   font-family: Arial;
   max-width: 900px;
-  margin: auto;
-  padding: 20px;
+  margin:auto;
+  padding:20px;
   direction: rtl;
   background:#f5f5f5;
 }
@@ -43,11 +43,11 @@ button{cursor:pointer;}
 <body>
 
 <div class="box">
-<h2>🧠 وكيل المعلم الذكي</h2>
+<h2>🧠 وكيل المعلم الذكي (تلقائي)</h2>
 
 <button onclick="openKey()">🔑 إنشاء مفتاح</button>
 
-<input id="key" placeholder="أدخل مفتاح Gemini هنا">
+<input id="key" placeholder="أدخل مفتاح Gemini">
 
 <button onclick="saveKey()">💾 حفظ المفتاح</button>
 </div>
@@ -71,12 +71,10 @@ button{cursor:pointer;}
 
 <script>
 
-// فتح صفحة المفتاح
 function openKey(){
   window.open("https://aistudio.google.com/app/apikey","_blank");
 }
 
-// حفظ المفتاح محليًا
 function saveKey(){
   const key = document.getElementById("key").value.trim();
   if(!key){
@@ -87,27 +85,48 @@ function saveKey(){
   alert("تم الحفظ ✔");
 }
 
-// جلب المفتاح
 function getKey(){
   return localStorage.getItem("gemini_key");
 }
 
-// بناء التعليمات
+// جلب أفضل نموذج تلقائيًا
+async function getBestModel(key){
+  try{
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models?key=" + key
+    );
+
+    const data = await res.json();
+
+    if(!data.models) return null;
+
+    // اختر أول نموذج يدعم generateContent وفيه gemini
+    const model = data.models.find(m =>
+      m.name.includes("gemini") &&
+      m.supportedGenerationMethods?.includes("generateContent")
+    );
+
+    return model?.name || null;
+
+  }catch(e){
+    return null;
+  }
+}
+
 function buildPrompt(mode, text){
 
-  const base = "أنت وكيل معلم ذكي. أعطِ نتائج منظمة، دقيقة، قابلة للتطبيق مباشرة.";
+  const base = "أنت وكيل معلم محترف. أعطِ نتائج دقيقة، منظمة، وقابلة للتطبيق.";
 
   const tasks = {
     lesson: "صمم خطة درس كاملة (هدف، تمهيد، نشاط، تقويم).",
     worksheet: "أنشئ ورقة عمل تعليمية متدرجة.",
-    test: "أنشئ اختبارًا مع إجابات نموذجية.",
+    test: "أنشئ اختبارًا مع الإجابات النموذجية.",
     evaluation: "اكتب تقييمًا تربويًا وسلوكيًا لطالب."
   };
 
   return base + "\n" + tasks[mode] + "\nالموضوع: " + text;
 }
 
-// التشغيل الرئيسي
 async function run(){
 
   const key = getKey();
@@ -127,23 +146,35 @@ async function run(){
     return;
   }
 
+  document.getElementById("out").innerText =
+  "⏳ جاري اختيار النموذج المناسب...";
+
+  const model = await getBestModel(key);
+
+  if(!model){
+    document.getElementById("out").innerText =
+    "❌ لم يتم العثور على نموذج صالح في حسابك";
+    return;
+  }
+
   const prompt = buildPrompt(mode, text);
 
-  document.getElementById("out").innerText = "⏳ جاري التنفيذ...";
+  document.getElementById("out").innerText =
+  "⏳ جاري التنفيذ باستخدام:\n" + model;
 
   try{
 
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key,
+      "https://generativelanguage.googleapis.com/v1beta/" +
+      model +
+      ":generateContent?key=" + key,
       {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
-          contents:[
-            {
-              parts:[{ text: prompt }]
-            }
-          ]
+          contents:[{
+            parts:[{ text: prompt }]
+          }]
         })
       }
     );
@@ -152,15 +183,16 @@ async function run(){
 
     if(!res.ok){
       document.getElementById("out").innerText =
-      "❌ خطأ API:\n" + JSON.stringify(data, null, 2);
+      "❌ خطأ API:\n" + JSON.stringify(data,null,2);
       return;
     }
 
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if(!result){
       document.getElementById("out").innerText =
-      "❌ لا يوجد رد صالح:\n" + JSON.stringify(data, null, 2);
+      "❌ لا يوجد رد:\n" + JSON.stringify(data,null,2);
       return;
     }
 
