@@ -2,7 +2,13 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>نظام الكتاب التعليمي الذكي</title>
+<title>النظام الذكي الكامل للكتب</title>
+
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<!-- OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 body{
@@ -17,11 +23,11 @@ body{
 .box{
   background:white;
   padding:15px;
-  margin-bottom:15px;
   border-radius:10px;
+  margin-bottom:15px;
 }
 
-textarea,input,select,button{
+input, textarea, select, button{
   width:100%;
   padding:10px;
   margin-top:10px;
@@ -35,43 +41,40 @@ button{cursor:pointer}
   color:#0f0;
   padding:15px;
   border-radius:10px;
-  min-height:200px;
+  min-height:250px;
 }
 
-.small{
-  font-size:13px;
-  color:#555;
-}
+.small{font-size:12px;color:#555}
 </style>
 </head>
 
 <body>
 
 <div class="box">
-<h2>📘 النظام التعليمي الذكي من الكتاب</h2>
+<h2>📘 نظام تحليل الكتب الذكي (PDF + OCR)</h2>
 
 <button onclick="openKey()">🔑 إنشاء مفتاح</button>
-<input id="key" placeholder="أدخل المفتاح">
+<input id="key" placeholder="أدخل مفتاح Gemini">
 <button onclick="saveKey()">💾 حفظ المفتاح</button>
 </div>
 
 <div class="box">
-<h3>📚 رفع الكتاب (TXT فقط الآن)</h3>
-<input type="file" id="file">
-<button onclick="loadBook()">📥 تحميل الكتاب</button>
+<h3>📂 رفع الكتاب</h3>
+<input type="file" id="file" accept=".pdf">
+<button onclick="loadBook()">📥 تحليل الكتاب</button>
 <div id="status" class="small">لا يوجد كتاب</div>
 </div>
 
 <div class="box">
-<h3>⚙️ نوع الإخراج</h3>
+<h3>⚙️ نوع التحليل</h3>
 <select id="mode">
 <option value="full">تحضير كامل للكتاب</option>
-<option value="unit">وحدة واحدة</option>
-<option value="lesson">درس واحد</option>
+<option value="unit">وحدة</option>
+<option value="lesson">درس</option>
 </select>
 
-<input id="topic" placeholder="اكتب (وحدة / درس / موضوع)">
-<button onclick="run()">🚀 تشغيل التحليل</button>
+<input id="topic" placeholder="اكتب وحدة أو درس (اختياري)">
+<button onclick="run()">🚀 توليد المحتوى</button>
 </div>
 
 <div class="box">
@@ -83,13 +86,14 @@ button{cursor:pointer}
 
 let book = "";
 
+/* ===================== KEY ===================== */
+
 function openKey(){
   window.open("https://aistudio.google.com/app/apikey","_blank");
 }
 
 function saveKey(){
-  const key = document.getElementById("key").value.trim();
-  localStorage.setItem("key",key);
+  localStorage.setItem("key", document.getElementById("key").value.trim());
   alert("تم الحفظ");
 }
 
@@ -97,63 +101,96 @@ function getKey(){
   return localStorage.getItem("key");
 }
 
-function loadBook(){
-  const file = document.getElementById("file").files[0];
-  if(!file){ alert("اختر ملف"); return; }
+/* ===================== PDF + OCR ===================== */
 
-  const reader = new FileReader();
-  reader.onload = e=>{
-    book = e.target.result;
-    document.getElementById("status").innerText =
-      "✔ تم تحميل الكتاب ("+book.length+" حرف)";
-  };
-  reader.readAsText(file);
+async function loadBook(){
+
+  const file = document.getElementById("file").files[0];
+  if(!file){
+    alert("اختر ملف PDF");
+    return;
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+
+  let text = "";
+
+  for(let i=1;i<=pdf.numPages;i++){
+
+    const page = await pdf.getPage(i);
+
+    // 1) استخراج نص
+    const content = await page.getTextContent();
+    let pageText = content.items.map(i=>i.str).join(" ");
+
+    // 2) إذا النص ضعيف → OCR
+    if(pageText.trim().length < 20){
+
+      const viewport = page.getViewport({scale:2});
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({canvasContext:ctx, viewport}).promise;
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const ocr = await Tesseract.recognize(imgData,'ara+eng');
+
+      pageText = ocr.data.text;
+    }
+
+    text += pageText + "\n";
+  }
+
+  book = text;
+
+  document.getElementById("status").innerText =
+  "✔ تم تحليل الكتاب (" + text.length + " حرف)";
 }
 
-// بناء تعليمات قوية
+/* ===================== AI PROMPT ===================== */
+
 function buildPrompt(mode, topic){
 
   const base =
-`أنت نظام خبير في إعداد المناهج الدراسية.
+`أنت نظام خبير في إعداد المناهج.
 اعتمد فقط على الكتاب المرفق.
 لا تخترع معلومات خارج النص.`;
 
-  const context = "\n📘 الكتاب:\n" + book.slice(0, 25000);
+  const context = "\n📘 الكتاب:\n" + book.slice(0, 30000);
 
   let task = "";
 
   if(mode === "full"){
-    task =
-`حلل الكتاب بالكامل وقدم:
-1- تقسيمه إلى وحدات
-2- كل وحدة فيها دروس
-3- لكل درس:
-   - هدف
-   - تمهيد
-   - شرح
-   - نشاط
-   - تقويم
-4- لكل وحدة اختبار شامل
-5- أوراق عمل لكل درس`;
+task =
+`حلل الكتاب بالكامل و:
+- قسمه إلى وحدات
+- لكل وحدة دروس
+- لكل درس: هدف + شرح + نشاط + تقويم
+- أوراق عمل لكل درس
+- اختبار لكل وحدة
+- خطة تدريس كاملة`;
   }
 
   if(mode === "unit"){
-    task =
-`حلل الوحدة التالية فقط:
-"${topic}"
+task =
+`حلل الوحدة: "${topic}"
 واخرج:
-- دروسها
+- الدروس
 - خطة كل درس
 - أوراق عمل
 - اختبار وحدة`;
   }
 
   if(mode === "lesson"){
-    task =
-`حلل الدرس التالي فقط:
-"${topic}"
+task =
+`حلل الدرس: "${topic}"
 واخرج:
-- خطة درس كاملة
+- خطة درس
 - نشاط
 - ورقة عمل
 - تقويم`;
@@ -162,7 +199,8 @@ function buildPrompt(mode, topic){
   return base + context + "\n\n" + task;
 }
 
-// تشغيل النموذج
+/* ===================== RUN AI ===================== */
+
 async function run(){
 
   const key = getKey();
@@ -182,7 +220,7 @@ async function run(){
       {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({
+        body:JSON.stringify({
           contents:[{
             parts:[{ text: buildPrompt(mode,topic) }]
           }]
@@ -192,21 +230,17 @@ async function run(){
 
     const data = await res.json();
 
-    if(!res.ok){
-      document.getElementById("out").innerText =
-      JSON.stringify(data,null,2);
-      return;
-    }
-
     const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     document.getElementById("out").innerText =
-      result || "لا يوجد رد";
+      result || JSON.stringify(data,null,2);
 
   }catch(e){
     document.getElementById("out").innerText = e.message;
   }
 }
+
+/* ===================== PRINT ===================== */
 
 function printPage(){
   window.print();
