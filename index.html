@@ -2,12 +2,12 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>وكيل المعلم الذكي - تلقائي</title>
+<title>نظام الكتاب التعليمي الذكي</title>
 
 <style>
 body{
   font-family: Arial;
-  max-width: 900px;
+  max-width: 1000px;
   margin:auto;
   padding:20px;
   direction: rtl;
@@ -17,17 +17,17 @@ body{
 .box{
   background:white;
   padding:15px;
-  border-radius:10px;
   margin-bottom:15px;
+  border-radius:10px;
 }
 
-input, textarea, select, button{
+textarea,input,select,button{
   width:100%;
   padding:10px;
   margin-top:10px;
 }
 
-button{cursor:pointer;}
+button{cursor:pointer}
 
 #out{
   white-space:pre-wrap;
@@ -35,7 +35,12 @@ button{cursor:pointer;}
   color:#0f0;
   padding:15px;
   border-radius:10px;
-  min-height:120px;
+  min-height:200px;
+}
+
+.small{
+  font-size:13px;
+  color:#555;
 }
 </style>
 </head>
@@ -43,33 +48,40 @@ button{cursor:pointer;}
 <body>
 
 <div class="box">
-<h2>🧠 وكيل المعلم الذكي (تلقائي)</h2>
+<h2>📘 النظام التعليمي الذكي من الكتاب</h2>
 
 <button onclick="openKey()">🔑 إنشاء مفتاح</button>
-
-<input id="key" placeholder="أدخل مفتاح Gemini">
-
+<input id="key" placeholder="أدخل المفتاح">
 <button onclick="saveKey()">💾 حفظ المفتاح</button>
 </div>
 
 <div class="box">
-<select id="mode">
-  <option value="lesson">خطة درس</option>
-  <option value="worksheet">ورقة عمل</option>
-  <option value="test">اختبار</option>
-  <option value="evaluation">تقييم طالب</option>
-</select>
-
-<textarea id="input" rows="5" placeholder="اكتب الموضوع..."></textarea>
-
-<button onclick="run()">🚀 تشغيل</button>
+<h3>📚 رفع الكتاب (TXT فقط الآن)</h3>
+<input type="file" id="file">
+<button onclick="loadBook()">📥 تحميل الكتاب</button>
+<div id="status" class="small">لا يوجد كتاب</div>
 </div>
 
 <div class="box">
-<div id="out">النتيجة ستظهر هنا...</div>
+<h3>⚙️ نوع الإخراج</h3>
+<select id="mode">
+<option value="full">تحضير كامل للكتاب</option>
+<option value="unit">وحدة واحدة</option>
+<option value="lesson">درس واحد</option>
+</select>
+
+<input id="topic" placeholder="اكتب (وحدة / درس / موضوع)">
+<button onclick="run()">🚀 تشغيل التحليل</button>
+</div>
+
+<div class="box">
+<button onclick="printPage()">🖨 طباعة</button>
+<div id="out">النتائج ستظهر هنا...</div>
 </div>
 
 <script>
+
+let book = "";
 
 function openKey(){
   window.open("https://aistudio.google.com/app/apikey","_blank");
@@ -77,103 +89,102 @@ function openKey(){
 
 function saveKey(){
   const key = document.getElementById("key").value.trim();
-  if(!key){
-    alert("أدخل المفتاح");
-    return;
-  }
-  localStorage.setItem("gemini_key", key);
-  alert("تم الحفظ ✔");
+  localStorage.setItem("key",key);
+  alert("تم الحفظ");
 }
 
 function getKey(){
-  return localStorage.getItem("gemini_key");
+  return localStorage.getItem("key");
 }
 
-// جلب أفضل نموذج تلقائيًا
-async function getBestModel(key){
-  try{
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models?key=" + key
-    );
+function loadBook(){
+  const file = document.getElementById("file").files[0];
+  if(!file){ alert("اختر ملف"); return; }
 
-    const data = await res.json();
-
-    if(!data.models) return null;
-
-    // اختر أول نموذج يدعم generateContent وفيه gemini
-    const model = data.models.find(m =>
-      m.name.includes("gemini") &&
-      m.supportedGenerationMethods?.includes("generateContent")
-    );
-
-    return model?.name || null;
-
-  }catch(e){
-    return null;
-  }
-}
-
-function buildPrompt(mode, text){
-
-  const base = "أنت وكيل معلم محترف. أعطِ نتائج دقيقة، منظمة، وقابلة للتطبيق.";
-
-  const tasks = {
-    lesson: "صمم خطة درس كاملة (هدف، تمهيد، نشاط، تقويم).",
-    worksheet: "أنشئ ورقة عمل تعليمية متدرجة.",
-    test: "أنشئ اختبارًا مع الإجابات النموذجية.",
-    evaluation: "اكتب تقييمًا تربويًا وسلوكيًا لطالب."
+  const reader = new FileReader();
+  reader.onload = e=>{
+    book = e.target.result;
+    document.getElementById("status").innerText =
+      "✔ تم تحميل الكتاب ("+book.length+" حرف)";
   };
-
-  return base + "\n" + tasks[mode] + "\nالموضوع: " + text;
+  reader.readAsText(file);
 }
 
+// بناء تعليمات قوية
+function buildPrompt(mode, topic){
+
+  const base =
+`أنت نظام خبير في إعداد المناهج الدراسية.
+اعتمد فقط على الكتاب المرفق.
+لا تخترع معلومات خارج النص.`;
+
+  const context = "\n📘 الكتاب:\n" + book.slice(0, 25000);
+
+  let task = "";
+
+  if(mode === "full"){
+    task =
+`حلل الكتاب بالكامل وقدم:
+1- تقسيمه إلى وحدات
+2- كل وحدة فيها دروس
+3- لكل درس:
+   - هدف
+   - تمهيد
+   - شرح
+   - نشاط
+   - تقويم
+4- لكل وحدة اختبار شامل
+5- أوراق عمل لكل درس`;
+  }
+
+  if(mode === "unit"){
+    task =
+`حلل الوحدة التالية فقط:
+"${topic}"
+واخرج:
+- دروسها
+- خطة كل درس
+- أوراق عمل
+- اختبار وحدة`;
+  }
+
+  if(mode === "lesson"){
+    task =
+`حلل الدرس التالي فقط:
+"${topic}"
+واخرج:
+- خطة درس كاملة
+- نشاط
+- ورقة عمل
+- تقويم`;
+  }
+
+  return base + context + "\n\n" + task;
+}
+
+// تشغيل النموذج
 async function run(){
 
   const key = getKey();
+  if(!key){ alert("أدخل المفتاح"); return; }
 
-  if(!key){
-    document.getElementById("out").innerText =
-    "⚠ أدخل المفتاح أولاً";
-    return;
-  }
+  if(!book){ alert("ارفع الكتاب أولاً"); return; }
 
   const mode = document.getElementById("mode").value;
-  const text = document.getElementById("input").value.trim();
+  const topic = document.getElementById("topic").value;
 
-  if(!text){
-    document.getElementById("out").innerText =
-    "⚠ اكتب الموضوع أولاً";
-    return;
-  }
-
-  document.getElementById("out").innerText =
-  "⏳ جاري اختيار النموذج المناسب...";
-
-  const model = await getBestModel(key);
-
-  if(!model){
-    document.getElementById("out").innerText =
-    "❌ لم يتم العثور على نموذج صالح في حسابك";
-    return;
-  }
-
-  const prompt = buildPrompt(mode, text);
-
-  document.getElementById("out").innerText =
-  "⏳ جاري التنفيذ باستخدام:\n" + model;
+  document.getElementById("out").innerText = "⏳ جاري المعالجة...";
 
   try{
 
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/" +
-      model +
-      ":generateContent?key=" + key,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="+key,
       {
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
+        headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
           contents:[{
-            parts:[{ text: prompt }]
+            parts:[{ text: buildPrompt(mode,topic) }]
           }]
         })
       }
@@ -183,25 +194,22 @@ async function run(){
 
     if(!res.ok){
       document.getElementById("out").innerText =
-      "❌ خطأ API:\n" + JSON.stringify(data,null,2);
+      JSON.stringify(data,null,2);
       return;
     }
 
-    const result =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if(!result){
-      document.getElementById("out").innerText =
-      "❌ لا يوجد رد:\n" + JSON.stringify(data,null,2);
-      return;
-    }
-
-    document.getElementById("out").innerText = result;
-
-  }catch(err){
     document.getElementById("out").innerText =
-    "❌ خطأ اتصال:\n" + err.message;
+      result || "لا يوجد رد";
+
+  }catch(e){
+    document.getElementById("out").innerText = e.message;
   }
+}
+
+function printPage(){
+  window.print();
 }
 
 </script>
