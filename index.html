@@ -7,9 +7,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
-/* التصميم الأساسي: بسيط، نظيف، وموجه تماماً للكفاءة التشغيلية */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -28,7 +28,6 @@ body {
   margin: 0 auto;
 }
 
-/* الترويسة الرئيسية الرسمية */
 .main-header {
   background: #1e3a8a;
   color: #ffffff;
@@ -101,7 +100,40 @@ button {
 .btn-dark { background: #334155; color: white; }
 .btn-dark:hover { background: #1e293b; }
 
-/* تبويبات التنقل السريع */
+/* خط التحميل البصري النبضي لبيان استمرار العمل */
+.progress-container {
+  display: none;
+  margin: 15px 0;
+  background: #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  height: 12px;
+}
+
+.progress-bar-pulse {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+}
+
+@keyframes loadingPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.status-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-top: 5px;
+  display: none;
+  text-align: center;
+}
+
+/* تبويبات التنقل */
 .tabs-nav {
   display: flex;
   gap: 5px;
@@ -126,7 +158,6 @@ button {
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* النوافذ الإنتاجية للمخرجات النصية */
 .output-view {
   white-space: pre-wrap;
   background: #ffffff;
@@ -138,7 +169,6 @@ button {
   line-height: 1.7;
 }
 
-/* الجداول وسجلات الرصد الرقمي */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -156,12 +186,8 @@ th { background: #f8fafc; color: #1e3a8a; }
 .print-preview-value { display: none; }
 #print-header-sheet { display: none; }
 
-/* =======================================================
-   إصلاح شامل ومطلق لنظام الطباعة: إظهار المحتوى النشط فقط 
-   ======================================================= */
 @media print {
-  /* إخفاء كافة لوحات التحكم والمدخلات والأزرار والتبويبات كلياً */
-  .main-header, .card:not(.printable-zone), button, input, select, textarea, .tabs-nav, .no-print {
+  .main-header, .card:not(.printable-zone), button, input, select, textarea, .tabs-nav, .no-print, .progress-container, .status-text {
     display: none !important;
   }
   
@@ -174,11 +200,8 @@ th { background: #f8fafc; color: #1e3a8a; }
     display: block !important;
   }
 
-  /* إجبار التبويب الفعلي المفتوح حالياً فقط على الظهور */
   .tab-content { display: none !important; }
-  .tab-content.active { 
-    display: block !important; 
-  }
+  .tab-content.active { display: block !important; }
 
   .card.printable-zone {
     border: none !important;
@@ -187,7 +210,6 @@ th { background: #f8fafc; color: #1e3a8a; }
     display: block !important;
   }
 
-  /* إظهار النص المولد النظيف داخل الحاوية */
   .output-view {
     border: none !important;
     padding: 0 !important;
@@ -197,7 +219,6 @@ th { background: #f8fafc; color: #1e3a8a; }
     white-space: pre-wrap !important;
   }
 
-  /* تنسيق الجداول والشبكات على الورق */
   table {
     border: 1px solid #000000 !important;
     width: 100% !important;
@@ -213,11 +234,9 @@ th { background: #f8fafc; color: #1e3a8a; }
 
   th { background: #eaeaea !important; }
 
-  /* معالجة حقول الإدخال في جدول العلامات لتظهر كنصوص صلبة */
   td input[type="number"] { display: none !important; }
   .print-preview-value { display: inline !important; font-weight: bold !important; }
 
-  /* تفعيل ترويسة ورقة الطباعة الرسمية العليا */
   #print-header-sheet {
     display: block !important;
     width: 100%;
@@ -235,7 +254,7 @@ th { background: #f8fafc; color: #1e3a8a; }
   
   <header class="main-header">
     <h2>النظام التعليمي الموحد واللوحة الإنتاجية الشاملة</h2>
-    <p style="font-size: 13px; margin-top: 5px; color: #93c5fd;">نظام متكامل لإنتاج الخطط والأنشطة والامتحانات وسجلات الرصد</p>
+    <p style="font-size: 13px; margin-top: 5px; color: #93c5fd;">نظام متكامل لإنتاج الخطط والأنشطة والامتحانات وسجلات الرصد بالأرقام المشرقية (٠١٢٣٤٥٦٧٨٩)</p>
   </header>
 
   <div id="print-header-sheet">
@@ -272,16 +291,27 @@ th { background: #f8fafc; color: #1e3a8a; }
 
     <div class="grid-2" style="margin-top: 10px;">
       <div class="form-group">
-        <label>قائمة أسماء الطلاب (اسم واحد في كل سطر):</label>
-        <textarea id="inp_students" rows="4" placeholder="أدخل أسماء الطلاب هنا..."></textarea>
+        <label>قائمة أسماء الطلاب (نص مباشر، أو مستخرجة تلقائياً):</label>
+        <textarea id="inp_students" rows="6" placeholder="أدخل أسماء الطلاب هنا، أو استخدم خيارات استخراج الأسماء بالجانب الأيسر..."></textarea>
       </div>
-      <div class="form-group">
-        <label>وثيقة المنهج أو الكتاب المصدري (PDF):</label>
-        <input type="file" id="pdf_file" accept=".pdf">
-        <button onclick="readPDF()" class="btn-blue" style="width: 100%; margin-top: 10px;">قراءة واستخلاص نصوص الملف</button>
-        <div id="pdf_status" style="font-size: 12px; margin-top: 5px; color: #475569;">حالة المستند: لم يتم تحميل ملف</div>
+      
+      <div class="form-group" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1;">
+        <label style="color: #1e3a8a;">📷 استخراج الكشف عبر التصوير أو ملف صلب:</label>
+        <input type="file" id="image_or_file" accept="image/*, application/pdf" style="margin-bottom: 8px;">
+        <button onclick="extractStudentNames()" class="btn-blue" style="width: 100%;">استخراج الأسماء وتحديث القائمة</button>
+        
+        <div style="margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
+          <label>وثيقة المنهج أو الكتاب المصدري للتحليل الأساسي (PDF):</label>
+          <input type="file" id="pdf_file" accept=".pdf">
+          <button onclick="readPDF()" class="btn-dark" style="width: 100%; margin-top: 8px;">قراءة واستخلاص نصوص كتاب المنهج</button>
+        </div>
       </div>
     </div>
+
+    <div class="progress-container" id="global_progress_container">
+      <div class="progress-bar-pulse"></div>
+    </div>
+    <div class="status-text" id="global_status_text">جاري العمل المعمق حالياً... يرجى الانتظار</div>
 
     <div class="grid-3" style="margin-top: 10px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
       <div class="form-group">
@@ -303,11 +333,11 @@ th { background: #f8fafc; color: #1e3a8a; }
   </div>
 
   <div class="tabs-nav no-print">
-    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 1. خطط الدروس</div>
-    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 2. أوراق العمل</div>
-    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 3. الامتحانات والأجوبة</div>
-    <div class="tab-link" onclick="openTab('sec_rubrics', this)">📊 4. مؤشرات الأداء والتحليل</div>
-    <div class="tab-link" onclick="openTab('sec_grades', this)">🗂️ 5. السجل الرقمي والمصفوفة</div>
+    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 ١. خطط الدروس</div>
+    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 ٢. أوراق العمل</div>
+    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 ٣. الامتحانات والأجوبة</div>
+    <div class="tab-link" onclick="openTab('sec_rubrics', this)">📊 ٤. مؤشرات الأداء والتحليل</div>
+    <div class="tab-link" onclick="openTab('sec_grades', this)">🗂️ ٥. السجل الرقمي والمصفوفة</div>
   </div>
 
   <div id="sec_plans" class="tab-content active">
@@ -346,7 +376,7 @@ th { background: #f8fafc; color: #1e3a8a; }
         <button onclick="printView('سجل رصد علامات وتقييم الأداء السنوي للطلاب')" class="btn-dark">🖨️ طباعة كشف العلامات</button>
       </div>
       <div id="sheet_container" style="overflow-x: auto;">
-        <p style="color: #64748b;">السجل غير نشط. يرجى إدخال أسماء الطلاب في لوحة التحكم العلوية ثم الضغط على بناء الكشف.</p>
+        <p style="color: #64748b;">السجل غير نشط. يرجى إدخال أسماء الطلاب في لوحة التحكم العلوية أو استخراجها تلقائياً ثم الضغط على بناء الكشف.</p>
       </div>
     </div>
   </div>
@@ -354,9 +384,26 @@ th { background: #f8fafc; color: #1e3a8a; }
 </div>
 
 <script>
-// الهيكل البرمجي الحاكم والمخزن للبيانات والمخرجات بشكل معزول
 let contextDataText = "";
 let systemOutputs = { plans: "", worksheets: "", exams: "", rubrics: "" };
+
+// دالة تحويل أرقام النظام (0-9) إلى أرقام مشرقية (٠-٩) حصرياً لضمان العرض والطباعة الموحدة
+function toEasternNumerals(num) {
+  if (num === null || num === undefined) return "";
+  const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return num.toString().replace(/[0-9]/g, function(w) {
+    return easternDigits[+w];
+  });
+}
+
+// دالة تحويل نصوص المخرجات بالكامل إلى الأرقام المشرقية في الرياضيات
+function convertTextToEasternNumerals(text) {
+  if (!text) return "";
+  const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return text.replace(/[0-9]/g, function(w) {
+    return easternDigits[+w];
+  });
+}
 
 window.onload = function() {
   const savedKey = localStorage.getItem('app_secure_key');
@@ -382,13 +429,70 @@ function printView(title) {
   window.print();
 }
 
-// قراءة وثيقة المنهج والـ PDF بكفاءة
+function showProgress(statusMessage) {
+  document.getElementById("global_progress_container").style.display = "block";
+  const statusTxt = document.getElementById("global_status_text");
+  statusTxt.style.display = "block";
+  statusTxt.innerText = statusMessage;
+}
+
+function hideProgress() {
+  document.getElementById("global_progress_container").style.display = "none";
+  document.getElementById("global_status_text").style.display = "none";
+}
+
+async function extractStudentNames() {
+  const fileInput = document.getElementById("image_or_file");
+  const file = fileInput.files[0];
+  if (!file) { alert("الرجاء إرفاق كشف مصور أو ملف أولاً لاستخراج الأسماء."); return; }
+
+  showProgress("⏳ جاري تحليل المستند المرفق واستخلاص كشف الأسماء بدقة عبر محرك القراءة البصرية...");
+
+  try {
+    if (file.type.startsWith("image/")) {
+      const result = await Tesseract.recognize(file, 'ara', { logger: m => console.log(m) });
+      processExtractedText(result.data.text);
+    } else if (file.type === "application/pdf") {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+      let text = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(" ") + "\n";
+      }
+      processExtractedText(text);
+    } else {
+      alert("نوع الملف غير مدعوم. يرجى إدراج صورة كشف أو ملف PDF.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("حدث خطأ أثناء معالجة الملف واستخراج الأسماء.");
+  } finally {
+    hideProgress();
+  }
+}
+
+function processExtractedText(rawText) {
+  const lines = rawText.split('\n');
+  const cleanedNames = lines
+    .map(line => line.trim())
+    .filter(line => line.length > 4 && !/^\d+$/.test(line) && !line.includes("الصف") && !line.includes("العلامات"));
+
+  if (cleanedNames.length > 0) {
+    document.getElementById("inp_students").value = cleanedNames.join('\n');
+    buildGradeSheet();
+    alert(`✔ تم استخراج عدد (${toEasternNumerals(cleanedNames.length)}) اسماً وإدراجهم بنجاح داخل النظام وقوائم الرصد.`);
+  } else {
+    alert("لم يتم العثور على نصوص واضحة لأسماء الطلاب. يرجى التحقق من دقة وجودة الصورة المرفقة.");
+  }
+}
+
 async function readPDF() {
   const file = document.getElementById("pdf_file").files[0];
   if(!file) { alert("الرجاء تحديد ملف الـ PDF أولاً."); return; }
   
-  const status = document.getElementById("pdf_status");
-  status.innerText = "جاري قراءة واستخلاص نصوص ملف الـ PDF محلياً...";
+  showProgress("⏳ جاري قراءة واستخلاص نصوص كتاب المنهج المرجعي محلياً وبشكل معمق...");
   
   try {
     const arrayBuffer = await file.arrayBuffer();
@@ -402,53 +506,49 @@ async function readPDF() {
       text += content.items.map(item => item.str).join(" ") + "\n";
     }
     contextDataText = text;
-    status.innerText = `✔ تم استخلاص المادة المرجعية بنجاح (${pageLimit} صفحة جاهزة في السياق)`;
+    alert(`✔ تم استخلاص المادة المرجعية بنجاح (${toEasternNumerals(pageLimit)} صفحة جاهزة في السياق)`);
   } catch(e) {
-    status.innerText = "❌ حدث خطأ أثناء معالجة وقراءة ملف الـ PDF.";
+    alert("❌ حدث خطأ أثناء معالجة وقراءة ملف الـ PDF المنهجي.");
     console.error(e);
+  } finally {
+    hideProgress();
   }
 }
 
-// مهندس صياغة الـ Prompts المقيد والصارم لإنتاج المحتوى الكامل بدون دمج أو اختصارات
 function createPromptBlock(mode, topic, type) {
   const teacher = document.getElementById("inp_teacher").value.trim() || "المعلم المعتمد";
   const school = document.getElementById("inp_school").value.trim() || "المؤسسة التعليمية";
   const directorate = document.getElementById("inp_directorate").value.trim() || "مديرية التربية";
   const students = document.getElementById("inp_students").value.trim() || "طلاب الصف الدراسي";
   
-  const refContext = contextDataText ? contextDataText.slice(0, 26000) : "لا يوجد ملف كتاب مرفق. اعتمد كلياً على المعايير المنهجية الرسمية المعتمدة لهذه الفئة العمرية للطلاب.";
-  
+  const refContext = contextDataText ? contextDataText.slice(0, 26000) : "لا يوجد ملف كتاب مرفق. اعتمد كلياً على المعايير المنهجية المعتمدة لهذه الفئة العمرية للطلاب.";
   const headerSection = `[المؤسسة: ${school} | المديرية: ${directorate} | المعلم: ${teacher}]\n[قائمة أسماء الطلاب المستهدفين برصد الأداء والسلوك:\n${students}]\n`;
 
   const coreRules = `أنت موجه تربوي ومصمم مناهج خبير ملتزم بمعايير الجودة الأكاديمية (ISO 21001).
 يجب كتابة المحتوى كاملاً، مفصلاً، شاملاً، وجاهزاً تماماً للطباعة والاستخدام الفوري.
-ممنوع منعاً باتاً ونهائياً دمج الأقسام أو اللجوء للتلخيص أو إخراج هياكل فارغة أو شروحات نصية جانبية للمستخدم. صمم المادة التدريبية والتقييمية مباشرة لتلائم المرحلة بدقة.`;
+ممنوع منعاً باتاً ونهائياً دمج الأقسام أو اللجوء للتلخيص أو إخراج هياكل فارغة.
+شريطة إلزامية: صياغة وكتابة كافة الأعداد والمسائل الرياضية والكسور والرموز الحسابية باستخدام الأرقام المشرقية حصرياً (٠، ١، ٢، ٣، ٤، ٥، ٦، ٧، ٨، ٩) ويمنع تماماً استخدام الأرقام الغربية.`;
 
   let subTask = "";
   if(type === "plans") {
-    subTask = `المخرج المطلوب حصرياً: توليد خطط الدروس التفصيلية والكاملة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).
-اكتب الخطة الكاملة لكل درس بشكل منفصل مشتملة وجوباً على: عنوان الدرس الدقيق، الأهداف السلوكية الإجرائية القابلة للقياس (معرفي، مهاري، وجداني)، سيناريو التمهيد المشوق، استراتيجية الشرح التفصيلية، النشاط العملي التطبيقي داخل الصف، وأدوات التقويم الختامي الفوري.`;
+    subTask = `المخرج المطلوب حصرياً: توليد خطط الدروس التفصيلية والكاملة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nاكتب الخطة الكاملة لكل درس مشتملة على: العنوان، الأهداف السلوكية الإجرائية (معرفي، مهاري، وجداني)، سيناريو التمهيد، استراتيجية الشرح، النشاط العملي التطبيقي، وأدوات التقويم الختامي.`;
   }
   else if(type === "worksheets") {
-    subTask = `المخرج المطلوب حصرياً: تصميم وبناء بنك أوراق العمل الكاملة والأنشطة التطبيقية الموجهة لقياس الفروق الفردية لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).
-صمم لكل درس ورقة عمل مستقلة بذاتها تشتمل على أسئلة تطبيقية شاملة ومتنوعة: أسئلة موضوعية (إكمال الفراغ بالعبارات الدقيقة)، أسئلة الاختيار من متعدد مع الخيارات الذكية، وتدريبات ومسائل عملية إنتاجية مباشرة تلائم مستويات الفهم للطلاب.`;
+    subTask = `المخرج المطلوب حصرياً: تصميم وبناء بنك أوراق العمل الكاملة والأنشطة التطبيقية الموجهة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nصمم لكل درس ورقة عمل مستقلة تشتمل على: أسئلة موضوعية (إكمال الفراغ)، أسئلة الاختيار من متعدد، وتدريبات ومسائل عملية إنتاجية مباشرة بالرموز والأرقام المشرقية.`;
   }
   else if(type === "exams") {
-    subTask = `المخرج المطلوب حصرياً: صياغة وتصميم الاختبارات الرسمية التقييمية ومصفوفة علاماتها لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).
-صمم امتحاناً هيكلياً منظماً مقسماً لأسئلة واضحة ومحددة مع علامات مرصودة لكل بند. ويجب توفير ملحق إلزامي كامل في نهاية التقرير يحتوي على نموذج الإجابة التفصيلي النهائي والحلول النموذجية الشاملة لكل جزئية بلا أي اختصار.`;
+    subTask = `المخرج المطلوب حصرياً: صياغة وتصميم الاختبارات الرسمية التقييمية ومصفوفة علاماتها لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nصمم امتحاناً هيكلياً منظماً مع علامات مرصودة لكل بند بالأرقام المشرقية، ويجب توفير ملحق كامل في النهاية يحتوي على نموذج الإجابة والحلول النموذجية الشاملة.`;
   }
   else if(type === "rubrics") {
-    subTask = `المخرج المطلوب حصرياً: صياغة وتوليد بطاقات الملاحظة وقوائم الرصد لأسماء الطلاب المدرجين لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).
-أنشئ مصفوفة وأداة رصد متكاملة مقسمة تقسيماً صارماً إلى المحاور الثلاثة الأساسية لتطور الطلاب: المحور المعرفي (مؤشرات استيعاب المفاهيم)، المحور المهاري (مؤشرات التطبيق وحل المسائل والمشاركة الفعالة)، والمور السلوكي (مؤشرات الالتزام والانضباط والتفاعل الإيجابي مع زملائه والمعلم).`;
+    subTask = `المخرج المطلوب حصرياً: صياغة وتوليد بطاقات الملاحظة وقوائم الرصد لأسماء الطلاب المدرجين لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nأنشئ مصفوفة رصد متكاملة مقسمة إلى: المحور المعرفي، المحور المهاري (مؤشرات التطبيق العملي الفعلي للطلاب)، والمحور السلوكي (مؤشرات الانضباط والتفاعل الإيجابي).`;
   }
 
   return `${coreRules}\n\n${headerSection}\n\nالمادة المرجعية المستخلصة:\n${refContext}\n\n${subTask}`;
 }
 
-// محرك الاتصال بواجهة غوغل لطلب التوليد والمعالجة التربوية
 async function callGemini(promptText) {
   const key = localStorage.getItem("app_secure_key");
-  if(!key) { alert("خطأ: لم يتم العثور على مفتاح API معتمد في لوحة التحكم."); return null; }
+  if(!key) { alert("خطأ: لم يتم العثور على مفتاح API معتمد."); return null; }
 
   try {
     const response = await fetch(
@@ -460,14 +560,14 @@ async function callGemini(promptText) {
       }
     );
     const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ حدث خطأ أثناء جلب المخرجات والتقارير من الخادم.";
+    let resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ حدث خطأ أثناء جلب المخرجات.";
+    return convertTextToEasternNumerals(resultText);
   } catch(e) {
     console.error(e);
     return "❌ خطأ في الاتصال بالشبكة السحابية.";
   }
 }
 
-// التبديل السلس بين شاشات العرض داخل لوحة التحكم لضمان عزل البيانات
 function openTab(tabId, el) {
   const contents = document.querySelectorAll('.tab-content');
   contents.forEach(c => c.classList.remove('active'));
@@ -479,53 +579,49 @@ function openTab(tabId, el) {
   el.classList.add('active');
 }
 
-// إطلاق خط المعالجة والإنتاج المتوازي للمخرجات الأربعة بشكل مستقل تماماً
 async function launchPipeline() {
   const mode = document.getElementById("generation_mode").value;
   const topic = document.getElementById("generation_topic").value.trim();
 
   if(!topic && mode !== 'full') {
-    alert("يرجى إدخال عنوان الوحدة أو الدرس المراد بناؤه بدقة.");
+    alert("يرجى إدخال عنوان الوحدة أو الدرس المراد بناؤه.");
     return;
   }
+
+  showProgress("🚀 جاري معالجة مخرجات النظام الشامل وإنتاج الخطط والأنشطة والامتحانات ومصفوفات الرصد بالتوازي ككتلة كاملة بالأرقام المشرقية...");
 
   document.getElementById("view_plans").innerText = "⏳ جاري توليد وصياغة خطط وجدولة الدروس التفصيلية...";
   document.getElementById("view_worksheets").innerText = "⏳ جاري تصميم وبناء بنك أوراق العمل والأنشطة التطبيقية...";
   document.getElementById("view_exams").innerText = "⏳ جاري إعداد وصياغة الاختبارات وبناء أدلة الإجابة النموذجية...";
   document.getElementById("view_rubrics").innerText = "⏳ جاري هندسة قوائم ومصفوفات الرصد الفردية ومؤشرات الأداء للطلاب...";
 
-  // 1. توليد الخطط التعليمية والتشغيلية
   const p1 = createPromptBlock(mode, topic, "plans");
   systemOutputs.plans = await callGemini(p1);
   document.getElementById("view_plans").innerText = systemOutputs.plans;
 
-  // 2. توليد بنك أوراق العمل والأنشطة
   const p2 = createPromptBlock(mode, topic, "worksheets");
   systemOutputs.worksheets = await callGemini(p2);
   document.getElementById("view_worksheets").innerText = systemOutputs.worksheets;
 
-  // 3. توليد الامتحانات ونماذج الحلول
   const p3 = createPromptBlock(mode, topic, "exams");
   systemOutputs.exams = await callGemini(p3);
   document.getElementById("view_exams").innerText = systemOutputs.exams;
 
-  // 4. توليد بطاقات الرصد ومؤشرات الأداء
   const p4 = createPromptBlock(mode, topic, "rubrics");
   systemOutputs.rubrics = await callGemini(p4);
   document.getElementById("view_rubrics").innerText = systemOutputs.rubrics;
 
-  // بناء وحوسبة مصفوفة سجل علامات الطلاب فوراً بعد انتهاء التوليد
   buildGradeSheet();
-  alert("✔ اكتملت عمليات المعالجة بنجاح. تم فرز كافة التقارير والمخرجات داخل تبويباتها المعزولة وهي جاهزة تماماً للتطبيق أو الطباعة.");
+  hideProgress();
+  alert("✔ اكتملت عمليات المعالجة بنجاح. تم فرز كافة التقارير والمخرجات داخل تبويباتها المعزولة بالأعداد المشرقية.");
 }
 
-// البناء التفاعلي الرياضي المؤتمت لمصفوفة رصد درجات الطلاب وحوسبة المجاميع فورياً
 function buildGradeSheet() {
   const rawText = document.getElementById("inp_students").value.trim();
   const container = document.getElementById("sheet_container");
   
   if(!rawText) {
-    container.innerHTML = "<b style='color:#ef4444; font-size:13px;'>يرجى إدخال أسماء الطلاب في لوحة التحكم العلوية أولاً لتفعيل السجل الرقمي للعلامات.</b>";
+    container.innerHTML = "<b style='color:#ef4444; font-size:13px;'>يرجى إدخال أسماء الطلاب أو استخراجها لتفعيل السجل الرقمي للعلامات.</b>";
     return;
   }
   
@@ -534,11 +630,11 @@ function buildGradeSheet() {
     <thead>
       <tr>
         <th>اسم الطالب ثلاثي / رباعي</th>
-        <th>المحور المعرفي (20)</th>
-        <th>المحور المهاري (20)</th>
-        <th>المحور السلوكي (20)</th>
-        <th>الامتحان النهائي (40)</th>
-        <th>المجموع العام (100)</th>
+        <th>المحور المعرفي (${toEasternNumerals(20)})</th>
+        <th>المحور المهاري (${toEasternNumerals(20)})</th>
+        <th>المحور السلوكي (${toEasternNumerals(20)})</th>
+        <th>الامتحان النهائي (${toEasternNumerals(40)})</th>
+        <th>المجموع العام (${toEasternNumerals(100)})</th>
       </tr>
     </thead>
     <tbody>`;
@@ -548,22 +644,22 @@ function buildGradeSheet() {
     html += `<tr>
       <td style="font-weight: 600; text-align: right; color: #1e3a8a;">${name.trim()}</td>
       <td>
-        <input type="number" id="cog_${idx}" min="0" max="20" placeholder="0" oninput="runMath(${idx})">
-        <span class="print-preview-value" id="lbl_cog_${idx}">0</span>
+        <input type="number" id="cog_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})">
+        <span class="print-preview-value" id="lbl_cog_${idx}">٠</span>
       </td>
       <td>
-        <input type="number" id="sk_${idx}" min="0" max="20" placeholder="0" oninput="runMath(${idx})">
-        <span class="print-preview-value" id="lbl_sk_${idx}">0</span>
+        <input type="number" id="sk_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})">
+        <span class="print-preview-value" id="lbl_sk_${idx}">٠</span>
       </td>
       <td>
-        <input type="number" id="beh_${idx}" min="0" max="20" placeholder="0" oninput="runMath(${idx})">
-        <span class="print-preview-value" id="lbl_beh_${idx}">0</span>
+        <input type="number" id="beh_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})">
+        <span class="print-preview-value" id="lbl_beh_${idx}">٠</span>
       </td>
       <td>
-        <input type="number" id="fin_${idx}" min="0" max="40" placeholder="0" oninput="runMath(${idx})">
-        <span class="print-preview-value" id="lbl_fin_${idx}">0</span>
+        <input type="number" id="fin_${idx}" min="0" max="40" placeholder="٠" oninput="runMath(${idx})">
+        <span class="print-preview-value" id="lbl_fin_${idx}">٠</span>
       </td>
-      <td id="tot_${idx}" style="font-weight: bold; font-size: 15px; background: #f8fafc;">0</td>
+      <td id="tot_${idx}" style="font-weight: bold; font-size: 15px; background: #f8fafc;">٠</td>
     </tr>`;
   });
   
@@ -571,22 +667,20 @@ function buildGradeSheet() {
   container.innerHTML = html;
 }
 
-// محرك الحوسبة الرياضية الفورية لمصفوفة العلامات ومزامنة قيم شاشة الطباعة الفورية
 function runMath(idx) {
   const cog = parseFloat(document.getElementById(`cog_${idx}`).value) || 0;
   const sk = parseFloat(document.getElementById(`sk_${idx}`).value) || 0;
   const beh = parseFloat(document.getElementById(`beh_${idx}`).value) || 0;
   const fin = parseFloat(document.getElementById(`fin_${idx}`).value) || 0;
   
-  // ترحيل القيم فورياً إلى حقول الطباعة الورقية الثابتة لمنع اختفائها أثناء الطباعة
-  document.getElementById(`lbl_cog_${idx}`).innerText = cog;
-  document.getElementById(`lbl_sk_${idx}`).innerText = sk;
-  document.getElementById(`lbl_beh_${idx}`).innerText = beh;
-  document.getElementById(`lbl_fin_${idx}`).innerText = fin;
+  document.getElementById(`lbl_cog_${idx}`).innerText = toEasternNumerals(cog);
+  document.getElementById(`lbl_sk_${idx}`).innerText = toEasternNumerals(sk);
+  document.getElementById(`lbl_beh_${idx}`).innerText = toEasternNumerals(beh);
+  document.getElementById(`lbl_fin_${idx}`).innerText = toEasternNumerals(fin);
   
   const total = cog + sk + beh + fin;
   const cell = document.getElementById(`tot_${idx}`);
-  cell.innerText = total;
+  cell.innerText = toEasternNumerals(total);
   
   if(total >= 50) {
     cell.style.color = "#10b981";
@@ -595,16 +689,13 @@ function runMath(idx) {
   }
 }
 
-// تصدير كشوف العلامات والمصفوفة إلى ملفات Excel رسمية (XLSX) عبر مكتبة SheetJS
 function exportExcelSheet() {
   const table = document.getElementById("tbl_grades_data");
   if(!table) { alert("خطأ: لا يوجد جدول علامات نشط لتصديره."); return; }
   
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.table_to_sheet(table);
-  
-  ws['!dir'] = "rtl"; // ضبط اتجاه ورقة العمل من اليمين إلى اليسار تلقائياً داخل Excel
-  
+  ws['!dir'] = "rtl";
   XLSX.utils.book_append_sheet(wb, ws, "كشف رصد العلامات");
   XLSX.writeFile(wb, "سجل_العلامات_الرقمي_الموحد.xlsx");
 }
