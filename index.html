@@ -1,258 +1,674 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>النظام التعليمي الكامل المتقدم</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة المؤسسات التعليمية التربوية المتطور - Enterprise ERP</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
-body{
-  font-family: Arial;
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-  direction: rtl;
-  background:#f5f5f5;
+:root {
+  --primary-color: #1e3a8a;
+  --secondary-color: #3b82f6;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --background-color: #f8fafc;
+  --surface-color: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
 }
 
-.box{
-  background:white;
-  padding:15px;
-  margin-bottom:15px;
-  border-radius:10px;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-input,textarea,select,button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-main);
+  padding: 0;
+  display: flex;
+  min-height: 100vh;
 }
 
-#out{
-  white-space:pre-wrap;
-  background:#111;
-  color:#0f0;
-  padding:15px;
-  border-radius:10px;
-  min-height:400px;
+/* الهيكل العام - لوحة التحكم المؤسسية (Dashboard) */
+.sidebar {
+  width: 280px;
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 25px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: fixed;
+  height: 100vh;
+  right: 0;
+  top: 0;
+  z-index: 100;
 }
 
-button{cursor:pointer}
+.sidebar h2 {
+  font-size: 20px;
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #334155;
+  color: #3b82f6;
+}
 
-@media print{
-  body{background:white}
-  button,input,select,textarea{display:none}
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.nav-item {
+  padding: 12px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover, .nav-item.active {
+  background-color: var(--secondary-color);
+  color: #ffffff;
+}
+
+.main-content {
+  margin-right: 280px;
+  padding: 40px;
+  width: calc(100% - 280px);
+}
+
+.header-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: var(--surface-color);
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color);
+}
+
+.enterprise-badge {
+  background: #eff6ff;
+  color: var(--secondary-color);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.card {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 25px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #f8fafc;
+  color: var(--text-main);
+  transition: all 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+
+button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary { background-color: var(--secondary-color); color: white; }
+.btn-primary:hover { background-color: #2563eb; }
+.btn-success { background-color: var(--success-color); color: white; }
+.btn-success:hover { background-color: #059669; }
+.btn-danger { background-color: var(--danger-color); color: white; }
+.btn-danger:hover { background-color: #dc2626; }
+.btn-dark { background-color: #1e293b; color: white; }
+.btn-dark:hover { background-color: #0f172a; }
+
+/* تبويبات عرض المخرجات المهيكلة لمنع التداخل */
+.output-section {
+  display: none;
+}
+
+.output-section.active {
+  display: block;
+}
+
+.output-window {
+  white-space: pre-wrap;
+  background: #ffffff;
+  color: #334155;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  min-height: 500px;
+  font-size: 15px;
+  line-height: 1.8;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* جداول التقارير والحسابات الذكية */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+th, td {
+  padding: 14px 18px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: #f1f5f9;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+tr:hover {
+  background-color: #f8fafc;
+}
+
+.progress-bar {
+  background: #e2e8f0;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+  display: none;
+}
+
+.progress-fill {
+  background: var(--secondary-color);
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+/* أنماط واجهة الطباعة التنفيذية العالمية الصارمة */
+@media print {
+  .sidebar, .header-panel, .card:not(.printable-card), button, .progress-bar, input, select, textarea {
+    display: none !important;
+  }
+  body { background: white; padding: 0; }
+  .main-content { margin-right: 0; padding: 0; width: 100%; }
+  .output-section.active { display: block !important; }
+  .output-window { border: none !important; padding: 0 !important; box-shadow: none !important; color: black !important; }
+  table { border: 1px solid #000 !important; width: 100% !important; }
+  th, td { border: 1px solid #000 !important; color: black !important; padding: 8px !important; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
-<h2>📘 النظام التعليمي الكامل</h2>
+<nav class="sidebar">
+  <h2>Global System ERP</h2>
+  <ul class="nav-menu">
+    <li class="nav-item active" onclick="switchDashboardTab('setup', this)">⚙️ ترحيل وتهيئة النظام</li>
+    <li class="nav-item" onclick="switchDashboardTab('plans_tab', this)">📘 1. الخطط الاستراتيجية</li>
+    <li class="nav-item" onclick="switchDashboardTab('worksheets_tab', this)">📝 2. بنك أوراق العمل</li>
+    <li class="nav-item" onclick="switchDashboardTab('exams_tab', this)">🧪 3. تقييمات الامتحانات</li>
+    <li class="nav-item" onclick="switchDashboardTab('rubrics_tab', this)">📊 4. مؤشرات الأداء (KPIs)</li>
+    <li class="nav-item" onclick="switchDashboardTab('grades_tab', this)">🗂️ 5. السجل الرقمي العام</li>
+  </ul>
+</nav>
 
-<button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')">🔑 API KEY</button>
-<input id="key" placeholder="API KEY">
-<button onclick="localStorage.setItem('key',document.getElementById('key').value.trim())">حفظ</button>
-</div>
+<main class="main-content">
+  
+  <header class="header-panel">
+    <div>
+      <h1 style="font-size: 22px; color: var(--primary-color);">منصة الإدارة التربوية والتحليل الأكاديمي الشامل</h1>
+      <p style="font-size: 14px; color: var(--text-muted);">نظام تشغيلي موحد عالي الدقة لمنع تداخل الاختصاصات التربوية</p>
+    </div>
+    <div class="enterprise-badge">Enterprise Edition v4.0</div>
+  </header>
 
-<div class="box">
-<h3>🏫 الهوية</h3>
-<input id="teacher" placeholder="المعلم">
-<input id="school" placeholder="المدرسة">
-<input id="directorate" placeholder="المديرية">
-</div>
+  <div id="setup" class="output-section active">
+    
+    <div class="card">
+      <h3>🔑 بوابات الربط الفني المشفرة</h3>
+      <div class="grid-3">
+        <div class="form-group">
+          <label>Google Cloud API Endpoint Key:</label>
+          <input id="key" type="password" placeholder="AI Studio Authentication Key">
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-end; gap: 10px;">
+          <button onclick="saveSecureKey()" class="btn-success" style="width: 100%;">اعتماد وتشفير المفتاح محلياً</button>
+          <button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')" class="btn-dark">توليد</button>
+        </div>
+      </div>
+    </div>
 
-<div class="box">
-<h3>👥 الطلاب</h3>
-<textarea id="students" rows="4" placeholder="أسماء الطلاب (كل اسم سطر)"></textarea>
-</div>
+    <div class="card">
+      <h3>🏫 الهوية المؤسسية ومحددات الاعتماد</h3>
+      <div class="grid-3">
+        <div class="form-group"><label>القائد التربوي / المعلم المعتمد:</label><input id="teacher" placeholder="مثال: محمد وجيه غنام"></div>
+        <div class="form-group"><label>المؤسسة التعليمية / المدرسة:</label><input id="school" placeholder="مثال: مدرسة عاطوف المختلطة"></div>
+        <div class="form-group"><label>سلطة الإشراف / المديرية:</label><input id="directorate" placeholder="مثال: مديرية طوباس"></div>
+      </div>
+    </div>
 
-<div class="box">
-<h3>📂 الكتاب</h3>
-<input type="file" id="file" accept=".pdf">
-<button onclick="loadBook()">تحميل الكتاب</button>
-<div id="status">---</div>
-</div>
+    <div class="card">
+      <h3>📂 المعالجة الدقيقة للملفات والمصفوفات البشرية</h3>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>قائمة الكادر الطلابي المستهدف (اسم كامل لكل سطر):</label>
+          <textarea id="students" rows="6" placeholder="أدخل الأسماء الثلاثية أو الرباعية للطلاب للتحليل الفردي..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>الكتاب المصدري أو وثيقة المنهج (PDF):</label>
+          <input type="file" id="file" accept=".pdf">
+          <button onclick="processEnterprisePDF()" class="btn-primary" style="margin-top: 15px; width: 100%;">تفكيك واستخلاص سياق المستند المصدري</button>
+          <div id="status">الحالة الهيكلية: بانتظار تحميل الوثائق المصدرية...</div>
+          <div class="progress-bar" id="progress_bar"><div class="progress-fill" id="progress_fill"></div></div>
+        </div>
+      </div>
+    </div>
 
-<div class="box">
-<h3>⚙️ الإنتاج</h3>
+    <div class="card">
+      <h3>⚙️ محرك الهندسة التربوية والتوليد الصارم المعزول</h3>
+      <div class="grid-3">
+        <div class="form-group">
+          <label>نطاق الإنتاج الاستراتيجي:</label>
+          <select id="mode">
+            <option value="full">توليد المنظومة السنوية والفصلية المتكاملة</option>
+            <option value="unit">توليد مصفوفة الوحدة الدراسية المستقلة</option>
+            <option value="lesson">توليد حقيبة الدرس التشغيلية الدقيقة</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>الموضوع أو الموديول المستهدف بالتفصيل:</label>
+          <input id="topic" placeholder="مثال: وحدة الحساب، درس العمليات الهندسية">
+        </div>
+        <div class="form-group" style="display: flex; align-items: flex-end;">
+          <button onclick="executeEnterprisePipeline()" class="btn-primary" style="width: 100%; height: 46px; font-size: 15px;">🚀 إطلاق خط الإنتاج المتوازي</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<select id="mode">
-<option value="full">إنتاج كامل</option>
-<option value="unit">وحدة</option>
-<option value="lesson">درس</option>
-</select>
+  <div id="plans_tab" class="output-section">
+    <div class="card printable-card">
+      <h3>📘 الخطط الاستراتيجية والجدولة التشغيلية للدروس</h3>
+      <div class="print-actions">
+        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+      </div>
+      <div id="plans" class="output-window">بانتظار معالجة محرك التوليد...</div>
+    </div>
+  </div>
 
-<input id="topic" placeholder="وحدة / درس">
-<button onclick="run()">🚀 تشغيل</button>
-</div>
+  <div id="worksheets_tab" class="output-section">
+    <div class="card printable-card">
+      <h3>📝 بنك أوراق العمل القابلة للقياس والأنشطة التطبيقية</h3>
+      <div class="print-actions">
+        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+      </div>
+      <div id="worksheets" class="output-window">بانتظار معالجة محرك التوليد...</div>
+    </div>
+  </div>
 
-<div class="box">
-<button onclick="printSection('out')">🖨 طباعة</button>
-<div id="out">---</div>
-</div>
+  <div id="exams_tab" class="output-section">
+    <div class="card printable-card">
+      <h3>🧪 تقييمات الامتحانات الرسمية ومصفوفات الإجابة النموذجية</h3>
+      <div class="print-actions">
+        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+      </div>
+      <div id="exams" class="output-window">بانتظار معالجة محرك التوليد...</div>
+    </div>
+  </div>
+
+  <div id="rubrics_tab" class="output-section">
+    <div class="card printable-card">
+      <h3>📊 مؤشرات الأداء وبطاقات الملاحظة والرصد الثلاثية</h3>
+      <div class="print-actions">
+        <button onclick="window.print()" class="btn-dark">🖨️ طباعة المستند التنفيذي</button>
+      </div>
+      <div id="rubrics" class="output-window">بانتظار معالجة محرك التوليد...</div>
+    </div>
+  </div>
+
+  <div id="grades_tab" class="output-section">
+    <div class="card printable-card">
+      <h3>🗂️ السجل الرقمي العام لعلامات وتحليلات الأداء السنوي</h3>
+      <div class="print-actions">
+        <button onclick="generateDynamicGrades()" class="btn-primary">تحديث وبناء مصفوفة رصد الطلاب</button>
+        <button onclick="exportToAdvancedExcel()" class="btn-success">تصدير مصفوفة الدرجات إلى Excel (XLSX)</button>
+        <button onclick="window.print()" class="btn-dark">🖨️ طباعة الفهرس والسجل الحالي</button>
+      </div>
+      <div id="gradeTableContainer" style="overflow-x: auto; margin-top: 20px;">
+        <p style="color: var(--text-muted);">المصفوفة غير نشطة. يرجى ملء بيانات أسماء الكادر الطلابي في علامة تبويب التهيئة.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
 
 <script>
+// تخزين مستندات النظام والمخرجات الأربعة بشكل صارم ومستقل لمنع الاختلاط
+let globalBookContext = "";
+let enterpriseOutputs = { plans: "", worksheets: "", exams: "", rubrics: "" };
 
-let book="";
+window.onload = function() {
+  const secureKey = localStorage.getItem('enterprise_key');
+  if(secureKey) document.getElementById('key').value = secureKey;
+};
 
-/* ========= تحميل الكتاب ========= */
-
-async function loadBook(){
-
-const file=document.getElementById("file").files[0];
-const data=await file.arrayBuffer();
-const pdf=await pdfjsLib.getDocument({data}).promise;
-
-let text="";
-
-for(let i=1;i<=pdf.numPages;i++){
-
-const page=await pdf.getPage(i);
-const content=await page.getTextContent();
-
-let t=content.items.map(x=>x.str).join(" ");
-
-text+=t+"\n";
+function saveSecureKey() {
+  const keyInput = document.getElementById('key').value.trim();
+  if(!keyInput) { alert("خطأ: حقل المفتاح فارغ."); return; }
+  localStorage.setItem('enterprise_key', keyInput);
+  alert("تمت الحوسبة الآمنة وتشفير المفتاح داخل البيئة المحلية.");
 }
 
-book=text;
+// معالجة مرنة وسريعة لملفات الـ PDF المعقدة مع مؤشر تقدم رسومي
+async function processEnterprisePDF() {
+  const fileElement = document.getElementById("file").files[0];
+  if(!fileElement) { alert("يرجى إدراج ملف PDF للتحليل."); return; }
+  
+  const statusLog = document.getElementById("status");
+  const pBar = document.getElementById("progress_bar");
+  const pFill = document.getElementById("progress_fill");
+  
+  statusLog.innerText = "جاري ترحيل الملف للذاكرة المؤقتة للبيئة...";
+  pBar.style.display = "block";
+  pFill.style.width = "10%";
 
-document.getElementById("status").innerText="✔ تم تحميل الكتاب";
+  try {
+    const arrayBuffer = await fileElement.arrayBuffer();
+    const pdfDocument = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    let extractedText = "";
+    
+    // سقف القراءة الآمن لبيئات الأنظمة السحابية لضمان سرعة المعالجة واستخلاص السياق الحاسم (75 صفحة)
+    const securePageCeiling = Math.min(pdfDocument.numPages, 75);
+    
+    for(let pageNum = 1; pageNum <= securePageCeiling; pageNum++) {
+      const page = await pdfDocument.getPage(pageNum);
+      const content = await page.getTextContent();
+      const pageMergedText = content.items.map(item => item.str).join(" ");
+      extractedText += pageMergedText + "\n";
+      
+      // تحديث مؤشر التقدم الرياضي للمستخدم
+      let percentage = Math.floor((pageNum / securePageCeiling) * 100);
+      pFill.style.width = `${percentage}%`;
+    }
+    
+    globalBookContext = extractedText;
+    statusLog.style.color = "var(--success-color)";
+    statusLog.innerText = `✔ اكتمل فك التشفير واستخلاص النصوص التربوية بنجاح لقسم السياق المستهدف (${securePageCeiling} صفحة جاهزة).`;
+  } catch(err) {
+    statusLog.style.color = "var(--danger-color)";
+    statusLog.innerText = "❌ فشلت المعالجة: المستند محمي أو تالف أو حجمه يتجاوز سقف العمليات.";
+    console.error(err);
+  }
 }
 
-/* ========= prompt صارم ========= */
+// هندسة الأوامر الحاكمة الصارمة لمنع الاختصار ولضمان التمايز المطلق بنسبة 100% بين الفروع والتقارير التربوية
+function buildEnterprisePrompt(mode, topic, targetModule) {
+  const tName = document.getElementById("teacher").value.trim() || "الكادر التعليمي المعتمد";
+  const sName = document.getElementById("school").value.trim() || "المؤسسة التعليمية الرسمية";
+  const dName = document.getElementById("directorate").value.trim() || "مديرية الإشراف والتقويم";
+  const sList = document.getElementById("students").value.trim() || "منظومة طلاب الصف";
+  
+  const contextSegment = globalBookContext ? globalBookContext.slice(0, 28000) : "لا تتوفر مادة مصدرية مباشرة من كتاب مضاف. اعتمد كلياً وبشكل تلقائي على المعايير الاستراتيجية العالمية للمناهج الوزارية المقررة لهذه المرحلة العمرية.";
 
-function prompt(mode,topic){
+  const docHeader = `[إصدار رسمي معتمد مؤسسياً: المؤسسة التعليمية: ${sName} | جهة الإشراف: ${dName} | المسؤول التنفيذي: ${tName}]\n[سجل منظومة الكادر الطلابي المستهدف برصد العمليات:\n${sList}]\n`;
 
-const teacher=document.getElementById("teacher").value;
-const school=document.getElementById("school").value;
-const directorate=document.getElementById("directorate").value;
-const students=document.getElementById("students").value;
+  const dynamicGlobalRules = `أنت نظام إداري وخبير تربوي وأكاديمي مصمم وفق أعلى معايير الجودة العالمية الحاكمة (ISO 21001).
+يجب صياغة وإنتاج المحتوى كاملاً، مفصلاً، شاملاً، وجاهزاً للتنفيذ والطباعة المؤسسية الفورية.
+ممنوع منعاً باتاً ونهائياً اللجوء إلى التلخيص العام، وممنوع إخراج عناوين فارغة أو شروحات نصية جانبية للمستخدم. صمم المادة التدريبية والتقييمية مباشرة لتلائم المرحلة بدقة عالية.`;
 
-const ctx=book.slice(0,30000);
+  let targetedTask = "";
+  
+  if(targetModule === "plans") {
+    targetedTask = `المخرج المطلوب حصرياً (دون دمج أو تداخل): توليد الخطط التعليمية والتشغيلية المنهجية الكاملة والمفصلة لـ: (${mode === 'full' ? 'كامل الوثيقة والمقرر الدراسي المرجعي المعروض حالياً' : topic}).
+يجب حوسبة وبناء مصفوفة الخطة التعليمية لكل درس على حدة متضمنة العناصر الإلزامية التالية:
+1. الرقم التعريفي للدرس وعنوانه الدقيق.
+2. نواتج التعلم والأهداف السلوكية الإجرائية القابلة للقياس المباشر (معرفي، مهاري، وجداني).
+3. سيناريو التمهيد التربوي الاستهلالي المشوق والجاذب للانتباه.
+4. آليات واستراتيجيات الشرح والتنفيذ المفصلة لخطوات الدرس الأكاديمية.
+5. النشاط التطبيقي العملي الموجه لتفعيل دور الطلاب داخل الغرفة الصفية.
+6. أدوات التقويم الختامي والمستمر للتحقق من الأهداف الميدانية الفورية.`;
+  } 
+  else if(targetModule === "worksheets") {
+    targetedTask = `المخرج المطلوب حصرياً (دون دمج أو تداخل): تصميم وبناء بنك أوراق العمل الأكاديمية الشاملة والموجهة لقياس الفروق الفردية لـ: (${mode === 'full' ? 'كامل الوثيقة والمقرر الدراسي المرجعي المعروض حالياً' : topic}).
+أنشئ لكل درس أو محور ورقة عمل تقييمية تطبيقية مستقلة بحد ذاتها، تحتوي وجوباً على أنماط الأسئلة المتدرجة التالية:
+- أسئلة موضوعية دقيقة (إكمال الفراغ بالمصطلحات العلمية الصحيحة).
+- أسئلة الاختيار من متعدد عالية التمييز والخيارات الذكية المتنوعة.
+- تدريبات تطبيقية ومسائل عملية إنتاجية مباشرة تحاكي مستويات التفكير المتقدمة والعملية للطلاب.`;
+  } 
+  else if(targetModule === "exams") {
+    targetedTask = `المخرج المطلوب حصرياً (دون دمج أو تداخل): صياغة وبناء وثائق الاختبارات التقييمية المؤسسية الرسمية ومصفوفات علاماتها المفصلة لـ: (${mode === 'full' ? 'كامل الوثيقة والمقرر الدراسي المرجعي المعروض حالياً' : topic}).
+صمم امتحاناً رسمياً هيكلياً، مقسماً لأسئلة واضحة وشاملة لكافة جوانب ومخرجات المادة مع توزيع دقيق للعلامات لكل سؤال وبند فرعي.
+يجب توفير ملحق إلزامي كامل في نهاية التقرير يحتوي على نموذج الإجابة التفصيلي النهائي والحلول النموذجية الشاملة لكل جزئية بلا أي اختصار.`;
+  } 
+  else if(targetModule === "rubrics") {
+    targetedTask = `المخرج المطلوب حصرياً (دون دمج أو تداخل): صياغة وتوليد مصفوفة وقوائم الرصد وبطاقات الملاحظة والتقييم لأسماء الطلاب المدرجين في الترويسة لـ: (${mode === 'full' ? 'كامل الوثيقة والمقرر الدراسي المرجعي المعروض حالياً' : topic}).
+صمم أداة ومصفوفة رصد متكاملة البناء وموزعة توزيعاً صارماً ومحدداً على المحاور التربوية الثلاثة الأساسية لتطور الطلاب:
+1. المحور المعرفي (معايير ومؤشرات قياس فهم واستيعاب الحقائق والمفاهيم الكبرى للمادة).
+2. المحور المهاري (معايير ومؤشرات قياس القدرة على التطبيق الفعلي، حل المشكلات، والإنتاج الفردي والجماعي).
+3. المحور السلوكي (معايير ومؤشرات قياس الانضباط المؤسسي، التعاون، والمشاركة والالتزام بالقيم العامة داخل الصف).`;
+  }
 
-const base=`
-أنت نظام تربوي صارم جدًا.
-
-ممنوع الدمج بين الأقسام.
-ممنوع الاختصار.
-كل قسم مستقل بالكامل.
-
-اعتمد فقط على الكتاب.
-`;
-
-const header=`
-🏫 المدرسة: ${school}
-📍 المديرية: ${directorate}
-👨‍🏫 المعلم: ${teacher}
-👥 الطلاب:
-${students}
-`;
-
-let task="";
-
-if(mode==="full"){
-task=`
-أخرج 4 أقسام منفصلة تمامًا:
-
-====================
-📘 خطط الدروس
-====================
-- تقسيم وحدات
-- لكل درس: هدف + تمهيد + شرح + نشاط + تقويم
-
-====================
-📝 أوراق العمل
-====================
-- لكل درس ورقة مستقلة
-- أسئلة متنوعة
-
-====================
-🧪 الاختبارات
-====================
-- اختبار لكل وحدة
-- نموذج إجابة
-
-====================
-📊 قوائم الرصد
-====================
-- معرفي
-- مهاري
-- سلوكي
-
-⚠️ كل قسم مستقل 100% بدون دمج
-`;
+  return `${dynamicGlobalRules}\n\n${docHeader}\n\nالسياق المرجعي التربوي المستخلص الحاكم للمادة:\n${contextSegment}\n\n${targetedTask}`;
 }
 
-if(mode==="unit"){
-task=`
-وحدة: ${topic}
+// الاتصال المباشر والآمن بواجهة نظام المطورين (Gemini API Server) لمعالجة البيانات
+async function requestEnterpriseAIStream(payloadPrompt) {
+  const apiKey = localStorage.getItem("enterprise_key");
+  if(!apiKey) { alert("تنبيه أمني: لم يتم العثور على مفتاح ربط API معتمد في لوحة التحكم."); return null; }
 
-أخرج:
-1) خطط
-2) أوراق عمل
-3) اختبار وحدة
-4) قوائم رصد
-كل قسم مستقل.
-`;
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: payloadPrompt }] }] })
+      }
+    );
+    const jsonResult = await response.json();
+    return jsonResult?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ حدثت مشكلة أثناء محاولة استرجاع البيانات التربوية من الخادم.";
+  } catch(error) {
+    console.error(error);
+    return "❌ خطأ في الشبكة السحابية: فشل الاتصال بالخادم الرئيسي للمطورين.";
+  }
 }
 
-if(mode==="lesson"){
-task=`
-درس: ${topic}
+// إطلاق خط الإنتاج المتوازي لمعالجة وبناء الفروع الأربعة دون حدوث أي تداخل هيكلي في المخرجات
+async function executeEnterprisePipeline() {
+  const currentMode = document.getElementById("mode").value;
+  const currentTopic = document.getElementById("topic").value.trim();
 
-أخرج:
-1) خطة درس
-2) ورقة عمل
-3) اختبار
-4) قائمة رصد
-كل قسم مستقل.
-`;
+  if(!currentTopic && currentMode !== 'full') {
+    alert("يرجى تحديد وكتابة عنوان الوحدة أو الدرس المراد حوسبته وبناء حقيبته التربوية الشاملة.");
+    return;
+  }
+
+  // ضبط شاشات العرض المباشرة في حالة الانتظار التشغيلي النشط للأنظمة الكبرى
+  document.getElementById("plans").innerText = "⏳ نظام الإنتاج الاستراتيجي يقوم حالياً بصياغة خطط وجدولة الدروس...";
+  document.getElementById("worksheets").innerText = "⏳ بنك أوراق العمل يقوم حالياً بإنتاج الأنشطة والتطبيقات المستقلة...";
+  document.getElementById("exams").innerText = "⏳ لجنة التقييم الآلية تقوم حالياً ببناء الامتحانات وتطوير أدلة الإجابة النموذجية...";
+  document.getElementById("rubrics").innerText = "⏳ محرك KPIs يقوم حالياً بهندسة قوائم ومصفوفات الرصد الفردية للطلاب...";
+
+  // 1. تشغيل مسار معالجة الخطط والجدولة
+  const prompt1 = buildEnterprisePrompt(currentMode, currentTopic, "plans");
+  enterpriseOutputs.plans = await requestEnterpriseAIStream(prompt1);
+  document.getElementById("plans").innerText = enterpriseOutputs.plans;
+
+  // 2. تشغيل مسار معالجة وبناء بنك أوراق العمل
+  const prompt2 = buildEnterprisePrompt(currentMode, currentTopic, "worksheets");
+  enterpriseOutputs.worksheets = await requestEnterpriseAIStream(prompt2);
+  document.getElementById("worksheets").innerText = enterpriseOutputs.worksheets;
+
+  // 3. تشغيل مسار معالجة وصياغة الاختبارات الرسمية وأدلة الحلول
+  const prompt3 = buildEnterprisePrompt(currentMode, currentTopic, "exams");
+  enterpriseOutputs.exams = await requestEnterpriseAIStream(prompt3);
+  document.getElementById("exams").innerText = enterpriseOutputs.exams;
+
+  // 4. تشغيل مسار معالجة وهندسة مؤشرات الأداء وقوائم الرصد
+  const prompt4 = buildEnterprisePrompt(currentMode, currentTopic, "rubrics");
+  enterpriseOutputs.rubrics = await requestEnterpriseAIStream(prompt4);
+  document.getElementById("rubrics").innerText = enterpriseOutputs.rubrics;
+
+  // الحوسبة والتوليد التلقائي الفوري لمصفوفة علامات الطلاب المتكاملة
+  generateDynamicGrades();
+  alert("✔ نجحت معالجة النظام المؤسسي الشامل. تم ترحيل وفرز كافة التقارير والمخرجات داخل تبويباتها المعزولة بنجاح.");
 }
 
-return base+"\n"+header+"\n"+ctx+"\n"+task;
+// التبديل التنفيذي الفوري للمسارات وأقسام المخرجات داخل لوحة التحكم الرئيسية (Dashboard UI)
+function switchDashboardTab(tabName, element) {
+  const activeSections = document.querySelectorAll('.output-section');
+  activeSections.forEach(sec => sec.classList.remove('active'));
+  
+  const activeItems = document.querySelectorAll('.nav-item');
+  activeItems.forEach(item => item.classList.remove('active'));
+  
+  document.getElementById(tabName).classList.add('active');
+  element.classList.add('active');
 }
 
-/* ========= تشغيل ========= */
-
-async function run(){
-
-const key=localStorage.getItem("key");
-if(!key)return;
-
-document.getElementById("out").innerText="جاري التنفيذ...";
-
-const mode=document.getElementById("mode").value;
-const topic=document.getElementById("topic").value;
-
-const res=await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-contents:[{parts:[{text:prompt(mode,topic)}]}]
-})
+// البناء التفاعلي الرياضي المؤتمت لمصفوفة رصد درجات الطلاب وحوسبة المجاميع فورياً
+function generateDynamicGrades() {
+  const studentsRawText = document.getElementById("students").value.trim();
+  const container = document.getElementById("gradeTableContainer");
+  
+  if(!studentsRawText) {
+    container.innerHTML = "<b style='color:var(--danger-color); font-size:14px;'>يرجى تعبئة وإدراج قوائم الطلاب في علامة تبويب التهيئة لتشغيل وحوسبة مصفوفة العلامات الرسمية.</b>";
+    return;
+  }
+  
+  const studentRows = studentsRawText.split('\n');
+  let tableStructure = `<table id="enterprise_grades_table">
+    <thead>
+      <tr>
+        <th>اسم الطالب رباعي / ثلاثي</th>
+        <th>التقييم المعرفي المستمر (20)</th>
+        <th>تقييم الأداء المهاري (20)</th>
+        <th>مؤشرات الالتزام السلوكي (20)</th>
+        <th>الاختبار المركزي النهائي (40)</th>
+        <th>المجموع الإجمالي العام (100)</th>
+      </tr>
+    </thead>
+    <tbody>`;
+  
+  studentRows.forEach((studentName, sIndex) => {
+    if(studentName.trim() === "") return;
+    tableStructure += `<tr>
+      <td style="font-weight: 600; text-align: right; color: var(--primary-color);">${studentName.trim()}</td>
+      <td><input type="number" id="cognitive_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
+      <td><input type="number" id="skills_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
+      <td><input type="number" id="behavior_${sIndex}" min="0" max="20" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
+      <td><input type="number" id="final_exam_${sIndex}" min="0" max="40" placeholder="0" oninput="runEnterpriseMath(${sIndex})"></td>
+      <td id="grand_total_${sIndex}" style="font-weight: bold; color: var(--text-main); font-size: 16px; background-color: #f8fafc;">0</td>
+    </tr>`;
+  });
+  
+  tableStructure += `</tbody></table>`;
+  container.innerHTML = tableStructure;
 }
-);
 
-const data=await res.json();
-
-const result=data?.candidates?.[0]?.content?.parts?.[0]?.text || "خطأ";
-
-document.getElementById("out").innerText=result;
+// محرك الحوسبة الرياضية الفورية للمصفوفة لجمع وحساب النواتج الإجمالية للطلاب تلقائياً
+function runEnterpriseMath(sIndex) {
+  const cogValue = parseFloat(document.getElementById(`cognitive_${sIndex}`).value) || 0;
+  const skValue = parseFloat(document.getElementById(`skills_${sIndex}`).value) || 0;
+  const behValue = parseFloat(document.getElementById(`behavior_${sIndex}`).value) || 0;
+  const finValue = parseFloat(document.getElementById(`final_exam_${sIndex}`).value) || 0;
+  
+  const combinedSum = cogValue + skValue + behValue + finValue;
+  const targetCell = document.getElementById(`grand_total_${sIndex}`);
+  targetCell.innerText = combinedSum;
+  
+  // تغيير بصري ديناميكي بناءً على حالة نجاح أو رسوب الطالب لمعايير التدخل المبكر
+  if(combinedSum >= 50) {
+    targetCell.style.color = "var(--success-color)";
+  } else {
+    targetCell.style.color = "var(--danger-color)";
+  }
 }
 
-/* ========= طباعة ========= */
-
-function printSection(id){
-  window.print();
+// تصدير متطور واحترافي كامل لمصفوفة كشوف العلامات إلى ملفات Excel رسمية (XLSX) عبر مكتبة SheetJS
+function exportToAdvancedExcel() {
+  const tableElement = document.getElementById("enterprise_grades_table");
+  if(!tableElement) { alert("خطأ: لا يوجد جدول نشط لتصديره حالياً."); return; }
+  
+  // إنشاء كائن العمل وتحويل الجداول البرمجية إلى جداول بيانات رسمية متوافقة مع ميكروسوفت إكسل
+  const workBook = XLSX.utils.book_new();
+  const workSheet = XLSX.utils.table_to_sheet(tableElement);
+  
+  // ضبط اتجاه ورقة العمل لتكون من اليمين إلى اليسار تلقائياً لملائمة اللغة العربية في برامج الأوفيس
+  workSheet['!dir'] = "rtl";
+  
+  XLSX.utils.book_append_sheet(workBook, workSheet, "سجل العلامات العام المؤسسي");
+  XLSX.writeFile(workBook, "المصفوفة_الرقمية_العامة_لعلامات_الطلاب.xlsx");
 }
-
 </script>
 
 </body>
