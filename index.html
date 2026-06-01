@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>النظام التعليمي الفلسطيني الموحد المطور - الإصدار الشامل</title>
+<title>النظام التعليمي المطور - معالجة متقدمة</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -13,298 +13,172 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 body { background-color: #f1f5f9; color: #0f172a; padding: 20px; }
 .container { max-width: 1250px; margin: 0 auto; }
-
-.main-header { background: #1e3a8a; color: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; position: relative; }
-.main-header h2 { font-size: 22px; }
-.main-header p { font-size: 13px; margin-top: 5px; color: #93c5fd; }
-
+.main-header { background: #1e3a8a; color: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
 .card { background: #ffffff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #cbd5e1; }
 .card h3 { color: #1e3a8a; margin-bottom: 15px; border-right: 4px solid #2563eb; padding-right: 10px; font-size: 16px; }
-
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
 .form-group { margin-bottom: 15px; }
-
 label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #334155; }
-.tip-text { display: block; font-size: 11px; color: #2563eb; margin-top: 3px; font-style: italic; font-weight: 500; }
-
 input, textarea, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; font-size: 14px; color: #0f172a; }
 input:focus, textarea:focus, select:focus { outline: none; border-color: #2563eb; background: #ffffff; }
-
-button { padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-button:active { transform: scale(0.98); }
+button { padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .btn-blue { background: #2563eb; color: white; }
-.btn-blue:hover { background: #1d4ed8; }
 .btn-green { background: #16a34a; color: white; }
-.btn-green:hover { background: #15803d; }
 .btn-dark { background: #475569; color: white; }
-.btn-dark:hover { background: #334155; }
 .btn-danger { background: #dc2626; color: white; }
-.btn-danger:hover { background: #b91c1c; }
-
 .progress-container { display: none; margin: 15px 0; background: #e2e8f0; border-radius: 4px; overflow: hidden; height: 8px; }
 .progress-bar-pulse { height: 100%; width: 100%; background: linear-gradient(90deg, #2563eb 25%, #60a5fa 50%, #2563eb 75%); background-size: 200% 100%; animation: loadingPulse 1.2s infinite linear; }
 @keyframes loadingPulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .status-text { font-size: 12px; font-weight: bold; color: #2563eb; margin-top: 5px; display: none; text-align: center; }
-
 .tabs-nav { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #cbd5e1; flex-wrap: wrap; }
 .tab-link { padding: 10px 15px; background: #e2e8f0; border-radius: 6px 6px 0 0; cursor: pointer; font-weight: 600; color: #475569; font-size: 13px; margin-bottom: -2px; }
 .tab-link.active { background: #1e3a8a; color: #ffffff; border-bottom: 2px solid #1e3a8a; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
-
 .editor-toolbar { background: #f8fafc; border: 1px solid #cbd5e1; border-bottom: none; padding: 8px; border-radius: 6px 6px 0 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.editor-toolbar select { width: auto; padding: 4px 8px; font-size: 12px; background: #ffffff; }
 .btn-tool { padding: 4px 10px; font-size: 11px; background: #e2e8f0; color: #334155; border-radius: 4px; font-weight: bold; }
-.btn-tool:hover { background: #cbd5e1; }
-
 .output-view { background: #ffffff; padding: 30px; border: 1px solid #cbd5e1; border-radius: 0 0 6px 6px; min-height: 500px; font-size: 15px; line-height: 1.8; color: #000000; outline: none; overflow-y: auto; }
-
+.error-msg { color: #dc2626; font-weight: bold; padding: 15px; border: 1px solid #dc2626; border-radius: 6px; background: #fee2e2; }
 table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #ffffff; }
 th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; font-size: 13px; }
 th { background: #f1f5f9; color: #1e3a8a; font-weight: 700; }
 td input[type="number"] { width: 70px; text-align: center; padding: 5px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; font-weight: bold; }
-
-.print-preview-value { display: none; }
-#print-header-sheet { display: none; }
-
+.print-preview-value, #print-header-sheet { display: none; }
 @media print {
-  .no-print, button, input, select, textarea, .tabs-nav, .progress-container, .status-text, .editor-toolbar, .tip-text, .main-header { display: none !important; }
-  body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; }
-  .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-  .tab-content { display: none !important; }
-  .tab-content.active { display: block !important; }
-  .card { border: none !important; padding: 0 !important; margin: 0 !important; background: transparent !important; }
-  .output-view { border: none !important; padding: 0 !important; background: transparent !important; color: #000000 !important; font-size: 14px !important; line-height: 1.6 !important; display: block !important; overflow: visible !important; }
-  .lesson-page-block { page-break-after: always; page-break-inside: avoid; clear: both; margin-bottom: 0; padding-bottom: 0; display: block; width: 100%; }
-  table { border: 1px solid #000000 !important; width: 100% !important; }
-  th, td { border: 1px solid #000000 !important; color: #000000 !important; padding: 6px !important; font-size: 11px !important; }
-  th { background: #eaeaea !important; }
-  td input[type="number"] { display: none !important; }
-  .print-preview-value { display: inline !important; font-weight: bold !important; color: #000000 !important; }
+  .no-print, button, input, select, textarea, .tabs-nav, .progress-container, .status-text, .editor-toolbar { display: none !important; }
+  body, .container { background: #ffffff !important; padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+  .tab-content { display: none !important; } .tab-content.active { display: block !important; }
+  .card, .output-view { border: none !important; padding: 0 !important; margin: 0 !important; }
+  table { border: 1px solid #000000 !important; } th, td { border: 1px solid #000000 !important; padding: 6px !important; font-size: 11px !important; }
+  td input[type="number"] { display: none !important; } .print-preview-value { display: inline !important; font-weight: bold !important; }
   #print-header-sheet { display: block !important; width: 100%; margin-bottom: 25px; border-bottom: 2px solid #000000; padding-bottom: 8px; }
 }
 </style>
 </head>
 <body>
-
 <div class="container">
   
   <header class="main-header no-print">
-    <h2>النظام التعليمي الموحد واللوحة الإنتاجية الشاملة</h2>
-    <p>بناء وإدارة الخطط، أوراق العمل، الامتحانات، المحتوى المخصص، وسجلات الرصد بالأرقام العربية (٠١٢٣٤٥٦٧٨٩)</p>
+    <h2>النظام التعليمي الموحد - معالجة الاستثناءات المتقدمة (OCR & Error Handling)</h2>
   </header>
 
   <div id="print-header-sheet">
     <table style="width: 100%; border: none !important;">
       <tr style="border: none !important;">
-        <td style="text-align: right; border: none !important; width: 33%; font-size: 12px; line-height: 1.6;"><b>دولة فلسطين</b><br>وزارة التربية والتعليم العالي<br><span id="lbl-d"></span></td>
-        <td style="text-align: center; border: none !important; width: 33%; vertical-align: middle;"><b style="font-size: 16px;" id="lbl-title">مستند إداري وتربوي معتمد</b></td>
-        <td style="text-align: left; border: none !important; width: 33%; font-size: 12px; line-height: 1.6;"><b>المدرسة:</b> <span id="lbl-s"></span><br><b>المعلم:</b> <span id="lbl-t"></span></td>
+        <td style="text-align: right; border: none !important; width: 33%; font-size: 12px;"><b>دولة فلسطين</b><br>وزارة التربية والتعليم العالي<br><span id="lbl-d"></span></td>
+        <td style="text-align: center; border: none !important; width: 33%;"><b style="font-size: 16px;" id="lbl-title">مستند إداري وتربوي معتمد</b></td>
+        <td style="text-align: left; border: none !important; width: 33%; font-size: 12px;"><b>المدرسة:</b> <span id="lbl-s"></span><br><b>المعلم:</b> <span id="lbl-t"></span></td>
       </tr>
     </table>
   </div>
 
   <div class="card no-print">
-    <h3>⚙️ لوحة الإعدادات والتحكم والمحتوى المخصص</h3>
+    <h3>⚙️ إعدادات النظام وتغذية البيانات</h3>
     <div class="grid-3">
       <div class="form-group">
         <label>Google Cloud API Key:</label>
-        <input id="api_key" type="password" placeholder="أدخل مفتاح الاتصال السحابي">
+        <input id="api_key" type="password">
       </div>
       <div class="form-group" style="display: flex; align-items: flex-end; gap: 5px;">
-        <button onclick="saveKey()" class="btn-green" style="width: 100%;">اعتماد وحفظ المفتاح</button>
-        <button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')" class="btn-dark">توليد</button>
+        <button onclick="saveKey()" class="btn-green" style="width: 100%;">حفظ</button>
       </div>
     </div>
 
     <div class="grid-3" style="margin-top: 5px;">
-      <div class="form-group"><label>المعلم:</label><input id="inp_teacher" placeholder="مثال: محمد وجيه غنام" oninput="syncMeta()"></div>
-      <div class="form-group"><label>المدرسة:</label><input id="inp_school" placeholder="مثال: مدرسة عاطوف المختلطة" oninput="syncMeta()"></div>
-      <div class="form-group"><label>المديرية:</label><input id="inp_directorate" placeholder="مثال: مديرية طوباس" oninput="syncMeta()"></div>
+      <div class="form-group"><label>المعلم:</label><input id="inp_teacher" value="محمد وجيه غنام" oninput="syncMeta()"></div>
+      <div class="form-group"><label>المدرسة:</label><input id="inp_school" value="مدرسة عاطوف المختلطة" oninput="syncMeta()"></div>
+      <div class="form-group"><label>المديرية:</label><input id="inp_directorate" value="طوباس" oninput="syncMeta()"></div>
     </div>
 
     <div class="grid-2" style="margin-top: 5px;">
       <div class="form-group">
-        <label>سجل أسماء الطلاب (اسم مستقل في كل سطر):</label>
-        <textarea id="inp_students" rows="5" placeholder="أدخل الأسماء مباشرة، أو استخدم ميزة القراءة الآلية للمستندات الورقية..."></textarea>
+        <label>سجل أسماء الطلاب:</label>
+        <textarea id="inp_students" rows="5"></textarea>
       </div>
       <div class="form-group" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1;">
-        <label style="color: #1e3a8a;">📷 استخراج الكشوف الورقية والمنهاج:</label>
-        <input type="file" id="image_or_file" accept="image/*, application/pdf" style="margin-bottom: 5px;">
-        <button onclick="extractStudentNames()" class="btn-blue" style="width: 100%;">استخراج الأسماء الذكي وبناء الهيكل</button>
-        <div style="margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
-          <input type="file" id="pdf_file" accept=".pdf">
-          <button onclick="readPDF()" class="btn-dark" style="width: 100%; margin-top: 5px;">تغذية واستخلاص نصوص المنهج المرجعي</button>
-        </div>
+        <label style="color: #1e3a8a;">📷 استخراج المنهاج المرجعي (يدعم PDFs المصورة):</label>
+        <input type="file" id="pdf_file" accept=".pdf" style="margin-top: 8px;">
+        <button onclick="readPDF()" class="btn-dark" style="width: 100%; margin-top: 10px;">استخلاص ومعالجة النصوص (OCR ذكي)</button>
+        <div id="pdf_status" style="font-size: 11px; margin-top: 5px; color: #b91c1c;"></div>
       </div>
     </div>
 
     <div class="progress-container" id="global_progress_container"><div class="progress-bar-pulse"></div></div>
-    <div class="status-text" id="global_status_text">جاري المعالجة الفورية...</div>
+    <div class="status-text" id="global_status_text">جاري المعالجة...</div>
 
     <div class="grid-3" style="margin-top: 5px; border-top: 1px solid #cbd5e1; padding-top: 10px;">
       <div class="form-group">
-        <label>نوع المخرج المطلوب إنتاجه:</label>
+        <label>نوع المخرج:</label>
         <select id="generation_target" onchange="toggleCustomRequest()">
-          <option value="plans">📘 خطة الدرس اليومية المحسوبة (A4)</option>
-          <option value="worksheets">📝 كراسة الأنشطة التفاعلية وأوراق العمل</option>
-          <option value="exams">🧪 الاختبارات التحصيلية ومفتاح الحلول</option>
-          <option value="rubrics">📊 مصفوفة قوائم رصد مؤشرات الأداء</option>
-          <option value="custom" style="font-weight:bold; color:#1e3a8a;">✨ محتوى تعليمي مخصص (حسب الطلب)</option>
+          <option value="plans">📘 خطة درس (درس واحد فقط لتجنب تجاوز الحد)</option>
+          <option value="worksheets">📝 ورقة عمل</option>
+          <option value="exams">🧪 اختبار تحصيلي</option>
+          <option value="custom">✨ محتوى مخصص</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>عنوان الوحدة أو المفهوم الرياضي الدقيق:</label>
-        <input id="generation_topic" placeholder="مثال: الجمع ضمن العدد ٩٩">
-      </div>
+      <div class="form-group"><label>موضوع الدرس الدقيق:</label><input id="generation_topic"></div>
       <div class="form-group" style="display: flex; align-items: flex-end;">
-        <button onclick="launchSinglePipeline()" class="btn-blue" style="width: 100%; height: 40px; font-size: 14px;">🚀 إنتاج وتوليد المتن فوراً</button>
+        <button onclick="launchSinglePipeline()" class="btn-blue" style="width: 100%; height: 40px;">🚀 توليد المتن</button>
       </div>
     </div>
     
-    <div class="form-group" id="custom_request_group" style="display: none; margin-top: 15px; border: 1px dashed #2563eb; padding: 15px; border-radius: 6px; background: #e0e7ff;">
-      <label style="color: #1e40af; font-size: 14px;">✍️ خانة الطلب المخصص (ماذا تريد أن ينتج لك النظام؟)</label>
-      <textarea id="custom_request_text" rows="3" placeholder="مثال: أريد قصة قصيرة لتمهيد درس الجمع للأطفال، أو مسرحية تعليمية، أو فقرة للإذاعة المدرسية..."></textarea>
+    <div class="form-group" id="custom_request_group" style="display: none; margin-top: 15px;">
+      <label>الطلب المخصص:</label>
+      <textarea id="custom_request_text" rows="3"></textarea>
     </div>
   </div>
 
   <div class="tabs-nav no-print">
-    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 ١. تحضير الدروس</div>
-    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 ٢. أوراق العمل</div>
-    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 ٣. الامتحانات</div>
-    <div class="tab-link" onclick="openTab('sec_rubrics', this)">📊 ٤. بطاقات الرصد</div>
-    <div class="tab-link" onclick="openTab('sec_custom', this)">✨ ٥. المحتوى المخصص</div>
-    <div class="tab-link" onclick="openTab('sec_grades', this)">🗂️ ٦. السجل الرقمي</div>
+    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 تحضير</div>
+    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 أوراق عمل</div>
+    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 امتحانات</div>
+    <div class="tab-link" onclick="openTab('sec_custom', this)">✨ مخصص</div>
   </div>
 
-  <div id="sec_plans" class="tab-content active">
-    <div class="card">
-      <div class="no-print editor-toolbar">
-        <button onclick="printView('تحضير الدروس والخطط التشغيلية المعتمدة')" class="btn-dark">🖨️ طباعة التحضير</button>
-        <button onclick="execCmd('bold')" class="btn-tool">B</button>
-        <button onclick="execCmd('insertUnorderedList')" class="btn-tool">• قائمة</button>
-        <button onclick="clearEditor('view_plans')" class="btn-danger" style="padding:4px 8px; font-size:11px;">🗑️ مسح</button>
-      </div>
-      <div id="view_plans" class="output-view" contenteditable="true">مساحة خالية للتحضير...</div>
-    </div>
-  </div>
-
-  <div id="sec_worksheets" class="tab-content">
-    <div class="card">
-      <div class="no-print editor-toolbar">
-        <button onclick="printView('كراسة أنشطة وبنك أوراق العمل التطبيقية')" class="btn-dark">🖨️ طباعة أوراق العمل</button>
-        <button onclick="execCmd('bold')" class="btn-tool">B</button>
-        <button onclick="clearEditor('view_worksheets')" class="btn-danger" style="padding:4px 8px; font-size:11px;">🗑️ مسح</button>
-      </div>
-      <div id="view_worksheets" class="output-view" contenteditable="true">بانتظار عملية التوليد...</div>
-    </div>
-  </div>
-
-  <div id="sec_exams" class="tab-content">
-    <div class="card">
-      <div class="no-print editor-toolbar">
-        <button onclick="printView('الاختبار التحصيلي الرسمي ودليل الإجابة النموذجية')" class="btn-dark">🖨️ طباعة الامتحانات</button>
-        <button onclick="execCmd('bold')" class="btn-tool">B</button>
-        <button onclick="clearEditor('view_exams')" class="btn-danger" style="padding:4px 8px; font-size:11px;">🗑️ مسح</button>
-      </div>
-      <div id="view_exams" class="output-view" contenteditable="true">بانتظار عملية التوليد...</div>
-    </div>
-  </div>
-
-  <div id="sec_rubrics" class="tab-content">
-    <div class="card">
-      <div class="no-print editor-toolbar">
-        <button onclick="printView('قوائم رصد مؤشرات الأداء وبطاقات الملاحظة')" class="btn-dark">🖨️ طباعة سجل الأداء</button>
-        <button onclick="execCmd('bold')" class="btn-tool">B</button>
-        <button onclick="clearEditor('view_rubrics')" class="btn-danger" style="padding:4px 8px; font-size:11px;">🗑️ مسح</button>
-      </div>
-      <div id="view_rubrics" class="output-view" contenteditable="true">بانتظار عملية التوليد...</div>
-    </div>
-  </div>
-
-  <div id="sec_custom" class="tab-content">
-    <div class="card">
-      <div class="no-print editor-toolbar">
-        <button onclick="printView('المحتوى التعليمي المخصص - حسب الطلب')" class="btn-dark">🖨️ طباعة المحتوى المخصص</button>
-        <button onclick="execCmd('bold')" class="btn-tool">B</button>
-        <button onclick="clearEditor('view_custom')" class="btn-danger" style="padding:4px 8px; font-size:11px;">🗑️ مسح</button>
-      </div>
-      <div id="view_custom" class="output-view" contenteditable="true">اكتب طلبك في الأعلى ثم اضغط توليد...</div>
-    </div>
-  </div>
-
-  <div id="sec_grades" class="tab-content">
-    <div class="card">
-      <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <button onclick="buildGradeSheet()" class="btn-blue">🔄 تحديث مصفوفة الأسماء</button>
-        <button onclick="addNewStudentRow()" class="btn-dark">➕ إضافة طالب يدوياً</button>
-        <button onclick="exportExcelSheet()" class="btn-green">📥 تصدير السجل إلى Excel</button>
-        <button onclick="printView('سجل رصد علامات وتقييم الأداء السنوي للطلاب')" class="btn-dark">🖨️ طباعة كشف العلامات</button>
-      </div>
-      <div id="sheet_container" style="overflow-x: auto;">
-        <p style="color: #64748b; font-size: 13px;">السجل بانتظار التفعيل.</p>
-      </div>
-    </div>
-  </div>
+  <div id="sec_plans" class="tab-content active"><div class="card"><div id="view_plans" class="output-view" contenteditable="true"></div></div></div>
+  <div id="sec_worksheets" class="tab-content"><div class="card"><div id="view_worksheets" class="output-view" contenteditable="true"></div></div></div>
+  <div id="sec_exams" class="tab-content"><div class="card"><div id="view_exams" class="output-view" contenteditable="true"></div></div></div>
+  <div id="sec_custom" class="tab-content"><div class="card"><div id="view_custom" class="output-view" contenteditable="true"></div></div></div>
 
 </div>
 
 <script>
 let contextDataText = "";
 
+window.onload = function() {
+  const savedKey = localStorage.getItem('app_secure_key');
+  if(savedKey) document.getElementById('api_key').value = savedKey;
+  syncMeta();
+};
+
 function toEasternNumerals(num) {
   if (num === null || num === undefined || isNaN(num)) return "٠";
   const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return num.toString().replace(/[0-9]/g, function(w) { return easternDigits[+w]; });
+  return num.toString().replace(/[0-9]/g, w => easternDigits[+w]);
 }
 
 function convertTextToEasternNumerals(text) {
   if (!text) return "";
   const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-  return text.replace(/[0-9]/g, function(w) { return easternDigits[+w]; });
+  return text.replace(/[0-9]/g, w => easternDigits[+w]);
 }
-
-function execCmd(command, value = null) {
-  document.execCommand(command, false, value);
-}
-
-function clearEditor(id) {
-  if(confirm("هل أنت متأكد من مسح المحتوى؟")) {
-    document.getElementById(id).innerHTML = "";
-  }
-}
-
-window.onload = function() {
-  const savedKey = localStorage.getItem('app_secure_key');
-  if(savedKey) document.getElementById('api_key').value = savedKey;
-  syncMeta();
-  buildGradeSheet();
-};
 
 function saveKey() {
   const k = document.getElementById('api_key').value.trim();
-  if(!k) { alert("أدخل مفتاح اتصال صالح."); return; }
-  localStorage.setItem('app_secure_key', k);
-  alert("تم تثبيت وحفظ مفتاح الربط السحابي.");
+  if(k) { localStorage.setItem('app_secure_key', k); alert("تم الحفظ."); }
 }
 
 function syncMeta() {
-  document.getElementById('lbl-t').innerText = document.getElementById('inp_teacher').value.trim() || ".......";
-  document.getElementById('lbl-s').innerText = document.getElementById('inp_school').value.trim() || ".......";
-  document.getElementById('lbl-d').innerText = document.getElementById('inp_directorate').value.trim() || ".......";
-}
-
-function printView(title) {
-  document.getElementById('lbl-title').innerText = title;
-  window.print();
+  document.getElementById('lbl-t').innerText = document.getElementById('inp_teacher').value.trim();
+  document.getElementById('lbl-s').innerText = document.getElementById('inp_school').value.trim();
+  document.getElementById('lbl-d').innerText = document.getElementById('inp_directorate').value.trim();
 }
 
 function showProgress(msg) {
   document.getElementById("global_progress_container").style.display = "block";
   const st = document.getElementById("global_status_text");
-  st.style.display = "block";
-  st.innerText = msg;
+  st.style.display = "block"; st.innerText = msg;
 }
 
 function hideProgress() {
@@ -320,118 +194,86 @@ function openTab(tabId, el) {
 }
 
 function toggleCustomRequest() {
-  const target = document.getElementById("generation_target").value;
-  document.getElementById("custom_request_group").style.display = (target === 'custom') ? 'block' : 'none';
-}
-
-async function extractStudentNames() {
-  const file = document.getElementById("image_or_file").files[0];
-  if (!file) { alert("الرجاء إرفاق كشف مصور أو ملف أولاً."); return; }
-  showProgress("⏳ جاري التحليل البصري وفك قراءة الأسماء...");
-  try {
-    if (file.type.startsWith("image/")) {
-      const result = await Tesseract.recognize(file, 'ara');
-      processExtractedText(result.data.text);
-    } else if (file.type === "application/pdf") {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-      let text = "";
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(item => item.str).join(" ") + "\n";
-      }
-      processExtractedText(text);
-    }
-  } catch (e) { console.error(e); alert("حدث خطأ أثناء معالجة الكشف."); }
-  finally { hideProgress(); }
-}
-
-function processExtractedText(rawText) {
-  const lines = rawText.split('\n');
-  const cleanedNames = lines.map(l => l.trim()).filter(l => l.length > 4 && !/^\d+$/.test(l) && !l.includes("الصف") && !l.includes("العلامات"));
-  if (cleanedNames.length > 0) {
-    document.getElementById("inp_students").value = cleanedNames.join('\n');
-    buildGradeSheet();
-    alert(`✔ تم استخراج (${toEasternNumerals(cleanedNames.length)}) اسماً.`);
-  } else {
-    alert("لم يتم العثور على أسماء واضحة.");
-  }
+  document.getElementById("custom_request_group").style.display = (document.getElementById("generation_target").value === 'custom') ? 'block' : 'none';
 }
 
 async function readPDF() {
   const file = document.getElementById("pdf_file").files[0];
-  if(!file) { alert("الرجاء تحديد ملف الكتاب أولاً."); return; }
-  showProgress("⏳ جاري استخلاص نصوص المنهج المرجعي...");
+  const statusEl = document.getElementById("pdf_status");
+  if(!file) { alert("حدد ملف PDF أولاً."); return; }
+  
+  showProgress("⏳ جاري استخلاص النص العادي من الـ PDF...");
+  statusEl.innerText = "";
+  
   try {
     const arrayBuffer = await file.arrayBuffer();
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    
     let text = "";
-    const pageLimit = Math.min(pdf.numPages, 40);
-    for(let i = 1; i <= pageLimit; i++) {
+    const textPageLimit = Math.min(pdf.numPages, 30);
+    
+    for(let i = 1; i <= textPageLimit; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
       text += content.items.map(item => item.str).join(" ") + "\n";
     }
+
+    // الفحص الاستراتيجي للنصوص (إذا كان النص المستخرج أقل من 500 حرف، يعني الكتاب مصور Scan)
+    if (text.replace(/\s/g, '').length < 500) {
+      showProgress("⚠️ تم اكتشاف كتاب مصور (Scanned PDF). جاري التحويل إلى صور وتشغيل محرك OCR (قد يستغرق دقائق)...");
+      text = "";
+      const ocrPageLimit = Math.min(pdf.numPages, 5); // تقييد الصفحات لتجنب انهيار المتصفح
+      
+      for(let i = 1; i <= ocrPageLimit; i++) {
+        showProgress(`🔍 جاري المسح البصري (OCR) للصفحة ${i} من ${ocrPageLimit}...`);
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({scale: 1.5});
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        await page.render({canvasContext: ctx, viewport: viewport}).promise;
+        
+        const imgData = canvas.toDataURL('image/png');
+        const result = await Tesseract.recognize(imgData, 'ara');
+        text += result.data.text + "\n\n";
+      }
+      statusEl.innerText = `تم استخراج النصوص بصرياً لـ ${toEasternNumerals(ocrPageLimit)} صفحات فقط لتجنب استهلاك الذاكرة.`;
+    } else {
+      statusEl.innerText = `تم قراءة الـ PDF النصي بنجاح.`;
+    }
+
     contextDataText = text;
-    alert(`✔ تم استخلاص (${toEasternNumerals(pageLimit)}) صفحة بنجاح.`);
-  } catch(e) { console.error(e); alert("خطأ في قراءة الـ PDF."); }
+    alert(`✔ تمت العملية بنجاح. (حجم السياق: ${toEasternNumerals(contextDataText.length)} حرف)`);
+  } catch(e) { 
+    console.error(e); 
+    statusEl.innerText = "❌ خطأ في معالجة الملف."; 
+  }
   finally { hideProgress(); }
 }
 
 async function launchSinglePipeline() {
   const target = document.getElementById("generation_target").value;
   const topic = document.getElementById("generation_topic").value.trim();
-  const customText = document.getElementById("custom_request_text").value.trim();
   const key = localStorage.getItem("app_secure_key");
 
-  if(target === 'custom' && !customText) { alert("يرجى كتابة تفاصيل طلبك المخصص في الخانة المحددة."); return; }
-  if(target !== 'custom' && !topic) { alert("يرجى كتابة موضوع الدرس أو عنوان الوحدة أولاً."); return; }
-  if(!key) { alert("خطأ: لم يتم حفظ مفتاح API."); return; }
-
-  showProgress("🚀 جاري المعالجة السحابية والتوليد...");
-  
-  const tabMap = { 'plans': 'sec_plans', 'worksheets': 'sec_worksheets', 'exams': 'sec_exams', 'rubrics': 'sec_rubrics', 'custom': 'sec_custom' };
-  const links = document.querySelectorAll('.tab-link');
-  let matchedLink = links[0];
-  if(target === 'worksheets') matchedLink = links[1];
-  else if(target === 'exams') matchedLink = links[2];
-  else if(target === 'rubrics') matchedLink = links[3];
-  else if(target === 'custom') matchedLink = links[4];
-  
-  openTab(tabMap[target], matchedLink);
+  if(!topic) { alert("أدخل موضوع الدرس."); return; }
+  if(!key) { alert("لم يتم إدخال مفتاح API."); return; }
 
   const viewElement = document.getElementById("view_" + target);
-  viewElement.innerText = "⏳ جاري الإنتاج... الرجاء الانتظار.";
+  viewElement.innerHTML = "⏳ جاري الاتصال بالخادم السحابي...";
+  showProgress("🚀 جاري معالجة الطلب...");
+  openTab('sec_' + target, document.querySelector(`.tab-link[onclick*="sec_${target}"]`));
 
-  const teacher = document.getElementById("inp_teacher").value.trim() || "المعلم";
-  const school = document.getElementById("inp_school").value.trim() || "المدرسة";
-  const directorate = document.getElementById("inp_directorate").value.trim() || "المديرية";
-  const students = document.getElementById("inp_students").value.trim() || "طلبة الصف الدراسي";
-  const refContext = contextDataText ? contextDataText.slice(0, 15000) : "لا يوجد كتاب مرفق.";
+  // تقليل حجم السياق لمنع أخطاء Payload (400, 429)
+  const safeContextLimit = 7000; 
+  const refContext = contextDataText ? contextDataText.slice(0, safeContextLimit) : "بدون كتاب مرجعي.";
 
-  const promptRules = `أنت مساعد تربوي محترف. اكتب المحتوى المطلوب كاملاً وجاهزاً للطباعة فوراً.
-يمنع منعاً باتاً كتابة أي مقدمات، ملاحظات ختامية، أو شروحات لكيفية الاستخدام. المتن فقط.
-شرط إلزامي وهيكلي صارم: صياغة كافة الأرقام والمسائل الحسابية بالترميز العربي الشرقي حصرياً (٠، ١، ٢، ٣، ٤، ٥، ٦، ٧، ٨، ٩).
-[المعلم: ${teacher} | المدرسة: ${school} | المديرية: ${directorate}]`;
-
-  let subPrompt = "";
-  if(target === "plans") {
-    subPrompt = `صياغة خطة درس تفصيلية لـ: (${topic}) داخل الوسم التالي:
-<div class="lesson-page-block">
-[الخطة الكاملة هنا: أهداف سلوكية، تمهيد، عرض، أنشطة، وتقويم، وجدول للمدير والمشرف]
-</div>`;
-  } else if(target === "worksheets") {
-    subPrompt = `ورقة عمل تطبيقية متكاملة لدرس: (${topic}) بأسئلة موضوعية ومسائل.`;
-  } else if(target === "exams") {
-    subPrompt = `اختبار تحصيلي لدرس: (${topic}) مع العلامات ونموذج الإجابة في النهاية.`;
-  } else if(target === "rubrics") {
-    subPrompt = `بطاقة رصد أداء لدرس: (${topic}) للطلاب: \n${students}`;
-  } else if(target === "custom") {
-    subPrompt = `طلب مخصص من المعلم بخصوص درس (${topic}):\n"${customText}"\nقم بتنفيذ هذا الطلب بحرفية وتنسيق جاهز للطباعة والاستخدام الفوري مع الطلاب.`;
-  }
-
-  const finalPrompt = `${promptRules}\n\n${subPrompt}\n\nالسياق المساعد:\n${refContext}`;
+  const prompt = `أنت مساعد تربوي محترف. اكتب المطلوب بترميز الأرقام العربية المشرقية (٠١٢٣٤٥٦٧٨٩) حصراً، بدون أي مقدمات أو شروحات جانبية.
+الموضوع: ${topic}
+النوع: ${target}
+السياق المرجعي: ${refContext}`;
 
   try {
     const response = await fetch(
@@ -439,124 +281,34 @@ async function launchSinglePipeline() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: finalPrompt }] }] })
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       }
     );
+    
     const data = await response.json();
-    let resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ خطأ أثناء الاستدعاء.";
-    viewElement.innerHTML = convertTextToEasternNumerals(resultText);
+    console.log("API Response:", data); // التتبع في الـ Console
+
+    // التقاط الأخطاء الصريحة من الـ API
+    if (data.error) {
+      throw new Error(`كود الخطأ: ${data.error.code} | الرسالة: ${data.error.message}`);
+    }
+
+    let resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    // التقاط مشكلة الإرجاع الفارغ (غالباً بسبب الحجب الأمني أو مشكلة في الطلب)
+    if (!resultText) {
+      throw new Error("استجابة الخادم كانت فارغة أو تم حجب المحتوى بواسطة مرشحات الأمان (Safety Ratings).");
+    }
+
+    viewElement.innerHTML = convertTextToEasternNumerals(resultText).replace(/\n/g, "<br>");
+    
   } catch(e) {
-    viewElement.innerText = "❌ فشل الاتصال بالخادم السحابي.";
+    console.error(e);
+    // عرض الخطأ البرمجي بوضوح داخل واجهة المستخدم
+    viewElement.innerHTML = `<div class="error-msg">❌ فشل توليد المحتوى:<br>${e.message}<br><br><small>تلميح: إذا كان الخطأ 400، فحجم السياق (النص المستخرج من الـ PDF) ضخم جداً. إذا كان 429، فقد استهلكت الحصة المجانية للمفتاح.</small></div>`;
   } finally {
     hideProgress();
   }
-}
-
-let dynamicStudentCount = 0;
-
-function buildGradeSheet() {
-  const rawText = document.getElementById("inp_students").value.trim();
-  const container = document.getElementById("sheet_container");
-  if(!rawText) {
-    container.innerHTML = "<b style='color:#ef4444; font-size:12px;'>يرجى إدخال أسماء الطلاب أولاً.</b>";
-    return;
-  }
-  const rows = rawText.split('\n');
-  dynamicStudentCount = rows.length;
-
-  let html = `<table id="tbl_grades_data">
-    <thead>
-      <tr>
-        <th>اسم الطالب</th>
-        <th>المحور المعرفي (${toEasternNumerals(20)})</th>
-        <th>المحور المهاري (${toEasternNumerals(20)})</th>
-        <th>المحور السلوكي (${toEasternNumerals(20)})</th>
-        <th>النهائي (${toEasternNumerals(40)})</th>
-        <th>المجموع (${toEasternNumerals(100)})</th>
-        <th class="no-print">إجراءات</th>
-      </tr>
-    </thead>
-    <tbody id="grade_sheet_tbody">`;
-  
-  rows.forEach((name, idx) => {
-    if(name.trim() === "") return;
-    html += `<tr id="student_row_${idx}">
-      <td style="font-weight: 600; text-align: right;" contenteditable="true" oninput="syncBackToTextarea()">${name.trim()}</td>
-      <td><input type="number" id="cog_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_cog_${idx}">٠</span></td>
-      <td><input type="number" id="sk_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_sk_${idx}">٠</span></td>
-      <td><input type="number" id="beh_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_beh_${idx}">٠</span></td>
-      <td><input type="number" id="fin_${idx}" min="0" max="40" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_fin_${idx}">٠</span></td>
-      <td id="tot_${idx}" style="font-weight: bold; font-size: 15px;">٠</td>
-      <td class="no-print"><button onclick="deleteStudentRow(${idx})" class="btn-danger" style="padding:4px 8px; font-size:11px;">❌</button></td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-  container.innerHTML = html;
-}
-
-function addNewStudentRow() {
-  const tbody = document.getElementById("grade_sheet_tbody");
-  if(!tbody) return;
-  const idx = dynamicStudentCount;
-  const tr = document.createElement("tr");
-  tr.id = `student_row_${idx}`;
-  tr.innerHTML = `
-    <td style="font-weight: 600; text-align: right;" contenteditable="true" oninput="syncBackToTextarea()">طالب جديد...</td>
-    <td><input type="number" id="cog_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_cog_${idx}">٠</span></td>
-    <td><input type="number" id="sk_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_sk_${idx}">٠</span></td>
-    <td><input type="number" id="beh_${idx}" min="0" max="20" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_beh_${idx}">٠</span></td>
-    <td><input type="number" id="fin_${idx}" min="0" max="40" placeholder="٠" oninput="runMath(${idx})"><span class="print-preview-value" id="lbl_fin_${idx}">٠</span></td>
-    <td id="tot_${idx}" style="font-weight: bold; font-size: 15px;">٠</td>
-    <td class="no-print"><button onclick="deleteStudentRow(${idx})" class="btn-danger" style="padding:4px 8px; font-size:11px;">❌</button></td>
-  `;
-  tbody.appendChild(tr);
-  dynamicStudentCount++;
-  syncBackToTextarea();
-}
-
-function deleteStudentRow(idx) {
-  const row = document.getElementById(`student_row_${idx}`);
-  if(row && confirm("حذف الطالب؟")) { row.remove(); syncBackToTextarea(); }
-}
-
-function syncBackToTextarea() {
-  const tbody = document.getElementById("grade_sheet_tbody");
-  if(!tbody) return;
-  let names = [];
-  tbody.querySelectorAll("tr").forEach(r => {
-    const tdName = r.querySelector("td");
-    if(tdName) names.push(tdName.innerText.trim());
-  });
-  document.getElementById("inp_students").value = names.join("\n");
-}
-
-function runMath(idx) {
-  const cog = parseFloat(document.getElementById(`cog_${idx}`).value) || 0;
-  const sk = parseFloat(document.getElementById(`sk_${idx}`).value) || 0;
-  const beh = parseFloat(document.getElementById(`beh_${idx}`).value) || 0;
-  const fin = parseFloat(document.getElementById(`fin_${idx}`).value) || 0;
-  
-  document.getElementById(`lbl_cog_${idx}`).innerText = toEasternNumerals(cog);
-  document.getElementById(`lbl_sk_${idx}`).innerText = toEasternNumerals(sk);
-  document.getElementById(`lbl_beh_${idx}`).innerText = toEasternNumerals(beh);
-  document.getElementById(`lbl_fin_${idx}`).innerText = toEasternNumerals(fin);
-  
-  const total = cog + sk + beh + fin;
-  const cell = document.getElementById(`tot_${idx}`);
-  cell.innerText = toEasternNumerals(total);
-  cell.style.color = (total >= 50) ? "#16a34a" : "#dc2626";
-}
-
-function exportExcelSheet() {
-  const table = document.getElementById("tbl_grades_data");
-  if(!table) return;
-  const clonedTable = table.cloneNode(true);
-  clonedTable.querySelectorAll('.no-print').forEach(el => el.remove());
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.table_to_sheet(clonedTable);
-  ws['!dir'] = "rtl";
-  XLSX.utils.book_append_sheet(wb, ws, "العلامات");
-  XLSX.writeFile(wb, "السجل_الرسمي.xlsx");
 }
 </script>
 </body>
