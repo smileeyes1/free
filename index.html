@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>النظام التعليمي الذكي الكامل</title>
+<title>النظام التعليمي الكامل المتقدم</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -30,18 +30,18 @@ input,textarea,select,button{
   margin-top:10px;
 }
 
-button{cursor:pointer}
-
 #out{
   white-space:pre-wrap;
   background:#111;
   color:#0f0;
   padding:15px;
   border-radius:10px;
-  min-height:350px;
+  min-height:400px;
 }
 
-@media print {
+button{cursor:pointer}
+
+@media print{
   body{background:white}
   button,input,select,textarea{display:none}
 }
@@ -51,37 +51,29 @@ button{cursor:pointer}
 <body>
 
 <div class="box">
-<h2>📘 النظام التعليمي الذكي الكامل</h2>
+<h2>📘 النظام التعليمي الكامل</h2>
 
-<button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')">🔑 إنشاء مفتاح</button>
+<button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')">🔑 API KEY</button>
 <input id="key" placeholder="API KEY">
-<button onclick="localStorage.setItem('key',document.getElementById('key').value.trim())">💾 حفظ</button>
+<button onclick="localStorage.setItem('key',document.getElementById('key').value.trim())">حفظ</button>
 </div>
 
 <div class="box">
-<h3>🏫 الهوية المدرسية</h3>
-<input id="teacher" placeholder="اسم المعلم">
-<input id="school" placeholder="اسم المدرسة">
-<input id="directorate" placeholder="اسم المديرية">
-
-<input type="file" id="logo" accept="image/*">
-<button onclick="loadLogo()">📤 رفع شعار المديرية</button>
-<div id="logoStatus">لا يوجد شعار</div>
+<h3>🏫 الهوية</h3>
+<input id="teacher" placeholder="المعلم">
+<input id="school" placeholder="المدرسة">
+<input id="directorate" placeholder="المديرية">
 </div>
 
 <div class="box">
 <h3>👥 الطلاب</h3>
-<input type="file" id="img" accept="image/*">
-<button onclick="extractNames()">📸 استخراج الأسماء من صورة</button>
-
-<textarea id="manualNames" rows="4" placeholder="أسماء يدوية (كل اسم سطر)"></textarea>
-<div id="namesStatus">لا يوجد أسماء</div>
+<textarea id="students" rows="4" placeholder="أسماء الطلاب (كل اسم سطر)"></textarea>
 </div>
 
 <div class="box">
 <h3>📂 الكتاب</h3>
 <input type="file" id="file" accept=".pdf">
-<button onclick="loadBook()">📥 استخراج الكتاب</button>
+<button onclick="loadBook()">تحميل الكتاب</button>
 <div id="status">---</div>
 </div>
 
@@ -89,73 +81,25 @@ button{cursor:pointer}
 <h3>⚙️ الإنتاج</h3>
 
 <select id="mode">
-<option value="full">إنتاج تربوي كامل</option>
+<option value="full">إنتاج كامل</option>
 <option value="unit">وحدة</option>
 <option value="lesson">درس</option>
 </select>
 
 <input id="topic" placeholder="وحدة / درس">
-<button onclick="run()">🚀 إنتاج</button>
+<button onclick="run()">🚀 تشغيل</button>
 </div>
 
 <div class="box">
-<button onclick="window.print()">🖨 طباعة</button>
+<button onclick="printSection('out')">🖨 طباعة</button>
 <div id="out">---</div>
 </div>
 
 <script>
 
 let book="";
-let logoBase64="";
-let students=[];
 
-/* ========= الهوية ========= */
-
-function loadLogo(){
-  const f=document.getElementById("logo").files[0];
-  const r=new FileReader();
-  r.onload=e=>{
-    logoBase64=e.target.result;
-    document.getElementById("logoStatus").innerText="✔ تم رفع الشعار";
-  };
-  r.readAsDataURL(f);
-}
-
-function getInstitution(){
-  return{
-    teacher:document.getElementById("teacher").value,
-    school:document.getElementById("school").value,
-    directorate:document.getElementById("directorate").value,
-    logo:logoBase64
-  };
-}
-
-/* ========= الطلاب ========= */
-
-async function extractNames(){
-
-  const file=document.getElementById("img").files[0];
-  const url=URL.createObjectURL(file);
-
-  const res=await Tesseract.recognize(url,'ara+eng');
-
-  students=res.data.text
-    .split("\n")
-    .map(x=>x.trim())
-    .filter(x=>x.length>2);
-
-  document.getElementById("namesStatus").innerText=
-  "✔ "+students.length+" اسم";
-}
-
-function getStudents(){
-  let manual=document.getElementById("manualNames").value
-    .split("\n").map(x=>x.trim()).filter(x=>x);
-
-  return [...students,...manual];
-}
-
-/* ========= الكتاب ========= */
+/* ========= تحميل الكتاب ========= */
 
 async function loadBook(){
 
@@ -167,88 +111,107 @@ let text="";
 
 for(let i=1;i<=pdf.numPages;i++){
 
-  const page=await pdf.getPage(i);
+const page=await pdf.getPage(i);
+const content=await page.getTextContent();
 
-  const content=await page.getTextContent();
-  let t=content.items.map(x=>x.str).join(" ");
+let t=content.items.map(x=>x.str).join(" ");
 
-  if(t.length<20){
-
-    const vp=page.getViewport({scale:2});
-    const canvas=document.createElement("canvas");
-    const ctx=canvas.getContext("2d");
-
-    canvas.width=vp.width;
-    canvas.height=vp.height;
-
-    await page.render({canvasContext:ctx,viewport:vp}).promise;
-
-    const img=canvas.toDataURL();
-
-    const ocr=await Tesseract.recognize(img,'ara+eng');
-    t=ocr.data.text;
-  }
-
-  text+=t+"\n";
+text+=t+"\n";
 }
 
 book=text;
 
-document.getElementById("status").innerText=
-"✔ تم تحميل الكتاب";
+document.getElementById("status").innerText="✔ تم تحميل الكتاب";
 }
 
-/* ========= prompt ========= */
+/* ========= prompt صارم ========= */
 
 function prompt(mode,topic){
 
-const inst=getInstitution();
-const names=getStudents().join(" | ");
-
-const header=
-`
-🏫 ${inst.school}
-📍 ${inst.directorate}
-👨‍🏫 ${inst.teacher}
-👥 الطلاب: ${names}
-`;
-
-const base=
-`أنت خبير مناهج.
-اعتمد فقط على الكتاب.`;
+const teacher=document.getElementById("teacher").value;
+const school=document.getElementById("school").value;
+const directorate=document.getElementById("directorate").value;
+const students=document.getElementById("students").value;
 
 const ctx=book.slice(0,30000);
+
+const base=`
+أنت نظام تربوي صارم جدًا.
+
+ممنوع الدمج بين الأقسام.
+ممنوع الاختصار.
+كل قسم مستقل بالكامل.
+
+اعتمد فقط على الكتاب.
+`;
+
+const header=`
+🏫 المدرسة: ${school}
+📍 المديرية: ${directorate}
+👨‍🏫 المعلم: ${teacher}
+👥 الطلاب:
+${students}
+`;
 
 let task="";
 
 if(mode==="full"){
 task=`
-إنتاج كامل:
+أخرج 4 أقسام منفصلة تمامًا:
 
-1) خطط دروس
-2) أوراق عمل لكل درس
-3) اختبارات لكل وحدة
-4) قوائم رصد (معرفي/مهاري/سلوكي)
+====================
+📘 خطط الدروس
+====================
+- تقسيم وحدات
+- لكل درس: هدف + تمهيد + شرح + نشاط + تقويم
 
-كل شيء قابل للطباعة.`;
+====================
+📝 أوراق العمل
+====================
+- لكل درس ورقة مستقلة
+- أسئلة متنوعة
+
+====================
+🧪 الاختبارات
+====================
+- اختبار لكل وحدة
+- نموذج إجابة
+
+====================
+📊 قوائم الرصد
+====================
+- معرفي
+- مهاري
+- سلوكي
+
+⚠️ كل قسم مستقل 100% بدون دمج
+`;
 }
 
 if(mode==="unit"){
 task=`
 وحدة: ${topic}
-- خطط
-- أوراق عمل
-- اختبار
-- قوائم رصد`;
+
+أخرج:
+1) خطط
+2) أوراق عمل
+3) اختبار وحدة
+4) قوائم رصد
+كل قسم مستقل.
+`;
 }
 
 if(mode==="lesson"){
 task=`
 درس: ${topic}
-- خطة درس
-- ورقة عمل
-- اختبار
-- قائمة رصد`;
+
+أخرج:
+1) خطة درس
+2) ورقة عمل
+3) اختبار
+4) قائمة رصد
+كل قسم مستقل.
+`;
 }
 
 return base+"\n"+header+"\n"+ctx+"\n"+task;
@@ -261,7 +224,7 @@ async function run(){
 const key=localStorage.getItem("key");
 if(!key)return;
 
-document.getElementById("out").innerText="...";
+document.getElementById("out").innerText="جاري التنفيذ...";
 
 const mode=document.getElementById("mode").value;
 const topic=document.getElementById("topic").value;
@@ -279,14 +242,15 @@ contents:[{parts:[{text:prompt(mode,topic)}]}]
 
 const data=await res.json();
 
-const result=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+const result=data?.candidates?.[0]?.content?.parts?.[0]?.text || "خطأ";
 
-const inst=getInstitution();
+document.getElementById("out").innerText=result;
+}
 
-document.getElementById("out").innerHTML=
-(inst.logo?`<img src="${inst.logo}" width="120"><br>`:"")
-+result;
+/* ========= طباعة ========= */
 
+function printSection(id){
+  window.print();
 }
 
 </script>
