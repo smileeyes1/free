@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>النظام التعليمي الموحد</title>
+<title>نظام التحضير والتقويم الفلسطيني الموحد</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -24,37 +24,21 @@ body {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.main-header {
-  background: #1e3a8a;
-  color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
+/* لوحة التحكم العلوية */
 .card {
   background: #ffffff;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 6px;
   margin-bottom: 20px;
   border: 1px solid #cbd5e1;
 }
 
-.card h3 {
-  color: #1e3a8a;
-  margin-bottom: 15px;
-  border-right: 4px solid #3b82f6;
-  padding-right: 10px;
-}
-
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-
 .form-group { margin-bottom: 15px; }
 
 label {
@@ -62,6 +46,16 @@ label {
   font-weight: 600;
   margin-bottom: 5px;
   font-size: 13px;
+  color: #1e3a8a;
+}
+
+/* تلميحات مساعدة ذكية للمعلم */
+.tip-text {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 3px;
+  display: block;
+  font-style: italic;
 }
 
 input, textarea, select {
@@ -73,50 +67,39 @@ input, textarea, select {
   font-size: 14px;
 }
 
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  background: #ffffff;
-}
-
 button {
   padding: 10px 20px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   border: none;
   transition: background 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
 }
 
-.btn-blue { background: #3b82f6; color: white; }
-.btn-blue:hover { background: #2563eb; }
-.btn-green { background: #10b981; color: white; }
-.btn-green:hover { background: #059669; }
-.btn-dark { background: #334155; color: white; }
-.btn-dark:hover { background: #1e293b; }
+.btn-blue { background: #2563eb; color: white; }
+.btn-blue:hover { background: #1d4ed8; }
+.btn-green { background: #16a34a; color: white; }
+.btn-green:hover { background: #15803d; }
+.btn-dark { background: #475569; color: white; }
+.btn-dark:hover { background: #334155; }
 
-/* خط التحميل البصري النبضي لبيان استمرار العمل */
+/* خط التحميل البصري النبضي */
 .progress-container {
   display: none;
   margin: 15px 0;
   background: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 4px;
   overflow: hidden;
-  position: relative;
-  height: 12px;
+  height: 8px;
 }
 
 .progress-bar-pulse {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%);
+  background: linear-gradient(90deg, #2563eb 25%, #60a5fa 50%, #2563eb 75%);
   background-size: 200% 100%;
-  animation: loadingPulse 1.5s infinite linear;
+  animation: loadingPulse 1.2s infinite linear;
 }
 
 @keyframes loadingPulse {
@@ -124,16 +107,7 @@ button {
   100% { background-position: -200% 0; }
 }
 
-.status-text {
-  font-size: 13px;
-  font-weight: bold;
-  color: #2563eb;
-  margin-top: 5px;
-  display: none;
-  text-align: center;
-}
-
-/* تبويبات التنقل */
+/* تبويبات النظام */
 .tabs-nav {
   display: flex;
   gap: 5px;
@@ -158,17 +132,20 @@ button {
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
+/* متن المخرجات: مرن، نظيف، وقابل للتعديل المباشر داخل المتصفح كلياً */
 .output-view {
-  white-space: pre-wrap;
   background: #ffffff;
-  padding: 20px;
+  padding: 30px;
   border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  min-height: 400px;
-  font-size: 14px;
-  line-height: 1.7;
+  border-radius: 4px;
+  min-height: 500px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #000000;
+  outline: none;
 }
 
+/* تصميم جدول العلامات ورصد قوائم المشرف/المدير */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -181,55 +158,72 @@ th, td {
   text-align: center;
 }
 
-th { background: #f8fafc; color: #1e3a8a; }
+th { background: #f1f5f9; color: #1e3a8a; }
 
 .print-preview-value { display: none; }
 #print-header-sheet { display: none; }
 
+/* ====================================================================
+   قوانين هندسة الطباعة الصارمة: محاكاة مخرجات الصفحة الواحدة المعزولة A4
+   ==================================================================== */
 @media print {
-  .main-header, .card:not(.printable-zone), button, input, select, textarea, .tabs-nav, .no-print, .progress-container, .status-text {
+  .no-print, button, input, select, textarea, .tabs-nav, .progress-container, .tip-text {
     display: none !important;
   }
   
-  body, .container, .main-content {
+  body {
     background: #ffffff !important;
     color: #000000 !important;
     padding: 0 !important;
     margin: 0 !important;
+  }
+
+  .container {
+    max-width: 100% !important;
     width: 100% !important;
-    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   .tab-content { display: none !important; }
   .tab-content.active { display: block !important; }
 
-  .card.printable-zone {
+  /* تفعيل وعزل حاوية الطباعة النظيفة بدون إطار علوي أو قفل */
+  .card {
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    display: block !important;
+    background: transparent !important;
   }
 
+  /* المتن النظيف القابل للكتابة والطباعة مباشرة كصفحة صلبة */
   .output-view {
     border: none !important;
     padding: 0 !important;
     background: transparent !important;
     color: #000000 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
     display: block !important;
-    white-space: pre-wrap !important;
+  }
+
+  /* فرض طباعة كل تحضير درس في صفحة مستقلة A4 للمشرف والمدير */
+  .lesson-page-block {
+    page-break-after: always;
+    page-break-inside: avoid;
+    clear: both;
   }
 
   table {
     border: 1px solid #000000 !important;
     width: 100% !important;
-    display: table !important;
   }
 
   th, td {
     border: 1px solid #000000 !important;
     color: #000000 !important;
-    padding: 6px !important;
-    font-size: 12px !important;
+    padding: 5px !important;
+    font-size: 11px !important;
   }
 
   th { background: #eaeaea !important; }
@@ -240,9 +234,9 @@ th { background: #f8fafc; color: #1e3a8a; }
   #print-header-sheet {
     display: block !important;
     width: 100%;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     border-bottom: 2px solid #000000;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
   }
 }
 </style>
@@ -252,30 +246,22 @@ th { background: #f8fafc; color: #1e3a8a; }
 
 <div class="container">
   
-  <header class="main-header">
-    <h2>النظام التعليمي الموحد واللوحة الإنتاجية الشاملة</h2>
-    <p style="font-size: 13px; margin-top: 5px; color: #93c5fd;">نظام متكامل لإنتاج الخطط والأنشطة والامتحانات وسجلات الرصد بالأرقام المشرقية (٠١٢٣٤٥٦٧٨٩)</p>
-  </header>
-
   <div id="print-header-sheet">
     <table style="width: 100%; border: none !important;">
       <tr style="border: none !important;">
-        <td style="text-align: right; border: none !important; width: 33%;"><b>المعلم:</b> <span id="lbl-t"></span></td>
-        <td style="text-align: center; border: none !important; width: 33%;"><b>المدرسة:</b> <span id="lbl-s"></span></td>
-        <td style="text-align: left; border: none !important; width: 33%;"><b>المديرية:</b> <span id="lbl-d"></span></td>
-      </tr>
-      <tr style="border: none !important;">
-        <td colspan="3" style="text-align: center; font-size: 16px; font-weight: bold; padding-top: 15px; border: none !important;" id="lbl-title">مستند رسمي معتمد</td>
+        <td style="text-align: right; border: none !important; width: 33%; font-size: 12px;"><b>دولة فلسطين</b><br>وزارة التربية والتعليم<br><span id="lbl-d"></span></td>
+        <td style="text-align: center; border: none !important; width: 33%; vertical-align: middle;"><b style="font-size: 14px;" id="lbl-title">دفتر تحضير الدروس والتقويم الرسمي</b></td>
+        <td style="text-align: left; border: none !important; width: 33%; font-size: 12px;"><b>المدرسة:</b> <span id="lbl-s"></span><br><b>المعلم:</b> <span id="lbl-t"></span></td>
       </tr>
     </table>
   </div>
 
   <div class="card no-print">
-    <h3>⚙️ إعدادات النظام وربط المحرك</h3>
     <div class="grid-3">
       <div class="form-group">
         <label>Google Cloud API Key:</label>
-        <input id="api_key" type="password" placeholder="أدخل مفتاح الاتصال">
+        <input id="api_key" type="password" placeholder="أدخل مفتاح الاتصال السحابي">
+        <span class="tip-text">تلميح: احصل عليه من منصة Google AI Studio لتشغيل ميزة التوليد التلقائي.</span>
       </div>
       <div class="form-group" style="display: flex; align-items: flex-end; gap: 5px;">
         <button onclick="saveKey()" class="btn-green" style="width: 100%;">اعتماد وحفظ المفتاح</button>
@@ -283,27 +269,39 @@ th { background: #f8fafc; color: #1e3a8a; }
       </div>
     </div>
 
-    <div class="grid-3" style="margin-top: 10px;">
-      <div class="form-group"><label>المعلم:</label><input id="inp_teacher" placeholder="مثال: محمد وجيه غنام" oninput="syncMeta()"></div>
-      <div class="form-group"><label>المدرسة:</label><input id="inp_school" placeholder="مثال: مدرسة عاطوف المختلطة" oninput="syncMeta()"></div>
-      <div class="form-group"><label>المديرية:</label><input id="inp_directorate" placeholder="مثال: مديرية طوباس" oninput="syncMeta()"></div>
+    <div class="grid-3" style="margin-top: 5px;">
+      <div class="form-group">
+        <label>المعلم:</label>
+        <input id="inp_teacher" placeholder="اسم المعلم ثلاثي" oninput="syncMeta()">
+        <span class="tip-text">تلميح: لتثبيت الاسم في توقيعات الخطط الموجهة للإدارة.</span>
+      </div>
+      <div class="form-group">
+        <label>المدرسة:</label>
+        <input id="inp_school" placeholder="اسم المدرسة" oninput="syncMeta()">
+      </div>
+      <div class="form-group">
+        <label>المديرية:</label>
+        <input id="inp_directorate" placeholder="مثال: مديرية طوباس" oninput="syncMeta()">
+      </div>
     </div>
 
-    <div class="grid-2" style="margin-top: 10px;">
+    <div class="grid-2" style="margin-top: 5px;">
       <div class="form-group">
-        <label>قائمة أسماء الطلاب (نص مباشر، أو مستخرجة تلقائياً):</label>
-        <textarea id="inp_students" rows="6" placeholder="أدخل أسماء الطلاب هنا، أو استخدم خيارات استخراج الأسماء بالجانب الأيسر..."></textarea>
+        <label>قائمة أسماء الطلاب (اسم في كل سطر):</label>
+        <textarea id="inp_students" rows="5" placeholder="أدخل الأسماء مباشرة، أو استخدم خيار الاستخراج التلقائي..."></textarea>
+        <span class="tip-text">تلميح: تُستخدم لإنشاء جداول العلامات وبطاقات ملاحظة السلوك المخصصة.</span>
       </div>
       
       <div class="form-group" style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1;">
-        <label style="color: #1e3a8a;">📷 استخراج الكشف عبر التصوير أو ملف صلب:</label>
-        <input type="file" id="image_or_file" accept="image/*, application/pdf" style="margin-bottom: 8px;">
-        <button onclick="extractStudentNames()" class="btn-blue" style="width: 100%;">استخراج الأسماء وتحديث القائمة</button>
+        <label>📷 استخراج كشف الأسماء من ملف أو صورة الكاميرا:</label>
+        <input type="file" id="image_or_file" accept="image/*, application/pdf" style="margin-bottom: 5px;">
+        <button onclick="extractStudentNames()" class="btn-blue" style="width: 100%;">استخراج الأسماء وإدراجها في القوائم</button>
+        <span class="tip-text">تلميح: يمكنك تصوير كشف العلامات الورقي، وسيستخرج النظام الأسماء تلقائياً.</span>
         
-        <div style="margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
-          <label>وثيقة المنهج أو الكتاب المصدري للتحليل الأساسي (PDF):</label>
+        <div style="margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+          <label>وثيقة كتاب المنهج المرجعي (PDF):</label>
           <input type="file" id="pdf_file" accept=".pdf">
-          <button onclick="readPDF()" class="btn-dark" style="width: 100%; margin-top: 8px;">قراءة واستخلاص نصوص كتاب المنهج</button>
+          <button onclick="readPDF()" class="btn-dark" style="width: 100%; margin-top: 5px;">استخلاص نصوص المحتوى التعليمي</button>
         </div>
       </div>
     </div>
@@ -311,72 +309,74 @@ th { background: #f8fafc; color: #1e3a8a; }
     <div class="progress-container" id="global_progress_container">
       <div class="progress-bar-pulse"></div>
     </div>
-    <div class="status-text" id="global_status_text">جاري العمل المعمق حالياً... يرجى الانتظار</div>
 
-    <div class="grid-3" style="margin-top: 10px; border-top: 1px solid #cbd5e1; padding-top: 15px;">
+    <div class="grid-3" style="margin-top: 5px; border-top: 1px solid #cbd5e1; padding-top: 10px;">
       <div class="form-group">
-        <label>نطاق الإنتاج والتوليد:</label>
+        <label>نطاق التوليد المستهدف:</label>
         <select id="generation_mode">
-          <option value="full">توليد الخطة التشغيلية الفصلية الكاملة</option>
-          <option value="unit">توليد مصفوفة وحدة دراسية معينة</option>
-          <option value="lesson">توليد حقيبة درس محدد دقيق</option>
+          <option value="lesson">تحضير الدروس (كل درس في صفحة واحدة A4 مستقلة كلياً)</option>
+          <option value="full">الخطة الفصلية والتشغيلية الكاملة للمشرف التربوي</option>
         </select>
       </div>
       <div class="form-group">
-        <label>عنوان الوحدة أو الدرس المستهدف:</label>
-        <input id="generation_topic" placeholder="مثال: الجمع دون إعادة تجميع">
+        <label>العنوان المستهدف أو موضوع الوحدة:</label>
+        <input id="generation_topic" placeholder="مثال: الجمع ضمن العدد ٩٩ دون إعادة تجميع">
+        <span class="tip-text">تلميح: اكتب عنوان الدرس بدقة كما هو وارد في الكتاب المصدري.</span>
       </div>
       <div class="form-group" style="display: flex; align-items: flex-end;">
-        <button onclick="launchPipeline()" class="btn-blue" style="width: 100%; height: 40px; font-size: 14px;">🚀 إطلاق عملية الإنتاج الشاملة</button>
+        <button onclick="launchPipeline()" class="btn-blue" style="width: 100%; height: 40px;">🚀 إطلاق المعالجة والإنتاج الفوري</button>
       </div>
     </div>
   </div>
 
   <div class="tabs-nav no-print">
-    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 ١. خطط الدروس</div>
-    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 ٢. أوراق العمل</div>
-    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 ٣. الامتحانات والأجوبة</div>
-    <div class="tab-link" onclick="openTab('sec_rubrics', this)">📊 ٤. مؤشرات الأداء والتحليل</div>
-    <div class="tab-link" onclick="openTab('sec_grades', this)">🗂️ ٥. السجل الرقمي والمصفوفة</div>
+    <div class="tab-link active" onclick="openTab('sec_plans', this)">📘 تحضير الدروس (A4 منفصل)</div>
+    <div class="tab-link" onclick="openTab('sec_worksheets', this)">📝 أوراق العمل الأكاديمية</div>
+    <div class="tab-link" onclick="openTab('sec_exams', this)">🧪 الامتحانات ودليل الإجابة</div>
+    <div class="tab-link" onclick="openTab('sec_rubrics', this)">📊 قوائم رصد المشرف والمدير</div>
+    <div class="tab-link" onclick="openTab('sec_grades', this)">🗂️ السجل الرقمي التفاعلي للعلامات</div>
   </div>
 
   <div id="sec_plans" class="tab-content active">
-    <div class="card printable-zone">
-      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('خطط الدروس والجدولة التشغيلية')" class="btn-dark">🖨️ طباعة خطط الدروس</button></div>
-      <div id="view_plans" class="output-view">بانتظار عملية التوليد...</div>
+    <div class="card">
+      <div class="no-print" style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="printView('تحضير الدروس اليومي المعتمد للادارة والمشرف التربوي')" class="btn-dark">🖨️ طباعة التحضير (A4 منفصل)</button>
+        <span style="font-size: 12px; color: #2563eb; font-weight: bold;">💡 المتن أدناه مرن وقابل للتعديل أو الكتابة أو الحذف مباشرة بمجرد النقر عليه!</span>
+      </div>
+      <div id="view_plans" class="output-view" contenteditable="true">بانتظار إطلاق عملية الإنتاج... يمكن التعديل والكتابة هنا بحرية تامة.</div>
     </div>
   </div>
 
   <div id="sec_worksheets" class="tab-content">
-    <div class="card printable-zone">
-      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('كراسة أنشطة وبنك أوراق العمل')" class="btn-dark">🖨️ طباعة أوراق العمل</button></div>
-      <div id="view_worksheets" class="output-view">بانتظار عملية التوليد...</div>
+    <div class="card">
+      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('كراسة الأنشطة وأوراق العمل التطبيقية')" class="btn-dark">🖨️ طباعة أوراق العمل</button></div>
+      <div id="view_worksheets" class="output-view" contenteditable="true">بانتظار إطلاق عملية الإنتاج...</div>
     </div>
   </div>
 
   <div id="sec_exams" class="tab-content">
-    <div class="card printable-zone">
-      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('الاختبارات التقييمية الرسمية ودليل الإجابة')" class="btn-dark">🖨️ طباعة الامتحانات ونموذج الإجابة</button></div>
-      <div id="view_exams" class="output-view">بانتظار عملية التوليد...</div>
+    <div class="card">
+      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('الاختبار التقييمي ومفتاح الإجابة المعتمد')" class="btn-dark">🖨️ طباعة الامتحانات والأجوبة</button></div>
+      <div id="view_exams" class="output-view" contenteditable="true">بانتظار إطلاق عملية الإنتاج...</div>
     </div>
   </div>
 
   <div id="sec_rubrics" class="tab-content">
-    <div class="card printable-zone">
-      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('مصفوفة بطاقات الرصد ومؤشرات الأداء الثلاثية')" class="btn-dark">🖨️ طباعة قوائم الرصد والتحليل</button></div>
-      <div id="view_rubrics" class="output-view">بانتظار عملية التوليد...</div>
+    <div class="card">
+      <div class="no-print" style="margin-bottom: 10px;"><button onclick="printView('سجل مؤشرات تقويم أداء سلوك واستيعاب الطلاب للوحدة')" class="btn-dark">🖨️ طباعة بطاقات ملاحظة الأداء</button></div>
+      <div id="view_rubrics" class="output-view" contenteditable="true">بانتظار إطلاق عملية الإنتاج...</div>
     </div>
   </div>
 
   <div id="sec_grades" class="tab-content">
-    <div class="card printable-zone">
+    <div class="card">
       <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px;">
-        <button onclick="buildGradeSheet()" class="btn-blue">بناء وتحديث كشف الأسماء</button>
-        <button onclick="exportExcelSheet()" class="btn-green">تصدير السجل الفوري إلى Excel (XLSX)</button>
-        <button onclick="printView('سجل رصد علامات وتقييم الأداء السنوي للطلاب')" class="btn-dark">🖨️ طباعة كشف العلامات</button>
+        <button onclick="buildGradeSheet()" class="btn-blue">تحديث كشف الأسماء</button>
+        <button onclick="exportExcelSheet()" class="btn-green">تصدير فوري إلى Excel (XLSX)</button>
+        <button onclick="printView('سجل رصد علامات وتقييم الطلاب السنوي الشامل')" class="btn-dark">🖨️ طباعة كشف العلامات المرقمن</button>
       </div>
       <div id="sheet_container" style="overflow-x: auto;">
-        <p style="color: #64748b;">السجل غير نشط. يرجى إدخال أسماء الطلاب في لوحة التحكم العلوية أو استخراجها تلقائياً ثم الضغط على بناء الكشف.</p>
+        <p style="color: #64748b; font-size: 13px;">السجل الرقمي غير نشط. يرجى ملء الأسماء في الحقل المخصص أعلاه لبناء الجدول الحسابي فوراً.</p>
       </div>
     </div>
   </div>
@@ -387,7 +387,6 @@ th { background: #f8fafc; color: #1e3a8a; }
 let contextDataText = "";
 let systemOutputs = { plans: "", worksheets: "", exams: "", rubrics: "" };
 
-// دالة تحويل أرقام النظام (0-9) إلى أرقام مشرقية (٠-٩) حصرياً لضمان العرض والطباعة الموحدة
 function toEasternNumerals(num) {
   if (num === null || num === undefined) return "";
   const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -396,7 +395,6 @@ function toEasternNumerals(num) {
   });
 }
 
-// دالة تحويل نصوص المخرجات بالكامل إلى الأرقام المشرقية في الرياضيات
 function convertTextToEasternNumerals(text) {
   if (!text) return "";
   const easternDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
@@ -413,9 +411,9 @@ window.onload = function() {
 
 function saveKey() {
   const k = document.getElementById('api_key').value.trim();
-  if(!k) { alert("يرجى إدخال مفتاح صالح."); return; }
+  if(!k) { alert("يرجى إدخال مفتاح اتصال صالح."); return; }
   localStorage.setItem('app_secure_key', k);
-  alert("تم تثبيت وحفظ مفتاح الربط بنجاح.");
+  alert("تم تثبيت وحفظ مفتاح الربط السحابي في المتصفح.");
 }
 
 function syncMeta() {
@@ -429,28 +427,23 @@ function printView(title) {
   window.print();
 }
 
-function showProgress(statusMessage) {
+function showProgress() {
   document.getElementById("global_progress_container").style.display = "block";
-  const statusTxt = document.getElementById("global_status_text");
-  statusTxt.style.display = "block";
-  statusTxt.innerText = statusMessage;
 }
 
 function hideProgress() {
   document.getElementById("global_progress_container").style.display = "none";
-  document.getElementById("global_status_text").style.display = "none";
 }
 
 async function extractStudentNames() {
   const fileInput = document.getElementById("image_or_file");
   const file = fileInput.files[0];
-  if (!file) { alert("الرجاء إرفاق كشف مصور أو ملف أولاً لاستخراج الأسماء."); return; }
+  if (!file) { alert("الرجاء إرفاق كشف مصور أو ملف أولاً."); return; }
 
-  showProgress("⏳ جاري تحليل المستند المرفق واستخلاص كشف الأسماء بدقة عبر محرك القراءة البصرية...");
-
+  showProgress();
   try {
     if (file.type.startsWith("image/")) {
-      const result = await Tesseract.recognize(file, 'ara', { logger: m => console.log(m) });
+      const result = await Tesseract.recognize(file, 'ara');
       processExtractedText(result.data.text);
     } else if (file.type === "application/pdf") {
       const arrayBuffer = await file.arrayBuffer();
@@ -463,11 +456,11 @@ async function extractStudentNames() {
       }
       processExtractedText(text);
     } else {
-      alert("نوع الملف غير مدعوم. يرجى إدراج صورة كشف أو ملف PDF.");
+      alert("نوع الملف غير مدعوم.");
     }
   } catch (error) {
     console.error(error);
-    alert("حدث خطأ أثناء معالجة الملف واستخراج الأسماء.");
+    alert("حدث خطأ أثناء استخراج وقراءة الملف.");
   } finally {
     hideProgress();
   }
@@ -482,18 +475,17 @@ function processExtractedText(rawText) {
   if (cleanedNames.length > 0) {
     document.getElementById("inp_students").value = cleanedNames.join('\n');
     buildGradeSheet();
-    alert(`✔ تم استخراج عدد (${toEasternNumerals(cleanedNames.length)}) اسماً وإدراجهم بنجاح داخل النظام وقوائم الرصد.`);
+    alert(`✔ تم استخراج (${toEasternNumerals(cleanedNames.length)}) اسماً بنجاح وتحديث السجلات الفورية.`);
   } else {
-    alert("لم يتم العثور على نصوص واضحة لأسماء الطلاب. يرجى التحقق من دقة وجودة الصورة المرفقة.");
+    alert("لم يتم العثور على أسماء واضحة. يرجى التحقق من جودة إضاءة كشف الأسماء المصور.");
   }
 }
 
 async function readPDF() {
   const file = document.getElementById("pdf_file").files[0];
-  if(!file) { alert("الرجاء تحديد ملف الـ PDF أولاً."); return; }
+  if(!file) { alert("الرجاء تحديد ملف المنهج الدراسي أولاً."); return; }
   
-  showProgress("⏳ جاري قراءة واستخلاص نصوص كتاب المنهج المرجعي محلياً وبشكل معمق...");
-  
+  showProgress();
   try {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
@@ -506,9 +498,9 @@ async function readPDF() {
       text += content.items.map(item => item.str).join(" ") + "\n";
     }
     contextDataText = text;
-    alert(`✔ تم استخلاص المادة المرجعية بنجاح (${toEasternNumerals(pageLimit)} صفحة جاهزة في السياق)`);
+    alert(`✔ تم استخلاص محتوى المنهج المرجعي بنجاح بواقع (${toEasternNumerals(pageLimit)}) صفحة.`);
   } catch(e) {
-    alert("❌ حدث خطأ أثناء معالجة وقراءة ملف الـ PDF المنهجي.");
+    alert("حدث خطأ أثناء معالجة ملف الكتاب الوزاري.");
     console.error(e);
   } finally {
     hideProgress();
@@ -516,39 +508,44 @@ async function readPDF() {
 }
 
 function createPromptBlock(mode, topic, type) {
-  const teacher = document.getElementById("inp_teacher").value.trim() || "المعلم المعتمد";
-  const school = document.getElementById("inp_school").value.trim() || "المؤسسة التعليمية";
-  const directorate = document.getElementById("inp_directorate").value.trim() || "مديرية التربية";
-  const students = document.getElementById("inp_students").value.trim() || "طلاب الصف الدراسي";
+  const teacher = document.getElementById("inp_teacher").value.trim() || "المعلم الفاضل";
+  const school = document.getElementById("inp_school").value.trim() || "المدرسة المعتمدة";
+  const directorate = document.getElementById("inp_directorate").value.trim() || "مديرية التربية والتعليم";
+  const students = document.getElementById("inp_students").value.trim() || "طلبة الصف الدراسي";
   
-  const refContext = contextDataText ? contextDataText.slice(0, 26000) : "لا يوجد ملف كتاب مرفق. اعتمد كلياً على المعايير المنهجية المعتمدة لهذه الفئة العمرية للطلاب.";
-  const headerSection = `[المؤسسة: ${school} | المديرية: ${directorate} | المعلم: ${teacher}]\n[قائمة أسماء الطلاب المستهدفين برصد الأداء والسلوك:\n${students}]\n`;
+  const refContext = contextDataText ? contextDataText.slice(0, 26000) : "لا يوجد مستند خارجي مرفق. اعتمد كلياً على المعايير الفلسطينية الرسمية المعتمدة للمرحلة العمرية المستهدفة.";
+  const headerSection = `[المؤسسة التعليمية: ${school} | المديرية: ${directorate} | المعلم: ${teacher}]\n[كشف الأسماء:\n${students}]\n`;
 
-  const coreRules = `أنت موجه تربوي ومصمم مناهج خبير ملتزم بمعايير الجودة الأكاديمية (ISO 21001).
-يجب كتابة المحتوى كاملاً، مفصلاً، شاملاً، وجاهزاً تماماً للطباعة والاستخدام الفوري.
-ممنوع منعاً باتاً ونهائياً دمج الأقسام أو اللجوء للتلخيص أو إخراج هياكل فارغة.
-شريطة إلزامية: صياغة وكتابة كافة الأعداد والمسائل الرياضية والكسور والرموز الحسابية باستخدام الأرقام المشرقية حصرياً (٠، ١، ٢، ٣، ٤، ٥، ٦، ٧، ٨، ٩) ويمنع تماماً استخدام الأرقام الغربية.`;
+  const coreRules = `أنت موجه تربوي فلسطيني أول خبير ومصمم مناهج ملتزم بالخطة التعليمية لوزارة التربية والتعليم الفلسطينية.
+يجب كتابة المحتوى كاملاً، شاملاً، وبأعلى درجات الواقعية والدقة الأكاديمية والمهنية الموجهة لمدير المدرسة والمشرف التربوي لضمان اجتياز التقويم بكفاءة تامة.
+ممنوع منعاً باتاً صياغة أي ترحيب، أو مقدمات جانبية، أو ملاحظات خارجة عن صلب المستند. ادخل في صلب المتن مباشرة.
+شرط إلزامي وهيكلي: صياغة كافة الرموز الرياضية، الأعداد، المسائل الحسابية، وعلامات التقويم داخل النص والمسائل باستخدام الأرقام المشرقية حصرياً (٠، ١، ٢، ٣، ٤، ٥، ٦، ٧، ٨، ٩).`;
 
   let subTask = "";
   if(type === "plans") {
-    subTask = `المخرج المطلوب حصرياً: توليد خطط الدروس التفصيلية والكاملة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nاكتب الخطة الكاملة لكل درس مشتملة على: العنوان، الأهداف السلوكية الإجرائية (معرفي، مهاري، وجداني)، سيناريو التمهيد، استراتيجية الشرح، النشاط العملي التطبيقي، وأدوات التقويم الختامي.`;
+    subTask = `المخرج التربوي المطلوب حصرياً: صياغة وتوليد جذاذات (خطط) دروس تفصيلية متكاملة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي' : topic}).
+يجب هيكلة التحضير بشكل صارم بحيث يقع كل درس منفصل ومستقل تماماً في حاوية نظامية مغلفة بالوسم التالي لضمان عزل الطباعة في صفحة مستقلة كلياً:
+<div class="lesson-page-block">
+[هنا يكتب متن التحضير الكامل للدرس ويشمل وجوباً: عنوان الدرس، الأهداف السلوكية الثلاثية الإجرائية القابلة للقياس والتقويم، التمهيد الحافز والمشوق، استراتيجية التدريس المقترحة، الوسائل التعليمية المتاحة كبيئة فلسطينية، الأنشطة والتدريبات المتدرجة، والتقويم الختامي المباشر مع خانة فارغة مخصصة لملحوظات مدير المدرسة والمشرف التربوي].
+</div>
+ملاحظة هامة: احرص أن يكون حجم النص ومحتوى الدرس ملائماً ومحسوباً بدقة ليتم احتواؤه وطباعته في صفحة واحدة A4 دون حشو زائد أو نقصان مجحف.`;
   }
   else if(type === "worksheets") {
-    subTask = `المخرج المطلوب حصرياً: تصميم وبناء بنك أوراق العمل الكاملة والأنشطة التطبيقية الموجهة لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nصمم لكل درس ورقة عمل مستقلة تشتمل على: أسئلة موضوعية (إكمال الفراغ)، أسئلة الاختيار من متعدد، وتدريبات ومسائل عملية إنتاجية مباشرة بالرموز والأرقام المشرقية.`;
+    subTask = `المخرج المطلوب حصرياً: تصميم بنك أوراق عمل وأنشطة تطبيقية وعلاجية للفروق الفردية لـ: (${mode === 'full' ? 'كامل المقرر' : topic}).\nصمم لكل درس ورقة عمل منظمة ومباشرة تشتمل على أسئلة موضوعية (إكمال الفراغ، واختيار من متعدد ذكي) وتدريبات إنتاجية بالأرقام المشرقية لتقييم الفهم الفوري للطلبة.`;
   }
   else if(type === "exams") {
-    subTask = `المخرج المطلوب حصرياً: صياغة وتصميم الاختبارات الرسمية التقييمية ومصفوفة علاماتها لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nصمم امتحاناً هيكلياً منظماً مع علامات مرصودة لكل بند بالأرقام المشرقية، ويجب توفير ملحق كامل في النهاية يحتوي على نموذج الإجابة والحلول النموذجية الشاملة.`;
+    subTask = `المخرج المطلوب حصرياً: تصميم وتوليد الاختبارات التقييمية ومصفوفة توزيع علاماتها بدقة لـ: (${mode === 'full' ? 'كامل المقرر' : topic}).\nأنشئ امتحاناً هيكلياً واضحاً متبوعاً بملحق إلزامي يحتوي على مفتاح الإجابة والحلول النموذجية الصارمة لكل بند بالأرقام المشرقية.`;
   }
   else if(type === "rubrics") {
-    subTask = `المخرج المطلوب حصرياً: صياغة وتوليد بطاقات الملاحظة وقوائم الرصد لأسماء الطلاب المدرجين لـ: (${mode === 'full' ? 'كامل المقرر الدراسي المصاحب' : topic}).\nأنشئ مصفوفة رصد متكاملة مقسمة إلى: المحور المعرفي، المحور المهاري (مؤشرات التطبيق العملي الفعلي للطلاب)، والمحور السلوكي (مؤشرات الانضباط والتفاعل الإيجابي).`;
+    subTask = `المخرج المطلوب حصرياً: توليد أدوات وبطاقات الملاحظة وقوائم رصد الأداء للطلاب المدرجين لـ: (${mode === 'full' ? 'كامل المقرر' : topic}).\nأنشئ مصفوفة تقويمية واضحة ومقنعة للمشرف التربوي تغطي المحاور الثلاثة: المحور المعرفي، المحور المهاري، والمحور السلوكي والأدائي داخل الصف.`;
   }
 
-  return `${coreRules}\n\n${headerSection}\n\nالمادة المرجعية المستخلصة:\n${refContext}\n\n${subTask}`;
+  return `${coreRules}\n\n${headerSection}\n\nالمادة المرجعية للمنهج:\n${refContext}\n\n${subTask}`;
 }
 
 async function callGemini(promptText) {
   const key = localStorage.getItem("app_secure_key");
-  if(!key) { alert("خطأ: لم يتم العثور على مفتاح API معتمد."); return null; }
+  if(!key) { alert("خطأ: يرجى تثبيت مفتاح الاتصال بـ API في لوحة التحكم أولاً."); return null; }
 
   try {
     const response = await fetch(
@@ -560,11 +557,11 @@ async function callGemini(promptText) {
       }
     );
     const data = await response.json();
-    let resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ حدث خطأ أثناء جلب المخرجات.";
+    let resultText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "❌ حدث خطأ أثناء الاتصال بالخادم السحابي لإيجاد المخرجات.";
     return convertTextToEasternNumerals(resultText);
   } catch(e) {
     console.error(e);
-    return "❌ خطأ في الاتصال بالشبكة السحابية.";
+    return "❌ فشل الاتصال بالشبكة السحابية.";
   }
 }
 
@@ -584,20 +581,20 @@ async function launchPipeline() {
   const topic = document.getElementById("generation_topic").value.trim();
 
   if(!topic && mode !== 'full') {
-    alert("يرجى إدخال عنوان الوحدة أو الدرس المراد بناؤه.");
+    alert("يرجى تدوين موضوع أو عنوان الوحدة المستهدفة بدقة لإطلاق عملية البناء.");
     return;
   }
 
-  showProgress("🚀 جاري معالجة مخرجات النظام الشامل وإنتاج الخطط والأنشطة والامتحانات ومصفوفات الرصد بالتوازي ككتلة كاملة بالأرقام المشرقية...");
+  showProgress();
 
-  document.getElementById("view_plans").innerText = "⏳ جاري توليد وصياغة خطط وجدولة الدروس التفصيلية...";
-  document.getElementById("view_worksheets").innerText = "⏳ جاري تصميم وبناء بنك أوراق العمل والأنشطة التطبيقية...";
-  document.getElementById("view_exams").innerText = "⏳ جاري إعداد وصياغة الاختبارات وبناء أدلة الإجابة النموذجية...";
-  document.getElementById("view_rubrics").innerText = "⏳ جاري هندسة قوائم ومصفوفات الرصد الفردية ومؤشرات الأداء للطلاب...";
+  document.getElementById("view_plans").innerText = "⏳ جاري هندسة وصياغة خطط الدروس اليومية (A4 مستقل لكل درس)... يرجى الانتظار.";
+  document.getElementById("view_worksheets").innerText = "⏳ جاري تصميم وبناء بنك أوراق العمل المتدرجة تزامناً مع عملية المعالجة...";
+  document.getElementById("view_exams").innerText = "⏳ جاري بناء وهيكلة الاختبارات وصياغة نماذج الحلول التقييمية...";
+  document.getElementById("view_rubrics").innerText = "⏳ جاري صياغة مصفوفات وقوائم رصد الأداء والسلوك الفردي...";
 
   const p1 = createPromptBlock(mode, topic, "plans");
   systemOutputs.plans = await callGemini(p1);
-  document.getElementById("view_plans").innerText = systemOutputs.plans;
+  document.getElementById("view_plans").innerHTML = systemOutputs.plans;
 
   const p2 = createPromptBlock(mode, topic, "worksheets");
   systemOutputs.worksheets = await callGemini(p2);
@@ -613,7 +610,7 @@ async function launchPipeline() {
 
   buildGradeSheet();
   hideProgress();
-  alert("✔ اكتملت عمليات المعالجة بنجاح. تم فرز كافة التقارير والمخرجات داخل تبويباتها المعزولة بالأعداد المشرقية.");
+  alert("✔ اكتملت عمليات المعالجة التربوية الشاملة. تم فرز الخطط في صفحات A4 منفصلة، وباقي المخرجات في تبويباتها النظيفة.");
 }
 
 function buildGradeSheet() {
@@ -621,7 +618,7 @@ function buildGradeSheet() {
   const container = document.getElementById("sheet_container");
   
   if(!rawText) {
-    container.innerHTML = "<b style='color:#ef4444; font-size:13px;'>يرجى إدخال أسماء الطلاب أو استخراجها لتفعيل السجل الرقمي للعلامات.</b>";
+    container.innerHTML = "<b style='color:#ef4444; font-size:12px;'>يرجى إدخال أسماء الطلاب أو استخراجها لتفعيل مصفوفة سجل العلامات الحسابي التفاعلي المعزز.</b>";
     return;
   }
   
@@ -683,21 +680,21 @@ function runMath(idx) {
   cell.innerText = toEasternNumerals(total);
   
   if(total >= 50) {
-    cell.style.color = "#10b981";
+    cell.style.color = "#16a34a";
   } else {
-    cell.style.color = "#ef4444";
+    cell.style.color = "#dc2626";
   }
 }
 
 function exportExcelSheet() {
   const table = document.getElementById("tbl_grades_data");
-  if(!table) { alert("خطأ: لا يوجد جدول علامات نشط لتصديره."); return; }
+  if(!table) { alert("خطأ: لا يوجد جدول علامات نشط لتصديره حالياً."); return; }
   
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.table_to_sheet(table);
   ws['!dir'] = "rtl";
-  XLSX.utils.book_append_sheet(wb, ws, "كشف رصد العلامات");
-  XLSX.writeFile(wb, "سجل_العلامات_الرقمي_الموحد.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "كشف العلامات الموحد");
+  XLSX.writeFile(wb, "سجل_رصد_العلامات_الرسمي.xlsx");
 }
 </script>
 
