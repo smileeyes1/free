@@ -1,6 +1,0 @@
-paths:
-  books_dir: "./books"
-  exports_dir: "./exports"
-automation:
-  auto_mode: true
-  ocr_mode: "automatic"
