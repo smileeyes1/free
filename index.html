@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>منصة المعلم الذكي المتقدمة</title>
+<title>النظام التعليمي الذكي الكامل</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -38,47 +38,64 @@ button{cursor:pointer}
   color:#0f0;
   padding:15px;
   border-radius:10px;
-  min-height:300px;
+  min-height:350px;
 }
 
-.small{font-size:12px;color:#555}
+@media print {
+  body{background:white}
+  button,input,select,textarea{display:none}
+}
 </style>
 </head>
 
 <body>
 
 <div class="box">
-<h2>📘 منصة المعلم الذكي المتقدمة</h2>
+<h2>📘 النظام التعليمي الذكي الكامل</h2>
 
 <button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')">🔑 إنشاء مفتاح</button>
 <input id="key" placeholder="API KEY">
-<button onclick="saveKey()">💾 حفظ المفتاح</button>
+<button onclick="localStorage.setItem('key',document.getElementById('key').value.trim())">💾 حفظ</button>
 </div>
 
 <div class="box">
-<h3>📚 مكتبة الكتب</h3>
+<h3>🏫 الهوية المدرسية</h3>
+<input id="teacher" placeholder="اسم المعلم">
+<input id="school" placeholder="اسم المدرسة">
+<input id="directorate" placeholder="اسم المديرية">
 
+<input type="file" id="logo" accept="image/*">
+<button onclick="loadLogo()">📤 رفع شعار المديرية</button>
+<div id="logoStatus">لا يوجد شعار</div>
+</div>
+
+<div class="box">
+<h3>👥 الطلاب</h3>
+<input type="file" id="img" accept="image/*">
+<button onclick="extractNames()">📸 استخراج الأسماء من صورة</button>
+
+<textarea id="manualNames" rows="4" placeholder="أسماء يدوية (كل اسم سطر)"></textarea>
+<div id="namesStatus">لا يوجد أسماء</div>
+</div>
+
+<div class="box">
+<h3>📂 الكتاب</h3>
 <input type="file" id="file" accept=".pdf">
-<button onclick="addBook()">➕ إضافة كتاب للمكتبة</button>
-
-<select id="books"></select>
-<button onclick="loadSelectedBook()">📥 تحميل الكتاب المحدد</button>
-
-<div id="status">لا يوجد كتب</div>
+<button onclick="loadBook()">📥 استخراج الكتاب</button>
+<div id="status">---</div>
 </div>
 
 <div class="box">
-<h3>⚙️ إعداد التحضير</h3>
+<h3>⚙️ الإنتاج</h3>
 
 <select id="mode">
-<option value="full">تحضير كامل للكتاب</option>
+<option value="full">إنتاج تربوي كامل</option>
 <option value="unit">وحدة</option>
 <option value="lesson">درس</option>
 </select>
 
 <input id="topic" placeholder="وحدة / درس">
-
-<button onclick="run()">🚀 توليد المحتوى</button>
+<button onclick="run()">🚀 إنتاج</button>
 </div>
 
 <div class="box">
@@ -88,144 +105,166 @@ button{cursor:pointer}
 
 <script>
 
-let books=[];
-let currentBook="";
+let book="";
+let logoBase64="";
+let students=[];
 
-function saveKey(){
-  localStorage.setItem("key",document.getElementById("key").value.trim());
+/* ========= الهوية ========= */
+
+function loadLogo(){
+  const f=document.getElementById("logo").files[0];
+  const r=new FileReader();
+  r.onload=e=>{
+    logoBase64=e.target.result;
+    document.getElementById("logoStatus").innerText="✔ تم رفع الشعار";
+  };
+  r.readAsDataURL(f);
 }
 
-function getKey(){
-  return localStorage.getItem("key");
+function getInstitution(){
+  return{
+    teacher:document.getElementById("teacher").value,
+    school:document.getElementById("school").value,
+    directorate:document.getElementById("directorate").value,
+    logo:logoBase64
+  };
 }
 
-/* ===== مكتبة الكتب ===== */
+/* ========= الطلاب ========= */
 
-function addBook(){
+async function extractNames(){
 
-  const file=document.getElementById("file").files[0];
-  if(!file)return;
+  const file=document.getElementById("img").files[0];
+  const url=URL.createObjectURL(file);
 
-  books.push({file,name:file.name});
+  const res=await Tesseract.recognize(url,'ara+eng');
 
-  refreshBooks();
+  students=res.data.text
+    .split("\n")
+    .map(x=>x.trim())
+    .filter(x=>x.length>2);
 
-  document.getElementById('status').innerText=
-  "✔ عدد الكتب: "+books.length;
+  document.getElementById("namesStatus").innerText=
+  "✔ "+students.length+" اسم";
 }
 
-function refreshBooks(){
+function getStudents(){
+  let manual=document.getElementById("manualNames").value
+    .split("\n").map(x=>x.trim()).filter(x=>x);
 
-  const sel=document.getElementById("books");
-  sel.innerHTML="";
-
-  books.forEach((b,i)=>{
-    const opt=document.createElement("option");
-    opt.value=i;
-    opt.text=b.name;
-    sel.appendChild(opt);
-  });
+  return [...students,...manual];
 }
 
-async function loadSelectedBook(){
+/* ========= الكتاب ========= */
 
-  const i=document.getElementById("books").value;
-  const file=books[i].file;
+async function loadBook(){
 
-  const data=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data}).promise;
+const file=document.getElementById("file").files[0];
+const data=await file.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data}).promise;
 
-  let text="";
+let text="";
 
-  for(let p=1;p<=pdf.numPages;p++){
+for(let i=1;i<=pdf.numPages;i++){
 
-    const page=await pdf.getPage(p);
+  const page=await pdf.getPage(i);
 
-    const content=await page.getTextContent();
-    let t=content.items.map(x=>x.str).join(" ");
+  const content=await page.getTextContent();
+  let t=content.items.map(x=>x.str).join(" ");
 
-    if(t.length<20){
+  if(t.length<20){
 
-      const vp=page.getViewport({scale:2});
-      const canvas=document.createElement("canvas");
-      const ctx=canvas.getContext("2d");
+    const vp=page.getViewport({scale:2});
+    const canvas=document.createElement("canvas");
+    const ctx=canvas.getContext("2d");
 
-      canvas.width=vp.width;
-      canvas.height=vp.height;
+    canvas.width=vp.width;
+    canvas.height=vp.height;
 
-      await page.render({canvasContext:ctx,viewport:vp}).promise;
+    await page.render({canvasContext:ctx,viewport:vp}).promise;
 
-      const img=canvas.toDataURL();
+    const img=canvas.toDataURL();
 
-      const ocr=await Tesseract.recognize(img,'ara+eng');
-      t=ocr.data.text;
-    }
-
-    text+=t+"\n";
+    const ocr=await Tesseract.recognize(img,'ara+eng');
+    t=ocr.data.text;
   }
 
-  currentBook=text;
-
-  document.getElementById('status').innerText=
-  "✔ تم تحميل الكتاب ("+text.length+")";
+  text+=t+"\n";
 }
 
-/* ===== الذكاء ===== */
+book=text;
+
+document.getElementById("status").innerText=
+"✔ تم تحميل الكتاب";
+}
+
+/* ========= prompt ========= */
 
 function prompt(mode,topic){
 
-const base=`أنت نظام إعداد مناهج متقدم.
-اعتمد فقط على الكتاب ولا تضف معلومات خارجية.`;
+const inst=getInstitution();
+const names=getStudents().join(" | ");
 
-const ctx=currentBook.slice(0,35000);
+const header=
+`
+🏫 ${inst.school}
+📍 ${inst.directorate}
+👨‍🏫 ${inst.teacher}
+👥 الطلاب: ${names}
+`;
+
+const base=
+`أنت خبير مناهج.
+اعتمد فقط على الكتاب.`;
+
+const ctx=book.slice(0,30000);
 
 let task="";
 
 if(mode==="full"){
 task=`
-تحضير شامل:
-- تقسيم إلى وحدات
-- تقسيم كل وحدة إلى دروس
-- لكل درس: هدف + شرح + نشاط + تقويم
-- أوراق عمل لكل درس
-- اختبار لكل وحدة
-- خطة تدريس كاملة منظمة`;
+إنتاج كامل:
+
+1) خطط دروس
+2) أوراق عمل لكل درس
+3) اختبارات لكل وحدة
+4) قوائم رصد (معرفي/مهاري/سلوكي)
+
+كل شيء قابل للطباعة.`;
 }
 
 if(mode==="unit"){
 task=`
-تحليل وحدة: ${topic}
-- الدروس
-- خطة كل درس
+وحدة: ${topic}
+- خطط
 - أوراق عمل
-- اختبار وحدة`;
+- اختبار
+- قوائم رصد`;
 }
 
 if(mode==="lesson"){
 task=`
-تحليل درس: ${topic}
+درس: ${topic}
 - خطة درس
-- نشاط
 - ورقة عمل
-- تقويم`;
+- اختبار
+- قائمة رصد`;
 }
 
-return base+"\n"+ctx+"\n"+task;
+return base+"\n"+header+"\n"+ctx+"\n"+task;
 }
 
-/* ===== تشغيل ===== */
+/* ========= تشغيل ========= */
 
 async function run(){
 
-const key=getKey();
+const key=localStorage.getItem("key");
 if(!key)return;
 
-if(!currentBook)return;
+document.getElementById("out").innerText="...";
 
-document.getElementById('out').innerText="...";
-
-const mode=document.getElementById('mode').value;
-const topic=document.getElementById('topic').value;
+const mode=document.getElementById("mode").value;
+const topic=document.getElementById("topic").value;
 
 const res=await fetch(
 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
@@ -240,9 +279,13 @@ contents:[{parts:[{text:prompt(mode,topic)}]}]
 
 const data=await res.json();
 
-document.getElementById('out').innerText=
-data?.candidates?.[0]?.content?.parts?.[0]?.text
-|| JSON.stringify(data,null,2);
+const result=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+const inst=getInstitution();
+
+document.getElementById("out").innerHTML=
+(inst.logo?`<img src="${inst.logo}" width="120"><br>`:"")
++result;
 
 }
 
