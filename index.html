@@ -3,61 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO+ Educational System V4</title>
+<title>PRO+ V5 EDGE OPTIMIZED</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 body{margin:0;font-family:Segoe UI;background:#eef2f7}
 .container{max-width:1200px;margin:auto;padding:15px}
-
-header{
-background:#0b2f5c;color:#fff;padding:18px;border-radius:10px;text-align:center
-}
-
-.card{
-background:#fff;padding:15px;margin-top:12px;border-radius:10px;border:1px solid #ddd
-}
-
-input,textarea,select,button{
-width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #ccc
-}
-
-button{
-background:#1d4ed8;color:#fff;border:none;cursor:pointer;font-weight:600
-}
-
+header{background:#0b2f5c;color:#fff;padding:18px;border-radius:10px;text-align:center}
+.card{background:#fff;padding:15px;margin-top:12px;border-radius:10px;border:1px solid #ddd}
+input,textarea,select,button{width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #ccc}
+button{background:#1d4ed8;color:#fff;border:none;cursor:pointer;font-weight:600}
 button:hover{opacity:.9}
-
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
 .tabs{display:flex;margin-top:12px;gap:5px}
 .tab{flex:1;text-align:center;padding:10px;background:#dbe2ef;cursor:pointer;border-radius:8px;font-weight:700}
 .tab.active{background:#0b2f5c;color:#fff}
-
 .section{display:none}
 .section.active{display:block}
-
-.loader{
-display:none;height:10px;background:#ddd;border-radius:10px;overflow:hidden;margin-top:10px
-}
-
-.loader div{
-width:100%;height:100%;
-background:linear-gradient(90deg,#1d4ed8,#60a5fa);
-animation:move 1s linear infinite
-}
-
-@keyframes move{
-0%{transform:translateX(-100%)}
-100%{transform:translateX(100%)}
-}
-
-.log{
-font-size:11px;background:#f8fafc;padding:8px;height:90px;overflow:auto;margin-top:10px
-}
+.loader{display:none;height:8px;background:#ddd;border-radius:10px;overflow:hidden;margin-top:10px}
+.loader div{width:100%;height:100%;background:linear-gradient(90deg,#1d4ed8,#60a5fa);animation:move 1s linear infinite}
+@keyframes move{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+small{color:#555}
 </style>
 </head>
 
@@ -66,18 +34,21 @@ font-size:11px;background:#f8fafc;padding:8px;height:90px;overflow:auto;margin-t
 <div class="container">
 
 <header>
-<h2>PRO+ النظام التعليمي المؤسسي العالمي</h2>
-<p style="font-size:12px">OCR + PDF + AI + AES Secure Storage + Pipeline Engine</p>
+<h2>PRO+ V5 EDGE OPTIMIZED</h2>
+<small>AI Efficient • Cache • Local Intelligence • Minimal API</small>
 </header>
 
-<!-- ================= SETTINGS ================= -->
 <div class="card">
-<h3>الإعدادات</h3>
+
+<h3>الإعدادات الذكية</h3>
 
 <input id="apiKey" placeholder="Gemini API Key">
 
-<button onclick="generateKey()">توليد مفتاح تجريبي</button>
-<button onclick="saveKey()">حفظ المفتاح بتشفير AES-GCM</button>
+<select id="mode">
+<option value="eco">وضع اقتصادي (API أقل)</option>
+<option value="smart" selected>وضع ذكي (متوازن)</option>
+<option value="full">وضع قوي (API أعلى)</option>
+</select>
 
 <div class="grid">
 <input id="teacher" placeholder="المعلم">
@@ -86,48 +57,30 @@ font-size:11px;background:#f8fafc;padding:8px;height:90px;overflow:auto;margin-t
 
 <textarea id="students" placeholder="الطلاب"></textarea>
 
-<div class="log" id="logBox"></div>
+<button onclick="saveKey()">حفظ المفتاح</button>
+<button onclick="generateKey()">توليد مفتاح</button>
+
 </div>
 
-<!-- FILES -->
 <div class="card">
 <h3>الملفات</h3>
-
 <input type="file" id="file">
-
-<button onclick="runOCR()">OCR استخراج أسماء</button>
-<button onclick="loadPDF()">تحليل PDF</button>
+<button onclick="runOCR()">OCR</button>
+<button onclick="loadPDF()">PDF</button>
 </div>
 
-<!-- PIPELINE -->
 <div class="card">
-<h3>التوليد المؤسسي</h3>
-
-<select id="mode">
-<option value="lesson">درس</option>
-<option value="unit">وحدة</option>
-<option value="full">منهج كامل</option>
-</select>
-
+<h3>التشغيل</h3>
 <input id="topic" placeholder="الموضوع">
-
-<button onclick="startPipeline()">تشغيل النظام</button>
-</div>
-
+<button onclick="start()">تشغيل النظام الذكي</button>
 <div class="loader" id="loader"><div></div></div>
-
-<!-- TABS -->
-<div class="tabs">
-<div class="tab active" onclick="openTab(0)">خطط</div>
-<div class="tab" onclick="openTab(1)">أوراق</div>
-<div class="tab" onclick="openTab(2)">اختبارات</div>
-<div class="tab" onclick="openTab(3)">رصد</div>
 </div>
 
-<div class="card section active" id="s0"></div>
-<div class="card section" id="s1"></div>
-<div class="card section" id="s2"></div>
-<div class="card section" id="s3"></div>
+<div class="tabs">
+<div class="tab active" onclick="tab(0)">النتيجة</div>
+</div>
+
+<div class="card section active" id="out"></div>
 
 </div>
 
@@ -136,161 +89,102 @@ font-size:11px;background:#f8fafc;padding:8px;height:90px;overflow:auto;margin-t
 /* ================= STATE ================= */
 const S = {
 pdf:"",
-key:null,
-running:false,
-logs:[]
+key:"",
+cache:{}
 };
 
-const logBox = document.getElementById("logBox");
+const loader = document.getElementById("loader");
 
-/* ================= LOG ================= */
-function log(m){
-S.logs.push(m);
-logBox.innerText = S.logs.slice(-12).join("\n");
+/* ================= UTILS ================= */
+const log = (t)=>out.innerText = t;
+
+/* ================= CACHE ================= */
+function getCache(key){
+return S.cache[key];
 }
 
-/* ================= AES-GCM SECURITY ================= */
-async function deriveKey(password, salt){
-const enc = new TextEncoder();
-
-const base = await crypto.subtle.importKey(
-"raw",
-enc.encode(password),
-"PBKDF2",
-false,
-["deriveKey"]
-);
-
-return crypto.subtle.deriveKey(
-{
-name:"PBKDF2",
-salt,
-iterations:120000,
-hash:"SHA-256"
-},
-base,
-{ name:"AES-GCM", length:256 },
-false,
-["encrypt","decrypt"]
-);
+function setCache(key,val){
+S.cache[key]=val;
 }
 
-async function encrypt(text,password){
-const enc = new TextEncoder();
-const salt = crypto.getRandomValues(new Uint8Array(16));
-const iv = crypto.getRandomValues(new Uint8Array(12));
-
-const key = await deriveKey(password,salt);
-
-const data = await crypto.subtle.encrypt(
-{ name:"AES-GCM", iv },
-key,
-enc.encode(text)
-);
-
-return {
-salt:[...salt],
-iv:[...iv],
-data:[...new Uint8Array(data)]
-};
-}
-
-async function decrypt(obj,password){
-const key = await deriveKey(password,new Uint8Array(obj.salt));
-
-const dec = await crypto.subtle.decrypt(
-{ name:"AES-GCM", iv:new Uint8Array(obj.iv) },
-key,
-new Uint8Array(obj.data)
-);
-
-return new TextDecoder().decode(dec);
-}
-
-/* ================= KEY HANDLING ================= */
-async function saveKey(){
-const raw = apiKey.value.trim();
-if(!raw) return alert("أدخل المفتاح");
-
-const enc = await encrypt(raw,"PRO_PLUS_CORE_KEY");
-
-localStorage.setItem("secure_key",JSON.stringify(enc));
-
-S.key = raw;
-log("تم حفظ المفتاح بتشفير AES-GCM");
+/* ================= KEY ================= */
+function saveKey(){
+S.key = apiKey.value.trim();
+localStorage.setItem("k",S.key);
 alert("تم الحفظ");
 }
 
-async function loadKey(){
-const saved = localStorage.getItem("secure_key");
-if(!saved) return;
-
-try{
-const obj = JSON.parse(saved);
-S.key = await decrypt(obj,"PRO_PLUS_CORE_KEY");
-apiKey.value = S.key;
-log("تم فك التشفير بنجاح");
-}catch(e){
-log("فشل فك التشفير");
-}
-}
-
 function generateKey(){
-apiKey.value = "GEM-" + crypto.randomUUID().slice(0,10);
+apiKey.value = "GEM-" + crypto.randomUUID().slice(0,8);
 }
 
-/* ================= LOADER ================= */
-const loader = document.getElementById("loader");
-const setLoad = v => loader.style.display = v ? "block":"none";
-
-/* ================= OCR ================= */
-async function runOCR(){
-const f = file.files[0];
-if(!f) return;
-
-setLoad(true);
-log("OCR بدأ");
-
-const r = await Tesseract.recognize(f,"ara");
-students.value = r.data.text;
-
-setLoad(false);
-log("OCR انتهى");
-}
-
-/* ================= PDF ================= */
+/* ================= PDF MINIMIZER ================= */
 async function loadPDF(){
-const f = file.files[0];
-if(!f) return;
+const f=file.files[0];
+if(!f)return;
 
-setLoad(true);
-log("PDF معالجة");
+loader.style.display="block";
 
 const buf = await f.arrayBuffer();
 const pdf = await pdfjsLib.getDocument({data:buf}).promise;
 
-let t="";
-for(let i=1;i<=Math.min(60,pdf.numPages);i++){
-const p = await pdf.getPage(i);
-const c = await p.getTextContent();
-t += c.items.map(x=>x.str).join(" ")+"\n";
+let text="";
+for(let i=1;i<=Math.min(25,pdf.numPages);i++){
+const p=await pdf.getPage(i);
+const c=await p.getTextContent();
+text+=c.items.map(x=>x.str).join(" ");
 }
 
-S.pdf = t;
+S.pdf = text.slice(0,6000);
 
-setLoad(false);
-log("PDF جاهز");
+loader.style.display="none";
 }
 
-/* ================= AI ================= */
+/* ================= OCR ================= */
+async function runOCR(){
+const f=file.files[0];
+if(!f)return;
+
+loader.style.display="block";
+
+const r = await Tesseract.recognize(f,"ara");
+students.value = r.data.text;
+
+loader.style.display="none";
+}
+
+/* ================= LOCAL INTELLIGENCE ================= */
+function localAnalyze(){
+return `
+تحليل محلي:
+- عدد الطلاب: ${(students.value||"").split("\n").length}
+- موضوع: ${topic.value}
+- سياق: ${S.pdf.length > 1000 ? "موجود" : "ضعيف"}
+`;
+}
+
+/* ================= DECISION ENGINE ================= */
+function shouldUseAPI(){
+const mode = document.getElementById("mode").value;
+
+if(mode === "eco") return false;
+if(mode === "full") return true;
+
+return S.pdf.length > 2000 || students.value.length > 50;
+}
+
+/* ================= SINGLE AI CALL ================= */
 async function AI(prompt){
 
-if(!S.key){
-log("وضع محلي");
-return "LOCAL MODE:\n\n"+prompt.slice(0,900);
+if(!shouldUseAPI()){
+return "LOCAL MODE:\n\n" + localAnalyze();
 }
 
-try{
+if(!S.key) return "NO API KEY";
+
+const cacheKey = btoa(prompt).slice(0,40);
+if(getCache(cacheKey)) return getCache(cacheKey);
+
 const r = await fetch(
 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.key}`,
 {
@@ -302,80 +196,48 @@ contents:[{parts:[{text:prompt}]}]
 });
 
 const d = await r.json();
-return d?.candidates?.[0]?.content?.parts?.[0]?.text || "error";
+const res = d?.candidates?.[0]?.content?.parts?.[0]?.text || "error";
 
-}catch(e){
-log("API Error");
-return "connection fail";
-}
+setCache(cacheKey,res);
+return res;
 }
 
-/* ================= PROMPT ================= */
-function build(type){
-return `
-نظام تعليمي مؤسسي.
+/* ================= SINGLE BATCH PIPELINE ================= */
+async function start(){
+
+loader.style.display="block";
+
+/* 🔥 دمج كل الطلبات في طلب واحد فقط */
+const prompt = `
+أنت نظام تعليمي ذكي.
 
 المعلم: ${teacher.value}
 المدرسة: ${school.value}
 الطلاب: ${students.value}
 
-النص المرجعي:
-${S.pdf.slice(0,12000)}
+الموضوع: ${topic.value}
+
+المحتوى:
+${S.pdf}
 
 المطلوب:
-${type}
+1- خطة درس
+2- أوراق عمل
+3- اختبار
+4- رصد طلاب
 
-مخرجات كاملة دقيقة جاهزة للطباعة.
+أخرجها في أقسام واضحة.
 `;
+
+const result = await AI(prompt);
+
+out.innerText = result;
+
+loader.style.display="none";
 }
 
-/* ================= PIPELINE ================= */
-async function runPipeline(){
-
-const tasks=[
-["خطط",s0],
-["أوراق",s1],
-["اختبارات",s2],
-["رصد",s3]
-];
-
-for(const t of tasks){
-t[1].innerText="جاري...";
-
-const r = await AI(build(t[0]));
-t[1].innerText = r;
-
-await new Promise(r=>setTimeout(r,200));
-}
-}
-
-/* ================= START ================= */
-async function startPipeline(){
-
-if(S.running)return;
-S.running=true;
-
-setLoad(true);
-
-await runPipeline();
-
-setLoad(false);
-S.running=false;
-
-log("اكتمل النظام");
-}
-
-/* ================= TABS ================= */
-function openTab(i){
-document.querySelectorAll(".section").forEach(e=>e.classList.remove("active"));
-document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
-
-document.getElementById("s"+i).classList.add("active");
-document.querySelectorAll(".tab")[i].classList.add("active");
-}
-
-/* ================= INIT ================= */
-window.onload = loadKey;
+/* ================= TAB ================= */
+function tab(){}
 
 </script>
 
