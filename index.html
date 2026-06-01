@@ -2,18 +2,15 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>النظام الذكي الكامل للكتب</title>
+<title>منصة المعلم الذكي المتقدمة</title>
 
-<!-- PDF.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-<!-- OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 body{
   font-family: Arial;
-  max-width: 1000px;
+  max-width:1100px;
   margin:auto;
   padding:20px;
   direction: rtl;
@@ -23,11 +20,11 @@ body{
 .box{
   background:white;
   padding:15px;
-  border-radius:10px;
   margin-bottom:15px;
+  border-radius:10px;
 }
 
-input, textarea, select, button{
+input,textarea,select,button{
   width:100%;
   padding:10px;
   margin-top:10px;
@@ -41,7 +38,7 @@ button{cursor:pointer}
   color:#0f0;
   padding:15px;
   border-radius:10px;
-  min-height:250px;
+  min-height:300px;
 }
 
 .small{font-size:12px;color:#555}
@@ -51,199 +48,202 @@ button{cursor:pointer}
 <body>
 
 <div class="box">
-<h2>📘 نظام تحليل الكتب الذكي (PDF + OCR)</h2>
+<h2>📘 منصة المعلم الذكي المتقدمة</h2>
 
-<button onclick="openKey()">🔑 إنشاء مفتاح</button>
-<input id="key" placeholder="أدخل مفتاح Gemini">
+<button onclick="window.open('https://aistudio.google.com/app/apikey','_blank')">🔑 إنشاء مفتاح</button>
+<input id="key" placeholder="API KEY">
 <button onclick="saveKey()">💾 حفظ المفتاح</button>
 </div>
 
 <div class="box">
-<h3>📂 رفع الكتاب</h3>
+<h3>📚 مكتبة الكتب</h3>
+
 <input type="file" id="file" accept=".pdf">
-<button onclick="loadBook()">📥 تحليل الكتاب</button>
-<div id="status" class="small">لا يوجد كتاب</div>
+<button onclick="addBook()">➕ إضافة كتاب للمكتبة</button>
+
+<select id="books"></select>
+<button onclick="loadSelectedBook()">📥 تحميل الكتاب المحدد</button>
+
+<div id="status">لا يوجد كتب</div>
 </div>
 
 <div class="box">
-<h3>⚙️ نوع التحليل</h3>
+<h3>⚙️ إعداد التحضير</h3>
+
 <select id="mode">
 <option value="full">تحضير كامل للكتاب</option>
 <option value="unit">وحدة</option>
 <option value="lesson">درس</option>
 </select>
 
-<input id="topic" placeholder="اكتب وحدة أو درس (اختياري)">
+<input id="topic" placeholder="وحدة / درس">
+
 <button onclick="run()">🚀 توليد المحتوى</button>
 </div>
 
 <div class="box">
-<button onclick="printPage()">🖨 طباعة</button>
-<div id="out">النتائج ستظهر هنا...</div>
+<button onclick="window.print()">🖨 طباعة</button>
+<div id="out">---</div>
 </div>
 
 <script>
 
-let book = "";
-
-/* ===================== KEY ===================== */
-
-function openKey(){
-  window.open("https://aistudio.google.com/app/apikey","_blank");
-}
+let books=[];
+let currentBook="";
 
 function saveKey(){
-  localStorage.setItem("key", document.getElementById("key").value.trim());
-  alert("تم الحفظ");
+  localStorage.setItem("key",document.getElementById("key").value.trim());
 }
 
 function getKey(){
   return localStorage.getItem("key");
 }
 
-/* ===================== PDF + OCR ===================== */
+/* ===== مكتبة الكتب ===== */
 
-async function loadBook(){
+function addBook(){
 
-  const file = document.getElementById("file").files[0];
-  if(!file){
-    alert("اختر ملف PDF");
-    return;
-  }
+  const file=document.getElementById("file").files[0];
+  if(!file)return;
 
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+  books.push({file,name:file.name});
 
-  let text = "";
+  refreshBooks();
 
-  for(let i=1;i<=pdf.numPages;i++){
-
-    const page = await pdf.getPage(i);
-
-    // 1) استخراج نص
-    const content = await page.getTextContent();
-    let pageText = content.items.map(i=>i.str).join(" ");
-
-    // 2) إذا النص ضعيف → OCR
-    if(pageText.trim().length < 20){
-
-      const viewport = page.getViewport({scale:2});
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      await page.render({canvasContext:ctx, viewport}).promise;
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const ocr = await Tesseract.recognize(imgData,'ara+eng');
-
-      pageText = ocr.data.text;
-    }
-
-    text += pageText + "\n";
-  }
-
-  book = text;
-
-  document.getElementById("status").innerText =
-  "✔ تم تحليل الكتاب (" + text.length + " حرف)";
+  document.getElementById('status').innerText=
+  "✔ عدد الكتب: "+books.length;
 }
 
-/* ===================== AI PROMPT ===================== */
+function refreshBooks(){
 
-function buildPrompt(mode, topic){
+  const sel=document.getElementById("books");
+  sel.innerHTML="";
 
-  const base =
-`أنت نظام خبير في إعداد المناهج.
-اعتمد فقط على الكتاب المرفق.
-لا تخترع معلومات خارج النص.`;
+  books.forEach((b,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i;
+    opt.text=b.name;
+    sel.appendChild(opt);
+  });
+}
 
-  const context = "\n📘 الكتاب:\n" + book.slice(0, 30000);
+async function loadSelectedBook(){
 
-  let task = "";
+  const i=document.getElementById("books").value;
+  const file=books[i].file;
 
-  if(mode === "full"){
-task =
-`حلل الكتاب بالكامل و:
-- قسمه إلى وحدات
-- لكل وحدة دروس
+  const data=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data}).promise;
+
+  let text="";
+
+  for(let p=1;p<=pdf.numPages;p++){
+
+    const page=await pdf.getPage(p);
+
+    const content=await page.getTextContent();
+    let t=content.items.map(x=>x.str).join(" ");
+
+    if(t.length<20){
+
+      const vp=page.getViewport({scale:2});
+      const canvas=document.createElement("canvas");
+      const ctx=canvas.getContext("2d");
+
+      canvas.width=vp.width;
+      canvas.height=vp.height;
+
+      await page.render({canvasContext:ctx,viewport:vp}).promise;
+
+      const img=canvas.toDataURL();
+
+      const ocr=await Tesseract.recognize(img,'ara+eng');
+      t=ocr.data.text;
+    }
+
+    text+=t+"\n";
+  }
+
+  currentBook=text;
+
+  document.getElementById('status').innerText=
+  "✔ تم تحميل الكتاب ("+text.length+")";
+}
+
+/* ===== الذكاء ===== */
+
+function prompt(mode,topic){
+
+const base=`أنت نظام إعداد مناهج متقدم.
+اعتمد فقط على الكتاب ولا تضف معلومات خارجية.`;
+
+const ctx=currentBook.slice(0,35000);
+
+let task="";
+
+if(mode==="full"){
+task=`
+تحضير شامل:
+- تقسيم إلى وحدات
+- تقسيم كل وحدة إلى دروس
 - لكل درس: هدف + شرح + نشاط + تقويم
 - أوراق عمل لكل درس
 - اختبار لكل وحدة
-- خطة تدريس كاملة`;
-  }
+- خطة تدريس كاملة منظمة`;
+}
 
-  if(mode === "unit"){
-task =
-`حلل الوحدة: "${topic}"
-واخرج:
+if(mode==="unit"){
+task=`
+تحليل وحدة: ${topic}
 - الدروس
 - خطة كل درس
 - أوراق عمل
 - اختبار وحدة`;
-  }
+}
 
-  if(mode === "lesson"){
-task =
-`حلل الدرس: "${topic}"
-واخرج:
+if(mode==="lesson"){
+task=`
+تحليل درس: ${topic}
 - خطة درس
 - نشاط
 - ورقة عمل
 - تقويم`;
-  }
-
-  return base + context + "\n\n" + task;
 }
 
-/* ===================== RUN AI ===================== */
+return base+"\n"+ctx+"\n"+task;
+}
+
+/* ===== تشغيل ===== */
 
 async function run(){
 
-  const key = getKey();
-  if(!key){ alert("أدخل المفتاح"); return; }
+const key=getKey();
+if(!key)return;
 
-  if(!book){ alert("ارفع الكتاب أولاً"); return; }
+if(!currentBook)return;
 
-  const mode = document.getElementById("mode").value;
-  const topic = document.getElementById("topic").value;
+document.getElementById('out').innerText="...";
 
-  document.getElementById("out").innerText = "⏳ جاري المعالجة...";
+const mode=document.getElementById('mode').value;
+const topic=document.getElementById('topic').value;
 
-  try{
-
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="+key,
-      {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          contents:[{
-            parts:[{ text: buildPrompt(mode,topic) }]
-          }]
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    document.getElementById("out").innerText =
-      result || JSON.stringify(data,null,2);
-
-  }catch(e){
-    document.getElementById("out").innerText = e.message;
-  }
+const res=await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{parts:[{text:prompt(mode,topic)}]}]
+})
 }
+);
 
-/* ===================== PRINT ===================== */
+const data=await res.json();
 
-function printPage(){
-  window.print();
+document.getElementById('out').innerText=
+data?.candidates?.[0]?.content?.parts?.[0]?.text
+|| JSON.stringify(data,null,2);
+
 }
 
 </script>
