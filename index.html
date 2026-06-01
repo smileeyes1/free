@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>وكيل المعلم الذكي</title>
+<title>وكيل المعلم الذكي - نسخة مستقرة</title>
 
 <style>
 body {
@@ -11,14 +11,14 @@ body {
   margin: auto;
   padding: 20px;
   direction: rtl;
-  background: #f5f5f5;
+  background: #f4f4f4;
 }
 
 .box {
   background: white;
   padding: 15px;
-  border-radius: 10px;
   margin-bottom: 15px;
+  border-radius: 10px;
 }
 
 input, textarea, select, button {
@@ -27,9 +27,7 @@ input, textarea, select, button {
   margin-top: 10px;
 }
 
-button {
-  cursor: pointer;
-}
+button { cursor: pointer; }
 
 #out {
   white-space: pre-wrap;
@@ -37,7 +35,7 @@ button {
   color: #0f0;
   padding: 15px;
   border-radius: 10px;
-  min-height: 100px;
+  min-height: 120px;
 }
 </style>
 </head>
@@ -45,11 +43,11 @@ button {
 <body>
 
 <div class="box">
-<h2>🧠 وكيل المعلم الذكي</h2>
+<h2>🧠 وكيل المعلم الذكي (نسخة مستقرة)</h2>
 
 <button onclick="openKey()">🔑 إنشاء مفتاح</button>
 
-<input id="key" placeholder="ضع المفتاح هنا مرة واحدة">
+<input id="key" placeholder="أدخل المفتاح مرة واحدة فقط">
 
 <button onclick="saveKey()">💾 حفظ المفتاح</button>
 </div>
@@ -92,13 +90,13 @@ function getKey() {
 }
 
 function buildPrompt(mode, text) {
-  const base = "أنت وكيل معلم احترافي. أعطِ نتائج دقيقة، منظمة، وقابلة للتطبيق.";
+  const base = "أنت وكيل معلم محترف. أعطِ إجابات منظمة، مختصرة، قابلة للتطبيق.";
 
   const tasks = {
     lesson: "صمم خطة درس كاملة (هدف، تمهيد، نشاط، تقويم).",
-    worksheet: "أنشئ ورقة عمل منظمة ومتدرجة.",
-    test: "أنشئ اختبار مع الإجابات النموذجية.",
-    evaluation: "اكتب تقييم تربوي وسلوكي لطالب."
+    worksheet: "أنشئ ورقة عمل تعليمية منظمة.",
+    test: "أنشئ اختبارًا مع الإجابات النموذجية.",
+    evaluation: "اكتب تقييمًا تربويًا وسلوكيًا لطالب."
   };
 
   return base + "\n" + tasks[mode] + "\nالموضوع: " + text;
@@ -109,7 +107,7 @@ async function run() {
 
   if (!key) {
     document.getElementById("out").innerText =
-      "⚠ الرجاء إدخال المفتاح أولاً";
+      "⚠ أدخل المفتاح أولاً";
     return;
   }
 
@@ -128,7 +126,7 @@ async function run() {
 
   try {
     const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key,
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=" + key,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,11 +146,12 @@ async function run() {
       return;
     }
 
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!result) {
       document.getElementById("out").innerText =
-        "❌ لا يوجد رد صالح:\n" + JSON.stringify(data, null, 2);
+        "❌ لا يوجد رد:\n" + JSON.stringify(data, null, 2);
       return;
     }
 
