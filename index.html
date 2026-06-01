@@ -1,39 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>وكيل المعلم</title>
+  <title>وكيل المعلم الذكي</title>
   <style>
-    body { font-family: Arial; max-width: 800px; margin: auto; padding: 20px; }
-    input, textarea, select, button { width: 100%; padding: 10px; margin-top: 10px; }
-    #out { white-space: pre-wrap; background: #111; color: #0f0; padding: 15px; margin-top: 20px; }
+    body {
+      font-family: Arial;
+      max-width: 850px;
+      margin: auto;
+      padding: 20px;
+      direction: rtl;
+      background: #f6f6f6;
+    }
+
+    .box {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #out {
+      white-space: pre-wrap;
+      background: #111;
+      color: #0f0;
+      padding: 15px;
+      border-radius: 10px;
+      min-height: 100px;
+    }
+
+    .title {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
 <body>
 
-<h2>🧠 وكيل المعلم الذكي</h2>
+<div class="box">
+  <div class="title">🧠 وكيل المعلم الذكي</div>
 
-<button onclick="openKey()">🔑 إنشاء مفتاح</button>
+  <button onclick="openKey()">🔑 إنشاء مفتاح Gemini</button>
 
-<input id="key" placeholder="ألصق المفتاح مرة واحدة فقط">
+  <input id="key" placeholder="ألصق المفتاح هنا (مرة واحدة فقط)">
 
-<button onclick="saveKey()">💾 حفظ المفتاح</button>
+  <button onclick="saveKey()">💾 حفظ المفتاح</button>
+</div>
 
-<hr>
+<div class="box">
+  <label>نوع المهمة</label>
+  <select id="mode">
+    <option value="lesson">خطة درس</option>
+    <option value="worksheet">ورقة عمل</option>
+    <option value="test">اختبار</option>
+    <option value="evaluation">تقييم طالب</option>
+  </select>
 
-<select id="mode">
-  <option value="lesson">خطة درس</option>
-  <option value="worksheet">ورقة عمل</option>
-  <option value="test">اختبار</option>
-  <option value="evaluation">تقييم طالب</option>
-</select>
+  <textarea id="input" rows="5" placeholder="اكتب الموضوع أو الطلب..."></textarea>
 
-<textarea id="input" rows="5" placeholder="اكتب الموضوع..."></textarea>
+  <button onclick="run()">🚀 تشغيل الوكيل</button>
+</div>
 
-<button onclick="run()">🚀 تشغيل</button>
-
-<div id="out"></div>
+<div class="box">
+  <div id="out">النتيجة ستظهر هنا...</div>
+</div>
 
 <script>
 function openKey() {
@@ -41,9 +83,13 @@ function openKey() {
 }
 
 function saveKey() {
-  const key = document.getElementById("key").value;
+  const key = document.getElementById("key").value.trim();
+  if (!key) {
+    alert("أدخل المفتاح أولاً");
+    return;
+  }
   localStorage.setItem("gemini_key", key);
-  alert("تم الحفظ ✔");
+  alert("تم الحفظ بنجاح ✔");
 }
 
 function getKey() {
@@ -51,13 +97,13 @@ function getKey() {
 }
 
 function buildPrompt(mode, text) {
-  const base = "أنت وكيل مدرسي عملي. أعطِ نتائج منظمة وقابلة للتطبيق فورًا.";
+  const base = "أنت وكيل مدرسي احترافي. أعطِ نتائج منظمة، واضحة، قابلة للتطبيق فورًا.";
 
   const tasks = {
-    lesson: "صمم خطة درس كاملة.",
-    worksheet: "أنشئ ورقة عمل.",
-    test: "أنشئ اختبار مع الإجابات.",
-    evaluation: "اكتب تقييم تربوي لطالب."
+    lesson: "صمم خطة درس كاملة (هدف، تمهيد، نشاط، تقويم).",
+    worksheet: "أنشئ ورقة عمل منظمة ومتدرجة.",
+    test: "أنشئ اختبار مع إجابات نموذجية.",
+    evaluation: "اكتب تقييم تربوي وسلوكي لطالب."
   };
 
   return base + "\n" + tasks[mode] + "\nالموضوع: " + text;
@@ -65,31 +111,70 @@ function buildPrompt(mode, text) {
 
 async function run() {
   const key = getKey();
+
   if (!key) {
-    alert("أدخل المفتاح أولاً");
+    document.getElementById("out").innerText =
+      "⚠ لم يتم العثور على مفتاح. قم بإدخاله أولاً.";
     return;
   }
 
   const mode = document.getElementById("mode").value;
-  const text = document.getElementById("input").value;
+  const text = document.getElementById("input").value.trim();
+
+  if (!text) {
+    document.getElementById("out").innerText =
+      "⚠ اكتب الموضوع أولاً.";
+    return;
+  }
 
   const prompt = buildPrompt(mode, text);
 
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
+  document.getElementById("out").innerText = "⏳ جاري التنفيذ...";
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    // إذا كان هناك خطأ من API
+    if (!res.ok) {
+      document.getElementById("out").innerText =
+        "❌ خطأ من Gemini API:\n\n" + JSON.stringify(data, null, 2);
+      return;
     }
-  );
 
-  const data = await res.json();
+    const result =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-  document.getElementById("out").innerText =
-    data.candidates?.[0]?.content?.parts?.[0]?.text || "خطأ في التنفيذ";
+    if (!result) {
+      document.getElementById("out").innerText =
+        "❌ لم يتم استلام رد صحيح:\n\n" + JSON.stringify(data, null, 2);
+      return;
+    }
+
+    document.getElementById("out").innerText = result;
+
+  } catch (err) {
+    document.getElementById("out").innerText =
+      "❌ خطأ اتصال:\n" + err.message;
+  }
 }
 </script>
 
