@@ -3,367 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>النظام التعليمي الموحد - النسخة الاحترافية المستقرة</title>
+<title>النظام التعليمي الذكي الشامل - النسخة الموسعة</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 <style>
-:root { --primary: #1e3a8a; --bg: #f8fafc; --text: #0f172a; --border: #cbd5e1; }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
-body { background: var(--bg); color: var(--text); padding: 15px; font-size: 14px; }
-.container { max-width: 1400px; margin: auto; display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
-.panel { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.header-main { grid-column: 1 / -1; background: var(--primary); color: #fff; padding: 20px; border-radius: 8px; text-align: center; }
-h3 { color: var(--primary); margin-bottom: 15px; border-right: 4px solid #2563eb; padding-right: 10px; }
-.form-group { margin-bottom: 12px; }
-label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; }
-input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
-button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: #2563eb; color: #fff; font-weight: bold; cursor: pointer; margin-top: 5px; }
-button:hover { background: #1d4ed8; }
-.btn-green { background: #16a34a; }
-.btn-dark { background: #475569; }
-.btn-danger { background: #dc2626; }
-.loader { display: none; height: 6px; background: linear-gradient(90deg, #2563eb 25%, #60a5fa 50%, #2563eb 75%); background-size: 200% 100%; animation: load 1.5s infinite linear; border-radius: 4px; margin: 10px 0; }
-@keyframes load { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.status-log { font-size: 12px; color: #16a34a; margin-top: 5px; font-weight: bold; }
-.toolbar { display: flex; gap: 10px; margin-bottom: 15px; background: #e2e8f0; padding: 10px; border-radius: 6px; }
-.toolbar button { width: auto; padding: 6px 12px; margin: 0; font-size: 12px; }
-#output_area { min-height: 700px; padding: 40px; border: 1px solid var(--border); border-radius: 6px; outline: none; background: #fff; overflow-y: auto; line-height: 1.8; font-size: 16px; }
-.print-header { display: none; }
-@media print {
-  .no-print, .panel:first-child, .header-main { display: none !important; }
-  body, .container { background: #fff; display: block; padding: 0; margin: 0; }
-  .panel { border: none; box-shadow: none; padding: 0; }
-  #output_area { border: none; padding: 0; height: auto; }
-  .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; padding-bottom: 15px; margin-bottom: 20px; }
-  .print-header img { max-height: 80px; max-width: 80px; }
-  .print-header .center-text { text-align: center; flex-grow: 1; }
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-  th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-  .page-break { page-break-after: always; }
+/* ===================== GLOBAL ===================== */
+body{
+margin:0;
+font-family:Segoe UI;
+background:#eef2f7;
+color:#111;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:15px;
+}
+
+/* ===================== HEADER ===================== */
+header{
+background:#0b2a5a;
+color:#fff;
+padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+/* ===================== CARD ===================== */
+.card{
+background:#fff;
+margin-top:15px;
+padding:15px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+/* ===================== INPUT ===================== */
+input,textarea,select,button{
+width:100%;
+padding:10px;
+margin-top:6px;
+border-radius:6px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
+
+button{
+background:#2563eb;
+color:#fff;
+border:none;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+/* ===================== GRID ===================== */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+/* ===================== TABS ===================== */
+.tabs{
+display:flex;
+gap:5px;
+margin-top:15px;
+}
+
+.tab{
+flex:1;
+padding:10px;
+text-align:center;
+background:#d7dbe3;
+cursor:pointer;
+border-radius:8px;
+font-weight:bold;
+}
+
+.tab.active{
+background:#0b2a5a;
+color:#fff;
+}
+
+/* ===================== SECTION ===================== */
+.section{
+display:none;
+margin-top:10px;
+}
+
+.section.active{
+display:block;
+}
+
+/* ===================== LOADER ===================== */
+.loader{
+display:none;
+margin-top:10px;
+height:10px;
+background:#ddd;
+border-radius:10px;
+overflow:hidden;
+}
+
+.loader div{
+height:100%;
+width:100%;
+background:linear-gradient(90deg,#2563eb,#60a5fa,#2563eb);
+animation:move 1.2s linear infinite;
+}
+
+@keyframes move{
+0%{transform:translateX(-100%)}
+100%{transform:translateX(100%)}
+}
+
+/* ===================== TABLE ===================== */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+
+td,th{
+border:1px solid #ddd;
+padding:6px;
+text-align:center;
+font-size:13px;
+}
+
+/* ===================== SMALL ===================== */
+.small{
+font-size:12px;
+color:#666;
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-  <div class="header-main no-print">
-    <h2>المنظومة التعليمية الذكية الشاملة (IndexedDB Caching Engine)</h2>
-  </div>
 
-  <div class="panel no-print">
-    <h3>١. الإعدادات وقاعدة البيانات المحفوظة</h3>
-    <div class="form-group"><input id="api_key" type="password" placeholder="Google Gemini API Key"></div>
-    <div class="form-group"><input id="teacher" placeholder="اسم المعلم"></div>
-    <div class="form-group"><input id="school" placeholder="اسم المدرسة"></div>
-    <div class="form-group"><input id="directorate" placeholder="اسم المديرية"></div>
-    <div class="form-group">
-      <label>شعار المدرسة (اختياري)</label>
-      <input type="file" id="logo_school" accept="image/*" onchange="storeImage(this, 'schoolLogo')">
-    </div>
-    <div class="form-group">
-      <label>شعار المديرية/الوزارة (اختياري)</label>
-      <input type="file" id="logo_gov" accept="image/*" onchange="storeImage(this, 'govLogo')">
-    </div>
-    <button class="btn-dark" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+<!-- ================= HEADER ================= -->
+<header>
+<h2>النظام التعليمي الذكي الشامل - النسخة الموسعة</h2>
+<p class="small">نظام متكامل لإنتاج الخطط + الأوراق + الاختبارات + الرصد + OCR + PDF + Gemini</p>
+</header>
 
-    <h3 style="margin-top: 25px;">٢. محرك المنهاج المرجعي (PDF)</h3>
-    <div class="form-group">
-      <label>رفع كتاب المنهاج لمرة واحدة (سيتم تخزينه وفهرسته محلياً):</label>
-      <input type="file" id="pdf_file" accept=".pdf">
-      <button class="btn-green" onclick="processAndStoreBook()">📚 أرشفة وتجزئة المنهاج محلياً</button>
-      <div class="loader" id="pdf_loader"></div>
-      <div class="status-log" id="pdf_status">حالة المنهاج: غير مسجل في قاعدة البيانات.</div>
-    </div>
+<!-- ================= SETTINGS ================= -->
+<div class="card">
+<h3>الإعدادات الأساسية</h3>
 
-    <h3 style="margin-top: 25px;">٣. التوليد التربوي الفائق</h3>
-    <div class="form-group">
-      <label>نوع المخرج المطلوب:</label>
-      <select id="prod_type">
-        <option value="خطة سنوية ومصفوفة مدى وتتابع">خطة سنوية</option>
-        <option value="خطة فصلية شاملة للمنهاج">خطة فصلية</option>
-        <option value="خطة يومية وتحضير درس تفصيلي">تحضير درس تفصيلي</option>
-        <option value="أوراق عمل تفاعلية وتمارين">أوراق عمل (لكل درس)</option>
-        <option value="اختبار نهاية وحدة دراسية">اختبار وحدة</option>
-        <option value="اختبار نهاية الفصل الدراسي">اختبار فصل</option>
-        <option value="بنك أسئلة موضوعية ومقالية">بنك أسئلة</option>
-        <option value="سلم تقدير وتقييم أداء روبريك">سلم تقدير (Rubric)</option>
-        <option value="أنشطة إثرائية للطلبة الموهوبين">أنشطة إثرائية</option>
-        <option value="أنشطة علاجية للطلبة المتعثرين">أنشطة علاجية</option>
-        <option value="نص إذاعة مدرسية تعليمي">إذاعة مدرسية</option>
-        <option value="مسرحية صفية تعليمية قصيرة">مسرحية تعليمية</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>الدرس / الوحدة / المفهوم المستهدف:</label>
-      <input id="target_topic" placeholder="مثال: الكسور العادية">
-    </div>
-    <button onclick="generateContent()">⚡ توليد المحتوى الآن</button>
-    <div class="loader" id="ai_loader"></div>
-    <div class="status-log" id="ai_status"></div>
-  </div>
+<input id="apiKey" placeholder="Gemini API Key (اختياري)">
+<button onclick="saveKey()">حفظ المفتاح</button>
 
-  <div class="panel" style="display: flex; flex-direction: column;">
-    <div class="toolbar no-print">
-      <button class="btn-dark" onclick="window.print()">🖨️ طباعة المستند</button>
-      <button class="btn-danger" onclick="clearCache()">🗑️ مسح الذاكرة المؤقتة (Cache)</button>
-    </div>
+<div class="grid">
+<input id="teacher" placeholder="المعلم">
+<input id="school" placeholder="المدرسة">
+</div>
 
-    <div class="print-header">
-      <img id="print_logo_gov" src="" alt="شعار الوزارة">
-      <div class="center-text">
-        <b style="font-size:18px;">دولة فلسطين</b><br>
-        وزارة التربية والتعليم العالي<br>
-        مديرية: <span id="print_dir"></span><br>
-        مدرسة: <span id="print_sch"></span><br>
-        المعلم: <span id="print_tch"></span>
-      </div>
-      <img id="print_logo_school" src="" alt="شعار المدرسة">
-    </div>
+<textarea id="students" placeholder="أسماء الطلاب"></textarea>
+</div>
 
-    <div id="output_area" contenteditable="true">
-      النتائج ستظهر هنا بصيغة قابلة للتعديل والطباعة...
-    </div>
-  </div>
+<!-- ================= FILES ================= -->
+<div class="card">
+<h3>المصادر</h3>
+
+<input type="file" id="file">
+
+<button onclick="extractOCR()">استخراج أسماء (OCR)</button>
+<button onclick="loadPDF()">تحميل PDF</button>
+</div>
+
+<!-- ================= GENERATION ================= -->
+<div class="card">
+<h3>التوليد الذكي</h3>
+
+<select id="mode">
+<option value="lesson">درس</option>
+<option value="unit">وحدة</option>
+<option value="full">منهج كامل</option>
+</select>
+
+<input id="topic" placeholder="عنوان الموضوع">
+
+<button onclick="runPipeline()">تشغيل النظام الكامل</button>
+</div>
+
+<!-- ================= LOADER ================= -->
+<div class="card">
+<div class="loader" id="loader"><div></div></div>
+</div>
+
+<!-- ================= TABS ================= -->
+<div class="tabs">
+<div class="tab active" onclick="openTab(0)">خطط</div>
+<div class="tab" onclick="openTab(1)">أوراق</div>
+<div class="tab" onclick="openTab(2)">اختبارات</div>
+<div class="tab" onclick="openTab(3)">رصد</div>
+</div>
+
+<div class="card section active" id="s0"></div>
+<div class="card section" id="s1"></div>
+<div class="card section" id="s2"></div>
+<div class="card section" id="s3"></div>
+
 </div>
 
 <script>
-// --- 1. IndexedDB Setup (DB & Caching) ---
-const DB_NAME = "EduSystemDB";
-const DB_VERSION = 1;
-let db;
 
-function initDB() {
-  const req = indexedDB.open(DB_NAME, DB_VERSION);
-  req.onupgradeneeded = e => {
-    const database = e.target.result;
-    if (!database.objectStoreNames.contains('book_chunks')) database.createObjectStore('book_chunks', { keyPath: 'id' });
-    if (!database.objectStoreNames.contains('ai_cache')) database.createObjectStore('ai_cache', { keyPath: 'hash' });
-    if (!database.objectStoreNames.contains('settings')) database.createObjectStore('settings', { keyPath: 'key' });
-  };
-  req.onsuccess = e => { db = e.target.result; loadSettings(); checkBookStatus(); };
-  req.onerror = e => console.error("IndexedDB Error", e);
-}
-initDB();
+/* ================= STATE ================= */
+const State = {
+pdf:"",
+key:"",
+busy:false,
+queue:[]
+};
 
-// DB Helpers
-function putDB(storeName, data) {
-  return new Promise((resolve) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    tx.objectStore(storeName).put(data);
-    tx.oncomplete = resolve;
-  });
-}
-function getDB(storeName, key) {
-  return new Promise((resolve) => {
-    const req = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
-    req.onsuccess = () => resolve(req.result);
-  });
-}
-function getAllDB(storeName) {
-  return new Promise((resolve) => {
-    const req = db.transaction(storeName, 'readonly').objectStore(storeName).getAll();
-    req.onsuccess = () => resolve(req.result);
-  });
+/* ================= INIT ================= */
+window.onload=()=>{
+State.key=localStorage.getItem("key")||"";
+apiKey.value=State.key;
+};
+
+/* ================= SAVE KEY ================= */
+function saveKey(){
+State.key=apiKey.value.trim();
+localStorage.setItem("key",State.key);
+alert("تم حفظ المفتاح");
 }
 
-// --- 2. Settings & Images ---
-function saveSettings() {
-  const keys = ['api_key', 'teacher', 'school', 'directorate'];
-  keys.forEach(k => { putDB('settings', { key: k, value: document.getElementById(k).value }); });
-  updatePrintHeader();
-  alert("تم الحفظ بنجاح.");
-}
-async function loadSettings() {
-  const keys = ['api_key', 'teacher', 'school', 'directorate'];
-  for (let k of keys) {
-    const res = await getDB('settings', k);
-    if(res) document.getElementById(k).value = res.value;
-  }
-  const logoS = await getDB('settings', 'schoolLogo');
-  if(logoS) document.getElementById('print_logo_school').src = logoS.value;
-  const logoG = await getDB('settings', 'govLogo');
-  if(logoG) document.getElementById('print_logo_gov').src = logoG.value;
-  updatePrintHeader();
-}
-function storeImage(input, key) {
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    await putDB('settings', { key: key, value: e.target.result });
-    loadSettings();
-  };
-  reader.readAsDataURL(file);
-}
-function updatePrintHeader() {
-  document.getElementById('print_tch').innerText = document.getElementById('teacher').value || '';
-  document.getElementById('print_sch').innerText = document.getElementById('school').value || '';
-  document.getElementById('print_dir').innerText = document.getElementById('directorate').value || '';
+/* ================= LOADER ================= */
+function setLoading(v){
+loader.style.display=v?"block":"none";
 }
 
-// --- 3. Smart PDF Chunking (Text + OCR fallback) ---
-async function checkBookStatus() {
-  const chunks = await getAllDB('book_chunks');
-  document.getElementById('pdf_status').innerText = chunks.length > 0 ? `✔ المنهاج مفهرس محلياً (${toEasternNumerals(chunks.length)} مقطع)` : "لم يتم تخزين منهاج.";
+/* ================= OCR ================= */
+async function extractOCR(){
+const f=file.files[0];
+if(!f)return;
+
+setLoading(true);
+
+const r=await Tesseract.recognize(f,"ara");
+students.value=r.data.text;
+
+setLoading(false);
 }
 
-async function processAndStoreBook() {
-  const file = document.getElementById('pdf_file').files[0];
-  if(!file) { alert("ارفق ملف PDF."); return; }
-  
-  document.getElementById('pdf_loader').style.display = 'block';
-  document.getElementById('pdf_status').innerText = "جاري القراءة والمعالجة... يرجى عدم إغلاق الصفحة.";
-  
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-    
-    // Clear old book
-    const tx = db.transaction('book_chunks', 'readwrite');
-    tx.objectStore('book_chunks').clear();
+/* ================= PDF ================= */
+async function loadPDF(){
+const f=file.files[0];
+if(!f)return;
 
-    let isScanned = false;
-    let sampleText = "";
-    const samplePages = Math.min(pdf.numPages, 5);
-    for(let i = 1; i <= samplePages; i++) {
-      const p = await pdf.getPage(i);
-      const c = await p.getTextContent();
-      sampleText += c.items.map(x => x.str).join(" ");
-    }
-    
-    if(sampleText.replace(/\s/g, '').length < 100) isScanned = true;
+setLoading(true);
 
-    const processLimit = Math.min(pdf.numPages, 50); // Limit to prevent browser crash during mapping
-    let chunkCounter = 0;
-    
-    for(let i = 1; i <= processLimit; i++) {
-      document.getElementById('pdf_status').innerText = `جاري استخراج الصفحة ${i} من ${processLimit}...`;
-      let pageText = "";
-      const page = await pdf.getPage(i);
-      
-      if(isScanned) {
-         const vp = page.getViewport({scale: 1.5});
-         const cvs = document.createElement('canvas');
-         cvs.width = vp.width; cvs.height = vp.height;
-         await page.render({canvasContext: cvs.getContext('2d'), viewport: vp}).promise;
-         const res = await Tesseract.recognize(cvs.toDataURL(), 'ara');
-         pageText = res.data.text;
-      } else {
-         const content = await page.getTextContent();
-         pageText = content.items.map(x => x.str).join(" ");
-      }
-      
-      // Store chunks of 1000 chars roughly to avoid DB bloat per record
-      const chunkSize = 1500;
-      for (let j = 0; j < pageText.length; j += chunkSize) {
-         await putDB('book_chunks', { 
-           id: chunkCounter++, 
-           text: pageText.slice(j, j + chunkSize),
-           page: i
-         });
-      }
-    }
-    document.getElementById('pdf_status').innerText = `تم حفظ وتجزئة المنهاج بنجاح!`;
-    checkBookStatus();
-  } catch(e) {
-    console.error(e);
-    document.getElementById('pdf_status').innerText = "خطأ في المعالجة.";
-  } finally {
-    document.getElementById('pdf_loader').style.display = 'none';
-  }
+const buf=await f.arrayBuffer();
+const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+
+let text="";
+
+for(let i=1;i<=Math.min(pdf.numPages,60);i++){
+const p=await pdf.getPage(i);
+const c=await p.getTextContent();
+text+=c.items.map(x=>x.str).join(" ")+"\n";
 }
 
-// --- 4. Number Format Override ---
-function toEasternNumerals(num) {
-  const digits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  return num.toString().replace(/[0-9]/g, w => digits[+w]);
-}
-function convertTextToEastern(text) {
-  const digits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  return text.replace(/[0-9]/g, w => digits[+w]);
+State.pdf=text;
+
+setLoading(false);
 }
 
-// --- 5. AI Generation & Semantic Fetching ---
-async function clearCache() {
-  const tx = db.transaction('ai_cache', 'readwrite');
-  tx.objectStore('ai_cache').clear();
-  alert("تم مسح الذاكرة المؤقتة.");
+/* ================= AI ENGINE ================= */
+async function AI(prompt){
+
+if(!State.key){
+return "⚠️ وضع محلي\n\n"+prompt.slice(0,800);
 }
 
-async function getRelevantContext(topic) {
-  const chunks = await getAllDB('book_chunks');
-  if(!chunks || chunks.length === 0) return "لا يوجد كتاب مؤرشف. اعتمد على معرفتك بخطط وزارة التربية.";
-  
-  // Basic lexical search to simulate vector DB embedding fetch
-  const keywords = topic.split(' ').filter(x => x.length > 2);
-  let scoredChunks = chunks.map(c => {
-    let score = 0;
-    keywords.forEach(k => { if(c.text.includes(k)) score++; });
-    return { ...c, score };
-  }).filter(c => c.score > 0).sort((a,b) => b.score - a.score);
-  
-  // Return top 5 relevant chunks to save API Tokens
-  let context = scoredChunks.slice(0, 5).map(c => c.text).join("\n...\n");
-  return context.length > 50 ? context : "لم أجد تطابقًا دقيقًا في الكتاب المرفوع، اعتمد على معايير المنهاج القياسي.";
+try{
+const res=await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${State.key}`,
+{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+contents:[{parts:[{text:prompt}]}]
+})
+});
+
+const data=await res.json();
+return data?.candidates?.[0]?.content?.parts?.[0]?.text || "خطأ";
+}
+catch(e){
+return "فشل الاتصال";
+}
 }
 
-async function generateContent() {
-  const type = document.getElementById('prod_type').value;
-  const topic = document.getElementById('target_topic').value.trim();
-  const key = document.getElementById('api_key').value.trim();
-  
-  if(!topic) { alert("أدخل اسم الدرس أو الوحدة."); return; }
-  if(!key) { alert("أدخل مفتاح API."); return; }
+/* ================= PROMPT ================= */
+function buildPrompt(type){
 
-  const reqHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(type + topic));
-  const hashArray = Array.from(new Uint8Array(reqHash));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+return `
+نظام تعليم احترافي.
 
-  const cached = await getDB('ai_cache', hashHex);
-  if(cached) {
-    document.getElementById('output_area').innerHTML = cached.html;
-    document.getElementById('ai_status').innerText = "تم الاسترجاع من الذاكرة المحلية (بدون استهلاك API).";
-    return;
-  }
+المعلم: ${teacher.value}
+الطلاب: ${students.value}
 
-  document.getElementById('ai_loader').style.display = 'block';
-  document.getElementById('ai_status').innerText = "جاري استخلاص السياق وتوليد المتن...";
+المحتوى:
+${State.pdf.slice(0,12000)}
 
-  const contextText = await getRelevantContext(topic);
+المطلوب:
+${type}
 
-  const prompt = `أنت موجه تربوي في وزارة التربية والتعليم. 
-المطلوب صياغة: [${type}] لموضوع: [${topic}].
-استخدم الأرقام العربية المشرقية (٠١٢٣٤٥٦٧٨٩) حصرًا في كل شيء.
-اكتب المخرج جاهزًا للاستخدام والطباعة الفورية بدون أي حوارات أو شروحات.
-السياق المستخرج من كتاب الطالب (إن وجد):
-${contextText}`;
-
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-    
-    const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-    
-    let text = data.candidates[0].content.parts[0].text;
-    let htmlForm = convertTextToEastern(text).replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-    
-    document.getElementById('output_area').innerHTML = htmlForm;
-    await putDB('ai_cache', { hash: hashHex, html: htmlForm });
-    
-    document.getElementById('ai_status').innerText = "تم التوليد والحفظ بنجاح.";
-  } catch(e) {
-    document.getElementById('output_area').innerHTML = `<div style="color:red; font-weight:bold;">❌ خطأ في المعالجة السحابية: ${e.message}</div>`;
-    document.getElementById('ai_status').innerText = "فشلت العملية.";
-  } finally {
-    document.getElementById('ai_loader').style.display = 'none';
-  }
+أنتج محتوى كامل بدون اختصار.
+`;
 }
+
+/* ================= PIPELINE ================= */
+async function runPipeline(){
+
+if(State.busy)return;
+State.busy=true;
+
+setLoading(true);
+
+const tasks=[
+["خطط الدروس",s0],
+["أوراق العمل",s1],
+["الاختبارات",s2],
+["الرصد",s3]
+];
+
+for(let i=0;i<tasks.length;i++){
+
+tasks[i][1].innerText="جاري التوليد...";
+
+const result=await AI(buildPrompt(tasks[i][0]));
+
+tasks[i][1].innerText=result;
+
+await new Promise(r=>setTimeout(r,300)); // منع التجميد
+}
+
+setLoading(false);
+State.busy=false;
+}
+
+/* ================= TABS ================= */
+function openTab(i){
+
+document.querySelectorAll(".section").forEach(e=>e.classList.remove("active"));
+document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
+
+document.getElementById("s"+i).classList.add("active");
+document.querySelectorAll(".tab")[i].classList.add("active");
+}
+
 </script>
+
 </body>
 </html>
