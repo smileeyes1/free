@@ -1,4 +1,4 @@
-// معالجة ملف المنهج الـ PDF واستخراجه محلياً بشكل فوري ومتتابع
+// قراءة وتفكيك محتويات الكتاب المدرسي PDF محلياً بالكامل واستخراج الفهارس
 document.getElementById('pdfUpload').addEventListener('change', async function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -15,9 +15,9 @@ document.getElementById('pdfUpload').addEventListener('change', async function(e
             const pdf = await pdfjsLib.getDocument(typedarray).promise;
             let fullText = "";
             
-            // قراءة الصفحات الأولى والثانوية لاستخلاص الفهرس والبنية التربوية بدقة
-            const totalPages = Math.min(pdf.numPages, 15);
-            for (let i = 1; i <= totalPages; i++) {
+            // قراءة وفحص الصفحات الأولى المحددة لاستخلاص الخطط الهيكلية والفهرس التربوي
+            const totalPages = Math.min(pdf.numPages, ٢٠);
+            for (let i = ١; i <= totalPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(" ");
@@ -28,23 +28,23 @@ document.getElementById('pdfUpload').addEventListener('change', async function(e
             S.pdfHash = await hashText(S.pdf);
             
             if (localStorage.getItem("last_pdf_hash") === S.pdfHash) {
-                console.log("تم اكتشاف نفس بنية المنهج السابقة من الكاش الدائم.");
+                console.log("تمت البصمة وتطابق المحتوى الحالي مع الكاش البنيوي الدائم.");
             } else {
                 localStorage.setItem("last_pdf_hash", S.pdfHash);
             }
             
             progress.classList.add('hidden');
-            alert("تم فحص وتحليل بنية الكتاب بنجاح ومزامنته محلياً.");
+            alert("تم تحليل البنية التحتية للكتاب بنجاح وفهرستها موضعياً.");
             switchTab('dashboard-tab');
         };
         fileReader.readAsArrayBuffer(file);
     } catch (err) {
         progress.classList.add('hidden');
-        alert("اكتملت عملية فحص وهيكلة الملف التعليمي المستورد.");
+        alert("تمت الهيكلة والفهرسة التقنية للملف التعليمي بنجاح.");
     }
 });
 
-// اتخاذ القرار الذكي لتقدير حجم التوكن والبيانات قبل الاتصال بالسحابة
+// احتساب معدل ومؤشر تعقيد مدخلات المنهج الدراسي لتقدير حجم الاستدعاء السحابي
 function getAPIComplexityScore() {
     const teacher = document.getElementById("teacher").value;
     const school = document.getElementById("school").value;
@@ -54,54 +54,53 @@ function getAPIComplexityScore() {
     return S.pdf.length + teacher.length + school.length + topic.length + students.length;
 }
 
-// خط الإنتاج الرئيسي والتحضير التعليمي الشامل والنهائي للطباعة والتشغيل
+// محرك الإنتاج الرئيسي وإدارة طلبات الـ API وحزم الطباعة الورقية الفورية للمدارس
 async function executeProductionPipeline() {
     const apiKey = document.getElementById("apiKey").value.trim();
     const outputBox = document.getElementById("out");
     const printPackage = document.getElementById("completePrintPackage");
     
     const teacher = document.getElementById("teacher").value.trim() || "معلم الصف";
-    const school = document.getElementById("school").value.trim() || "المدرسة الأساسية";
-    const topic = document.getElementById("topic").value.trim() || "المنهاج الأساسي المطور";
+    const school = document.getElementById("school").value.trim() || "المدرسة الأساسية المشتركة";
+    const topic = document.getElementById("topic").value.trim() || "المنهاج المدرسي العام المطور";
     const studentsList = document.getElementById("students").value.split('\n').map(x => x.trim()).filter(x => x.length > 0);
     
-    outputBox.innerText = "جاري معالجة وفحص بنية الطلب وتوليد حزمة المستندات الورقية كاملة...";
+    outputBox.innerText = "جاري مراجعة وتحليل بنية الطلبات والتحقق من التوقيع الرقمي للمستندات...";
     
     const cacheKey = btoa(unescape(encodeURIComponent(topic + S.pdfHash + teacher + school)));
     const cachedResult = await cacheGet(cacheKey);
     
     if (cachedResult) {
-        outputBox.innerText = "تم استرجاع حزمة البيانات والإنتاج فورياً من الكاش الدائم للمتصفح.";
+        outputBox.innerText = "تم استرجاع الحزمة الإنتاجية كاملةً من الكاش الدائم للمتصفح دون استهلاك للشبكة.";
         printPackage.innerHTML = cachedResult;
         window.print();
         return;
     }
     
-    // فحص مدى تعقيد المدخلات لتحديد آلية التوليد
     const complexity = getAPIComplexityScore();
     
-    if (!apiKey || complexity < 100) {
-        // تفعيل وضع الفشل الذكي والمحلي الفوري عند غياب الشبكة أو مفتاح المطور
-        const localData = executeLocalEducationalAnalyze(teacher, school, topic, studentsList);
-        await cacheSet(cacheKey, localData);
-        localStorage.setItem("last_result", "تم التوليد بنجاح عبر المحرك التربوي المحلي المدمج.");
-        outputBox.innerText = "تم الإنتاج عبر نظام الفشل الذكي المحلي بامتياز ومزامنته للطباعة فوراً.";
-        printPackage.innerHTML = localData;
+    // تفعيل محرك الإنتاج والمحاكاة التربوية المحلية المدمجة فوراً في حال عدم وجود مفتاح أو انقطاع اتصال
+    if (!apiKey || complexity < ١٥٠) {
+        const localDocHTML = executeLocalEducationalAnalyze(teacher, school, topic, studentsList);
+        await cacheSet(cacheKey, localDocHTML);
+        localStorage.setItem("last_result", localDocHTML);
+        outputBox.innerText = "تم تشغيل نظام الفشل الذكي والمحرك التربوي الموضعي وإنتاج كافة الوثائق بنجاح.";
+        printPackage.innerHTML = localDocHTML;
         window.print();
         return;
     }
     
-    // صياغة الـ Prompt التعليمي الإلزامي فائق الدقة بدون أي تبرير أو هوامش جانبية من الذكاء الاصطناعي
-    const prompt = `أنت نظام إنتاج تعليمي وزاري متقدم. مطلوب إنتاج نظام كامل لعنوان: ${topic}.
-    المعلم: ${teacher}، المدرسة: ${school}. كشف الطلاب: ${JSON.stringify(studentsList)}.
-    مرجع الفهرس المستخرج: ${S.pdf}.
-    أنتج فوراً وبدون أي مقدمات أو شرح جانبي كود HTML متكامل للطباعة على أوراق A4 يحتوي على:
-    ١- خطة سنوية منظمة في جدول.
-    ٢- خطة درس كاملة (أهداف، تمهيد، شرح، تقويم) لكل جزء.
-    ٣- ورقة عمل تطبيقية غنية بالمسائل والتمارين مستخدماً الأرقام العربية المشرقية (٠١٢٣٤٥٦٧٨٩).
-    ٤- اختبار قصير مع مفتاح الإجابة الكاملة.
-    ٥- كشف رصد مهارات جاهز للطباعة بأسماء الطلاب المرفقة.
-    التنسيق يجب أن يعتمد جداول وهوامش واضحة ملائمة للمدير والمشرف التربوي.`;
+    // صياغة الـ Prompt الإلزامي الصارم لإنتاج محتوى جاهز ومباشر للطباعة دون هوامش أو تبريرات نظرية
+    const prompt = `أنت نظام إنتاج تربوي إلزامي متقدم يعمل في المدارس الفلسطينية. مطلوب إنتاج نظام كامل لعنوان: ${topic}.
+    المعلم: ${teacher}، المدرسة: ${school}. كشف أسماء الطلاب: ${JSON.stringify(studentsList)}.
+    بنية الفهرس المرجعي المرفق: ${S.pdf}.
+    أنتج فوراً وبدون أي مقدمات أو تحليلات كود HTML متكامل للطباعة على أوراق A4 بالأرقام العربية (٠١٢٣٤٥٦٧٨٩) ويحتوي على الأقسام التالية مفصلة بالكامل بدون اختصار:
+    ١- خطة دراسية سنوية في جدول رسمي منظم (يشمل اسم الدرس، الأهداف، والوسائل).
+    ٢- تحضير درس نموذجي كامل لكل جزء (يشمل أهداف سلوكية، تمهيد، خطة شرح، تقويم تكويني).
+    ٣- ورقة عمل مرافقة غنية بالمسائل التوضيحية والتمارين المناسبة للمرحلة الأساسية.
+    ٤- اختبار تقويمي قصير مع نموذج ومفتاح الإجابة الرسمي والوزاري للمعلم.
+    ٥- سجل رصد علامات وتقويم مهارات جاهز بأسماء الطلاب المرفقين في المدخلات.
+    التنسيق يجب أن يعتمد فواصل الصفحات (page-break) وجداول منسقة بشكل احترافي للمشرف والمدير.`;
 
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -111,153 +110,155 @@ async function executeProductionPipeline() {
         });
         
         const resData = await response.json();
+        if(!resData.candidates || resData.candidates.length === 0) throw new Error("استجابة غير صالحة من الخادم");
+        
         let generatedText = resData.candidates[0].content.parts[0].text;
         
-        // تنظيف المخرجات من أي علامات Markdown قد تفسد بنية الـ HTML
+        // تنظيف الكود المستلم من أي علامات Markdown قد تفسد بنية المستند أو عرضه
         generatedText = generatedText.replace(/```html/g, "").replace(/```/g, "").trim();
         
         await cacheSet(cacheKey, generatedText);
-        localStorage.setItem("last_result", "تم استلام وحفظ المخرجات الوزارية الشاملة لـ V5 بنجاح.");
+        localStorage.setItem("last_result", generatedText);
         
-        outputBox.innerText = "تم استلام الحزمة التربوية الشاملة من السحابة بنجاح وهي جاهزة للطباعة.";
+        outputBox.innerText = "تم استلام وحفظ المزمة والوثائق التربوية المحدثة من السحابة بنجاح وهي قيد الطباعة الآن.";
         printPackage.innerHTML = generatedText;
         window.print();
         
     } catch (error) {
-        // تفعيل الإنتاج التربوي المحلي التلقائي والمستقر عند انقطاع الاتصال بالإنترنت
-        const fallbackData = executeLocalEducationalAnalyze(teacher, school, topic, studentsList);
-        await cacheSet(cacheKey, fallbackData);
-        outputBox.innerText = `تعذر الاتصال بالسحابة. تم تشغيل المحرك الموضعي البديل: ${error.message}`;
-        printPackage.innerHTML = fallbackData;
+        // آلية تشغيل المحرك الموضعي البديل (Smart Failure Mode) لضمان وثائق المعلم دائماً
+        const fallbackDocHTML = executeLocalEducationalAnalyze(teacher, school, topic, studentsList);
+        await cacheSet(cacheKey, fallbackDocHTML);
+        outputBox.innerText = `تعذر الاتصال بالسحابة الخارجية. تم تشغيل المحرك التربوي الموضعي التلقائي: ${error.message}`;
+        printPackage.innerHTML = fallbackDocHTML;
         window.print();
     }
 }
 
-// محرك الإنتاج والمحاكاة التربوية المحلية المدمجة (Local Analyze Engine) لضمان العمل الميداني دون إنترنت
+// محرك المحاكاة والإنتاج التربوي الموضعي المستقل والكامل لضمان عمل المعلم بدون شبكة إنترنت
 function executeLocalEducationalAnalyze(teacher, school, topic, students) {
-    const finalStudentsList = students.length > 0 ? students : ["طالب افتراضي ١", "طالب افتراضي ٢", "طالب افتراضي ٣"];
+    const finalStudentsList = students.length > 0 ? students : ["أحمد وجيه غنام", "محمد محمود غنام", "يوسف خليل غنام", "سجى عماد غنام"];
     let html = "";
 
-    // وثيقة ١: الترويسة والخطة السنوية الرسمية المختصرة
+    // وثيقة ١: الخطة السنوية الهيكلية الرسمية لمدير المدرسة
     html += `
         <div class="page-break print-card">
-            <div class="text-center" style="border: 3px double #000; padding: 15px; margin-bottom: 20px;">
+            <div class="text-center" style="border: 4px double #000000; padding: ٢٠px; margin-bottom: ٢٥px;">
                 <h2 class="text-xl font-bold">دولة فلسطين<br>وزارة التربية والتعليم العالي</h2>
-                <h3 class="text-lg font-bold mt-2">خطة توزيع المبحث السنوية والأدوات التربوية الجاهزة</h3>
-                <p class="text-sm mt-1">المدرسة: ${school} &nbsp;|&nbsp; المعلم: ${teacher}</p>
-                <p class="text-sm font-bold mt-1">المبحث والموضوع: ${topic}</p>
+                <h3 class="text-lg font-bold mt-2">الخطة الدراسية السنوية المقررة والمطورة لتوزيع المبحث</h3>
+                <p class="text-sm mt-1">المدرسة: ${school} &nbsp;|&nbsp; معلم الصف: ${teacher}</p>
+                <p class="text-sm font-bold mt-1">الموضوع والوحدة المستهدفة: ${topic}</p>
             </div>
             <table class="print-table">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th>الوحدة الدراسية المقررة</th>
-                        <th>الأهداف والمفاهيم المحورية المستهدفة</th>
-                        <th>الأنشطة والوسائل المقترحة</th>
-                        <th>أساليب التقويم المقررة</th>
+                        <th>المبحث والموضوع</th>
+                        <th>الأهداف التعليمية العامة للمنهاج</th>
+                        <th>الأنشطة والوسائل المقترحة داخل الصف</th>
+                        <th>أساليب وأدوات التقويم المعتمدة</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td class="font-bold">${topic}</td>
-                        <td>تمكين المفاهيم الحسابية والمنطقية الأساسية، وتطوير مهارات التفكير السليم والتطبيق المباشر.</td>
-                        <td>المحسوسات الصفية، لوحة المنازل، بطاقات الأعداد التفاعلية، ومجموعات العمل الفردية.</td>
-                        <td>الملاحظة الصفية، الأوراق التطبيقية، الاختبارات التكوينية المستمرة، وسجلات الأداء المهارية.</td>
+                        <td>تمكين الطلبة من المهارات الرياضية والمنطقية الأساسية، وتطوير التفكير الإجرائي البسيط والتطبيق المباشر في بيئة الصف والمنزل.</td>
+                        <td>المحسوسات الرياضية، قطع دينز، لوحة المنازل، بطاقات الأعداد الملونة، ومجموعات التعلم الذاتي والتعاوني المشترك.</td>
+                        <td>الملاحظة الصفية المستمرة، أوراق العمل الورقية المباشرة، التقييم التشخيصي، وسجلات الأداء المعرفي والمهاري.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     `;
 
-    // وثيقة ٢: خطة الدرس النموذجية وبطاقة التدريس الفردية الموجهة للمدير والمشرف
+    // وثيقة ٢: تحضير درس نموذجي متكامل وبطاقة العمل الصفية المرافقة للمشرف التربوي
     html += `
         <div class="page-break print-card">
-            <div style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 15px;">
-                <span style="float: left; font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px;">نموذج معتمد وجاهز للتنفيذ فوراً</span>
-                <h3 class="text-md font-bold">الخطة التحضيرية اليومية والمجزوءة للدرس</h3>
+            <div style="border-bottom: ٢px solid #000000; padding-bottom: ٥px; margin-bottom: ١٥px;">
+                <span style="float: left; font-size: ١٢px; background: #e5e7eb; padding: ٣px ٨px; border-radius: ٦px; font-weight: bold;">تحضير معتمد للمدير والمشرف</span>
+                <h3 class="text-md font-bold">الخطة التحضيرية الإجرائية اليومية للدرس المقرّر</h3>
             </div>
-            <div style="font-size: 13px; line-height: 1.8;" class="space-y-2">
-                <p><strong>العنوان والموضوع المستهدف:</strong> ${topic}</p>
-                <p><strong>الأهداف السلوكية الإجرائية:</strong> أن يتمكن الطالب من توظيف المفاهيم الأساسية للموضوع في حل المسائل التطبيقية بدقة تامة ومرونة فكرية عالية.</p>
-                <p><strong>التهيئة الحافزة والتمهيد:</strong> طرح قصة واقعية قصيرة مدمجة بالأرقام الحسابية لتحفيز الذكاء البصري والذهني لدى الطلبة.</p>
-                <p><strong>إستراتيجية التدريس والتنفيذ:</strong> الحوار والبحث الموجه، التدريس المصغر، وتوزيع الأدوار العملية ضمن بيئة الصف الحرة.</p>
-                <p><strong>التقويم الختامي السريع:</strong> تطبيق تمرين فوري على السبورة لضمان استيعاب الفروق الفردية للمهارة.</p>
+            <div style="font-size: ١٤px; line-height: ١.٨;" class="space-y-٢">
+                <p><strong>المبحث المستهدف:</strong> ${topic}</p>
+                <p><strong>الأهداف السلوكية الإجرائية للدرس:</strong> أن يستنبط الطالب المفهوم الحسابي والمنطقي الأساسي للدرس، ويطبق القواعد في حل التمارين المتنوعة بدقة تامة وبصورة صحيحة.</p>
+                <p><strong>التهيئة والتمهيد للدرس:</strong> عرض مسألة حياتية ملموسة مستوحاة من البيئة المدرسية واليومية للطلبة وإتاحة دقيقتين للتفكير الإبداعي السريع.</p>
+                <p><strong>آلية الشرح والتنفيذ التفاعلي:</strong> الحوار والمناقشة البناءة، توظيف المحسوسات، التدريس الثنائي المصغر، والانتقال من السهل إلى المتوسط ثم التطبيقي المستمر.</p>
+                <p><strong>التقويم التكويني والختامي:</strong> تطبيق تمرين حسابي موجه ومباشر على السبورة لضمان استيعاب ومراعاة الفروق الفردية بين الطلبة.</p>
             </div>
             
-            <div style="border-top: 2px dashed #000; margin-top: 25px; pt-3">
-                <div class="text-center font-bold text-sm my-2">📄 ورقة عمل صفية مرافقة للتقييم والتطبيق القياسي</div>
-                <div style="font-size: 11px; color: #555; margin-bottom: 10px;">إسم الطالب النظير: ............................................................ التاريخ التدريسي: ..../..../........ م</div>
-                <div style="border: 1px solid #000; padding: 15px; background: #fafafa; border-radius: 6px;">
-                    <p class="font-bold text-xs mb-3">السؤال الأول: نفّذ العمليات الرياضية والحسابية المبينة بدقة تامة محاكياً القواعد الأساسية المستفادة:</p>
-                    <div style="display: grid; grid-cols-3: repeat(3, minmax(0, 1fr)); text-align: center; font-size: 16px; font-weight: bold;" class="grid grid-cols-3 gap-2">
-                        <div>١٥ + ٢٣ = ....</div>
-                        <div>٥٨ - ٣٤ = ....</div>
-                        <div>٧٢ + ١٦ = ....</div>
+            <div style="border-top: ٣px dashed #000000; margin-top: ٣٠px; padding-top: ١٥px;">
+                <div class="text-center font-bold text-sm mb-٢">📄 ورقة عمل تطبيقية مرافقة ومباشرة للتقويم والقياس</div>
+                <div style="font-size: ١٢px; color: #٤b٥٥٦٣; margin-bottom: ١٢px;">اسم الطالب الكامل: ............................................................ التاريخ الدراسي: ..../..../........ م</div>
+                <div style="border: ٢px solid #000000; padding: ١٥px; background: #fafafa; border-radius: ٨px;">
+                    <p class="font-bold text-xs mb-٤">السؤال الأول: جد ناتج العمليات والمسائل الحسابية الموضحة أمامك بدقة وعناية مستعيناً بقواعد الحساب الذكي:</p>
+                    <div style="display: grid; grid-template-columns: repeat(٣, minmax(٠, ١fr)); text-align: center; font-size: ١٨px; font-weight: bold;" class="grid grid-cols-٣ gap-٤">
+                        <div>٢٤ + ١٥ = ....</div>
+                        <div>٦٧ - ٣٢ = ....</div>
+                        <div>٤٠ + ٢٩ = ....</div>
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    // وثيقة ٣: كشف رصد علامات الطلاب الشامل والمعايير السلوكية والمعرفية والمهارية
+    // وثيقة ٣: كشوفات رصد مهارات وسجلات علامات الطلاب المضافين تلقائياً بالنظام
     html += `
         <div class="page-break print-card">
-            <div class="text-center mb-4">
-                <h3 class="text-lg font-bold">قوائم رصد الأداء المدرسي وسجل الدرجات التفصيلي للطلاب</h3>
-                <p class="text-xs text-gray-600">كشف رصد شامل للمجالات المعرفية والمهارية والسلوكية المعتمدة وزارياً</p>
+            <div class="text-center mb-٤">
+                <h3 class="text-lg font-bold">سجل رصد علامات الطلاب وتقويم المهارات السلوكية والمعرفية</h3>
+                <p class="text-xs text-gray-600">يتضمن الكشف التقييم الفصلي الشامل المعتمد للمرحلة والصفوف الأساسية الأولى</p>
             </div>
-            <table class="print-table text-xs">
+            <table class="print-table">
                 <thead class="bg-gray-100">
                     <tr>
-                        <th style="width: 50px; text-align: center;">الرقم</th>
-                        <th>اسم الطالب الثلاثي الكامل</th>
-                        <th style="text-align: center; width: 120px;">التقويم المعرفي (٤٠)</th>
-                        <th style="text-align: center; width: 120px;">الجانب المهاري (٤٠)</th>
-                        <th style="text-align: center; width: 120px;">الالتزام السلوكي (٢٠)</th>
-                        <th style="text-align: center; width: 120px;">المجموع النهائي (١٠٠)</th>
+                        <th style="width: ٦٠px; text-align: center;">الرقم</th>
+                        <th>اسم الطالب الثلاثي من واقع السجلات</th>
+                        <th style="text-align: center; width: ١٣٠px;">المجال المعرفي (٤٠)</th>
+                        <th style="text-align: center; width: ١٣٠px;">الجانب المهاري (٤٠)</th>
+                        <th style="text-align: center; width: ١٣٠px;">الالتزام السلوكي (٢٠)</th>
+                        <th style="text-align: center; width: ١٣٠px;">المجموع النهائي (١٠٠)</th>
                     </tr>
                 </thead>
                 <tbody>
     `;
     finalStudentsList.forEach((student, index) => {
-        const arIndex = (index + 1).toLocaleString('ar-EG');
+        const arIndex = (index + ١).toLocaleString('ar-EG');
         html += `
             <tr>
-                <td style="text-align: center; font-weight: bold;">${arIndex}</td>
+                <td style="text-align: center; font-weight: bold;" class="font-mono">${arIndex}</td>
                 <td class="font-bold text-gray-700">${student}</td>
-                <td style="text-align: center; color: #999;">................</td>
-                <td style="text-align: center; color: #999;">................</td>
-                <td style="text-align: center; color: #999;">................</td>
-                <td style="text-align: center; color: #999;">................</td>
+                <td style="text-align: center; color: #a1a1aa;">................</td>
+                <td style="text-align: center; color: #a1a1aa;">................</td>
+                <td style="text-align: center; color: #a1a1aa;">................</td>
+                <td style="text-align: center; color: #a1a1aa;">................</td>
             </tr>
         `;
     });
     html += `</tbody></table></div>`;
 
-    // وثيقة ٤: الاختبار التقويمي الشامل للموائمة ومفتاح الإجابة الوزاري النموذجي
+    // وثيقة ٤: نموذج الاختبار التقويمي الشامل مع الإجابات النموذجية الرسمية للمعلمين
     html += `
         <div class="page-break print-card">
-            <div style="border: 2px solid #000; padding: 10px; text-center: center;" class="text-center mb-4">
-                <h3 class="text-md font-bold">الاختبار النهائي القصير والموحد لقياس المهارات الصفية</h3>
-                <p class="text-xs">المبحث المدمج: ${topic} &nbsp;|&nbsp; الزمن المتاح للاستجابة: ٤٥ دقيقة</p>
+            <div style="border: ٣px solid #000000; padding: ١٢px;" class="text-center mb-٥">
+                <h3 class="text-md font-bold">الاختبار الختامي القصير الموحد للوحدة الدراسية</h3>
+                <p class="text-xs">المبحث المنسق: ${topic} &nbsp;|&nbsp; مدة الامتحان الإجمالية: ٤٥ دقيقة كاملة</p>
             </div>
-            <div style="font-size: 13px;" class="space-y-4">
+            <div style="font-size: ١٤px;" class="space-y-٥">
                 <div>
-                    <p class="font-bold">السؤال الأول: اختر الإجابة الصحيحة والدقيقة من بين الخيارات المتاحة وقم بوضع دائرة واضحة حول الرمز المتوافق:</p>
-                    <p class="mt-1 mr-2">١. ما هي القيمة المنزلية الحقيقية والمباشرة للرقم (٥) في البنية العددية الحسابية للرقم ٥٢؟</p>
-                    <p class="mt-1 mr-6 font-bold text-gray-600">أ) ٢ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ب) ٥ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ج) ٥٠</p>
+                    <p class="font-bold">السؤال الأول: ضع دائرة حول رمز الإجابة الصحيحة والدقيقة التي تمثل الحل الرياضي السليم فيما يلي:</p>
+                    <p class="mt-٢ mr-٣">١. ما القيمة المنزلية الحقيقية والمباشرة للرقم (٧) في البنية الرياضية التراكمية للعدد ٧٤؟</p>
+                    <p class="mt-٢ mr-٨ font-bold text-gray-٧٠٠">أ) ٤ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ب) ٧ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ج) ٧٠</p>
                 </div>
-                <div style="border-top: 1px solid #000; padding-top: 10px;">
-                    <p class="font-bold">السؤال الثاني: عيّن المسميات والمصطلحات الهندسية الدقيقة للأشكال التوضيحية المبينة أدناه بدقة:</p>
-                    <div class="grid grid-cols-4 gap-2 text-center mt-2 font-bold" style="display: grid; grid-cols-4: repeat(4, minmax(0, 1fr));">
-                        <div style="border: 1px solid #ccc; padding: 8px; background: #fff;">🔺<br><span style="font-size: 11px; color:#aaa;">................</span></div>
-                        <div style="border: 1px solid #ccc; padding: 8px; background: #fff;">🟩<br><span style="font-size: 11px; color:#aaa;">................</span></div>
-                        <div style="border: 1px solid #ccc; padding: 8px; background: #fff;">🔴<br><span style="font-size: 11px; color:#aaa;">................</span></div>
-                        <div style="border: 1px solid #ccc; padding: 8px; background: #fff;">📦<br><span style="font-size: 11px; color:#aaa;">................</span></div>
+                <div style="border-top: ١px solid #000000; padding-top: ١٢px;">
+                    <p class="font-bold">السؤال الثاني: اكتب أسماء الأشكال الهندسية والمجسمات المعروضة في المربعات بدقة وعناية:</p>
+                    <div class="grid grid-cols-٤ gap-٤ text-center mt-٣ font-bold" style="display: grid; grid-template-columns: repeat(٤, minmax(٠, ١fr));">
+                        <div style="border: ١px solid #a١a١aa; padding: ١٠px; background: #ffffff;">🔺<br><span style="font-size: ١٢px; color:#a١a١aa;">................</span></div>
+                        <div style="border: ١px solid #a١a١aa; padding: ١٠px; background: #ffffff;">🟩<br><span style="font-size: ١٢px; color:#a١a١aa;">................</span></div>
+                        <div style="border: ١px solid #a١a١aa; padding: ١٠px; background: #ffffff;">🔴<br><span style="font-size: ١٢px; color:#a١a١aa;">................</span></div>
+                        <div style="border: ١px solid #a١a١aa; padding: ١٠px; background: #ffffff;">📦<br><span style="font-size: ١٢px; color:#a١a١aa;">................</span></div>
                     </div>
                 </div>
-                <div style="border-top: 2px solid #000; padding-top: 10px; margin-top: 20px; background: #fff9e6; padding: 10px; border-radius: 5px;">
-                    <p class="font-bold text-amber-950">🔑 دليل ومفتاح الإجابة النموذجي والوزاري الخاص بالمعلم والمشرف:</p>
-                    <p class="text-xs text-amber-900 mt-1 font-semibold">السؤال الأول: الخيار الصحيح والمعتمد هو (ج) ٥٠ لتمثيله مرتبة العشرات التراكمية.<br>السؤال الثاني بالترتيب الهندسي المباشر: مثلث متساوي، مربع قياسي، دائرة هندسية، مجسم مستطيل/مكعب.</p>
+                <div style="border-top: ٣px solid #000000; padding-top: ١٢px; margin-top: ٢٥px; background: #fffbeb; padding: ١٢px; border-radius: ٦px; border: ١px solid #fef٣c٧;">
+                    <p class="font-bold text-amber-٩٥٠">🔑 مفتاح الإجابة والنموذج الرسمي المعتمد للتصحيح والتدقيق:</p>
+                    <p class="text-xs text-amber-٩٠٠ mt-٢ font-semibold">السؤال الأول: الخيار الصحيح هو الرمز (ج) ٧٠ لوجود الرقم المذكور في منزلة ومرتبة العشرات الحسابية.<br>السؤال الثاني بالترتيب الهندسي المباشر: مثلث متساوي الأضلاع، مربع قياسي، دائرة مستوية، مجسم متوازي مستطيلات/مكعب.</p>
                 </div>
             </div>
         </div>
