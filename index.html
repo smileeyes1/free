@@ -14,7 +14,6 @@
                 font-family: "Times New Roman", Times, serif !important;
                 font-size: 12pt !important;
             }
-            /* إخفاء عناصر التحكم والواجهات غير المخصصة للطباعة */
             header, aside, .no-print, button, select, input, textarea, #status {
                 display: none !important;
             }
@@ -28,7 +27,6 @@
                 width: 100% !important;
                 display: block !important;
             }
-            /* تخصيص حاوية المخرجات لتظهر كوثيقة رسمية وزاريّة */
             .print-document {
                 border: none !important;
                 background: transparent !important;
@@ -39,10 +37,9 @@
                 white-space: pre-wrap !important;
                 line-height: 1.6 !important;
             }
-            /* رأس الصفحة الرسمي للمستند المطبوع */
             .print-header {
                 display: flex !important;
-                justify-between: space-between;
+                justify-content: space-between;
                 align-items: center;
                 border-bottom: 2px solid #000000 !important;
                 padding-bottom: 10px !important;
@@ -54,7 +51,6 @@
                 text-align: center !important;
             }
         }
-        @shadow-custom { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .print-header { display: none; }
     </style>
 </head>
@@ -168,7 +164,6 @@
         let STUDENTS = [];
         let API_KEY = localStorage.getItem("TEACHER_GEMINI_KEY") || "";
 
-        // ملء حقل المفتاح تلقائياً إن وجد
         if(API_KEY) {
             document.getElementById("apiKeyField").value = "********";
         }
@@ -217,7 +212,7 @@
             ).join("");
         }
 
-        /* ================= ANALYTICS LAYER (FULLY PRESERVED) ================= */
+        /* ================= ANALYTICS LAYER ================= */
         function analyze(text, topic, target){
             const t = clean(text);
             return {
@@ -234,7 +229,7 @@
             };
         }
 
-        /* ================= DECISION ENGINE (FULLY PRESERVED) ================= */
+        /* ================= DECISION ENGINE ================= */
         function decide(analysis, studentCount){
             let type = "حصة درس";
             let goal = "تعلم أساسي";
@@ -313,7 +308,7 @@
             const targetData = document.getElementById("lessonTarget").value;
 
             if(!inputData && !topicData){
-                document.getElementById("status").innerText = "⚠️ إدخل البيانات أو الموضوع إلزامي للتشغيل";
+                document.getElementById("status").innerText = "⚠️ إدخال البيانات أو الموضوع إلزامي للتشغيل";
                 document.getElementById("status").className = "text-xs text-center font-bold text-red-600";
                 return;
             }
@@ -356,7 +351,6 @@
             const currentDecision = decide(currentAnalysis, STUDENTS.length);
             const localPlan = buildLesson(currentDecision, STUDENTS.length);
 
-            // تجميع برومبت فائق الدقة مبني على أساس وزاري مؤسسي متين
             const promptText = `أنت خبير وموجه تربوي وزاري أول. قم بتوليد خطة درس رسمية نموذجية على أعلى مستوى للطباعة والتنفيذ بناءً على المعطيات التالية:
 موضوع الدرس: ${topicData}
 النمط والهدف المستنتج: ${currentDecision.type} - ${currentDecision.goal}
@@ -372,7 +366,6 @@
 تجنب الاختصارات واجعل التحضير ناضجاً وجاهزاً للطباعة فوراً.`;
 
             try {
-                // استدعاء مباشر لـ Gemini API عبر نموذج gemini-pro / 1.5-flash
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -384,14 +377,12 @@
                 const jsonResult = await response.json();
                 const aiResponseText = jsonResult.candidates[0].content.parts[0].text;
 
-                // دمج الخطة الهيكلية مع توسعة الذكاء الاصطناعي لعرضها كمستند شامل للطباعة
                 const finalComprehensiveDocument = `===================================================================
                        خطة التحضير الهيكلية والنظامية للحصة
 ===================================================================\n${localPlan}\n\n===================================================================\n                  التفصيل التربوي والمادة الموسعة (الذكاء الاصطناعي)\n===================================================================\n${aiResponseText}`;
 
                 document.getElementById("output").innerText = finalComprehensiveDocument;
                 
-                // إرسال نواتج الذكاء الاصطناعي والتحليل للقلب المركزي
                 sendToCore({ type: "students_snapshot", data: { students: STUDENTS } });
                 sendToCore({ type: "analysis", data: currentAnalysis });
                 sendToCore({ 
