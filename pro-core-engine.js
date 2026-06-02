@@ -1,224 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRO+ Educational Engine</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-gray-800">
+
+<!-- ================= HEADER ================= -->
+<header class="bg-slate-900 text-white p-4 flex justify-between items-center">
+
+    <h1 class="font-bold">PRO+ Engine</h1>
+
+    <div class="flex gap-2 items-center">
+
+        <input type="password" id="apiKey"
+            placeholder="Gemini API Key"
+            class="px-2 py-1 rounded text-black text-sm w-64">
+
+        <button onclick="saveApiKey()"
+            class="bg-green-600 px-3 py-1 rounded text-sm font-bold">
+            حفظ
+        </button>
+
+        <button onclick="openKeyGenerator()"
+            class="bg-blue-600 px-3 py-1 rounded text-sm font-bold">
+            توليد مفتاح
+        </button>
+
+    </div>
+
+</header>
+
+<!-- ================= INPUTS ================= -->
+<main class="p-4 space-y-3">
+
+    <input id="teacher" placeholder="المعلم" class="w-full p-2 rounded border">
+    <input id="school" placeholder="المدرسة" class="w-full p-2 rounded border">
+    <textarea id="topic" placeholder="الموضوع" class="w-full p-2 rounded border"></textarea>
+
+    <textarea id="students" placeholder="الطلاب" class="w-full p-2 rounded border"></textarea>
+
+    <textarea id="customPrompt" placeholder="طلب خاص" class="w-full p-2 rounded border"></textarea>
+
+    <button onclick="executeProductionPipeline()"
+        class="bg-indigo-600 text-white px-4 py-2 rounded font-bold">
+        تشغيل النظام
+    </button>
+
+    <div id="statusLog" class="text-sm font-bold text-blue-600"></div>
+
+</main>
+
+<!-- ================= OUTPUT ================= -->
+<div contenteditable="true"
+     id="completePrintPackage"
+     class="m-4 p-4 bg-white border rounded min-h-[300px]">
+</div>
+
+<script>
 /* =========================================================
-   PRO+ CORE v18 — HARD STABLE PRODUCTION ENGINE (FIXED)
+   API KEY SYSTEM
+========================================================= */
+
+function saveApiKey() {
+    const key = document.getElementById("apiKey").value.trim();
+    if (!key) return alert("أدخل المفتاح أولاً");
+    localStorage.setItem("GEMINI_KEY", key);
+    document.getElementById("statusLog").innerText = "✔ تم حفظ المفتاح";
+}
+
+function loadApiKey() {
+    const key = localStorage.getItem("GEMINI_KEY");
+    if (key) document.getElementById("apiKey").value = key;
+}
+
+function openKeyGenerator() {
+    window.open("https://makersuite.google.com/app/apikey", "_blank");
+}
+
+/* override key access */
+function key() {
+    return localStorage.getItem("GEMINI_KEY")?.trim();
+}
+
+window.onload = loadApiKey;
+
+/* =========================================================
+   PRO ENGINE (SIMPLIFIED STABLE VERSION)
 ========================================================= */
 
 const PRO = (() => {
 
-    const PRIMARY_MODEL = "gemini-2.5-flash";
-    const FALLBACK_MODEL = "gemini-1.5-flash";
-
-    const CACHE_TTL = 1000 * 60 * 60 * 24;
-    const MAX_QUEUE = 10;
-
     let running = false;
-    const queue = [];
 
-    const cache = new Map();
-
-    const log = (m) => {
-        const el = document.getElementById("statusLog");
-        if (el) el.innerText = m;
-    };
-
-    const key = () =>
-        document.getElementById("apiKey")?.value?.trim();
-
-    /* ================= HASH ================= */
-    async function hash(t) {
-        const e = new TextEncoder().encode(t);
-        const b = await crypto.subtle.digest("SHA-256", e);
-        return [...new Uint8Array(b)]
-            .map(x => x.toString(16).padStart(2, "0"))
-            .join("");
+    function log(m) {
+        document.getElementById("statusLog").innerText = m;
     }
 
-    /* ================= CACHE SAFE ================= */
-    function setCache(k, v) {
-        const obj = { value: v, time: Date.now() };
-        cache.set(k, obj);
-        try {
-            localStorage.setItem("PRO_CACHE_" + k, JSON.stringify(obj));
-        } catch {}
-    }
-
-    function getCache(k) {
-        try {
-            const raw = cache.get(k) || localStorage.getItem("PRO_CACHE_" + k);
-            if (!raw) return null;
-
-            const obj = typeof raw === "string" ? JSON.parse(raw) : raw;
-            if (!obj?.value || !obj?.time) return null;
-
-            if (Date.now() - obj.time > CACHE_TTL) return null;
-
-            return obj.value;
-
-        } catch {
-            return null;
-        }
-    }
-
-    /* ================= VALIDATION ================= */
     function validate(text) {
-        if (!text || typeof text !== "string") return false;
-        if (text.length < 30) return false;
-
-        const bad = ["error", "undefined", "null", "system failed"];
+        if (!text || text.length < 20) return false;
+        const bad = ["error", "undefined", "null", "failed"];
         return !bad.some(x => text.toLowerCase().includes(x));
     }
 
-    /* ================= ERROR CLASS ================= */
-    function classifyError(e) {
-        const m = String(e?.message || "").toLowerCase();
-
-        if (m.includes("abort") || m.includes("timeout")) return "NETWORK";
-        if (m.includes("rate") || m.includes("quota")) return "LIMIT";
-        if (m.includes("model")) return "MODEL";
-        if (m.includes("invalid")) return "OUTPUT";
-        if (m.includes("fetch")) return "NETWORK";
-
-        return "UNKNOWN";
-    }
-
-    /* ================= TIMEOUT ================= */
-    function timeout(ms = 20000) {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), ms);
-        return { controller, timer };
-    }
-
-    /* ================= API CALL ================= */
-    async function call(model, prompt) {
+    async function call(prompt) {
 
         const apiKey = key();
         if (!apiKey) throw new Error("NO_KEY");
 
-        const { controller, timer } = timeout();
-
-        try {
-
-            const res = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-                {
-                    method: "POST",
-                    signal: controller.signal,
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
-                }
-            );
-
-            const data = await res.json().catch(() => null);
-
-            if (!res.ok || !data) {
-                throw new Error("NETWORK");
+        const res = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
             }
+        );
 
-            if (data.error) {
-                throw new Error(data.error.message || "API_ERROR");
-            }
+        const data = await res.json();
 
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-            if (!validate(text)) throw new Error("INVALID_OUTPUT");
-
-            return text;
-
-        } finally {
-            clearTimeout(timer);
+        if (!res.ok || !validate(text)) {
+            throw new Error("API_FAIL");
         }
+
+        return text;
     }
 
-    /* ================= EXECUTE CORE ================= */
-    async function execute(prompt) {
+    async function run(prompt) {
 
-        const h = await hash(prompt);
-        const cached = getCache(h);
-
-        if (cached) {
-            log("⚡ cache hit");
-            return cached;
-        }
-
-        log("🧠 primary");
-
-        try {
-
-            const result = await call(PRIMARY_MODEL, prompt);
-            setCache(h, result);
-
-            log("✅ primary success");
-            return result;
-
-        } catch (e1) {
-
-            const type = classifyError(e1);
-
-            log("⚠ fallback: " + type);
-
-            if (type === "LIMIT" || type === "NETWORK" || type === "OUTPUT") {
-
-                try {
-
-                    // retry once
-                    try {
-                        const retry = await call(PRIMARY_MODEL, prompt);
-                        setCache(h, retry);
-                        log("✅ retry success");
-                        return retry;
-                    } catch {}
-
-                    // fallback
-                    const fb = await call(FALLBACK_MODEL, prompt);
-                    setCache(h, fb);
-
-                    log("✅ fallback success");
-                    return fb;
-
-                } catch {
-                    log("❌ full failure");
-                    return "SYSTEM FAILED SAFE MODE";
-                }
-            }
-
-            return "SYSTEM FAILED SAFE MODE";
-        }
-    }
-
-    /* ================= QUEUE ================= */
-    async function processQueue() {
-
-        if (running) return;
+        if (running) return "⚠ busy";
         running = true;
 
-        while (queue.length > 0) {
+        try {
 
-            const job = queue.shift();
+            log("🧠 processing...");
+
+            const result = await call(prompt);
+
+            log("✅ success");
+
+            return result;
+
+        } catch (e) {
+
+            log("❌ error → fallback");
 
             try {
-                const result = await execute(job.prompt);
-                job.resolve(result);
-            } catch (e) {
-                job.reject(e);
+
+                const result = await fetch(
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key(),
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        })
+                    }
+                );
+
+                const data = await result.json();
+
+                return data?.candidates?.[0]?.content?.parts?.[0]?.text || "SYSTEM FAILED";
+
+            } catch {
+
+                return "SYSTEM FAILED SAFE MODE";
             }
+
+        } finally {
+            running = false;
         }
-
-        running = false;
-    }
-
-    function run(prompt) {
-
-        return new Promise((resolve, reject) => {
-
-            if (queue.length >= MAX_QUEUE) {
-                reject("QUEUE_OVERFLOW");
-                return;
-            }
-
-            queue.push({ prompt, resolve, reject });
-            processQueue();
-        });
     }
 
     return { run };
@@ -226,56 +185,42 @@ const PRO = (() => {
 })();
 
 /* =========================================================
-   PIPELINE ENGINE
+   PIPELINE
 ========================================================= */
 
 async function executeProductionPipeline() {
 
-    const printArea = document.getElementById("completePrintPackage");
+    const teacher = document.getElementById("teacher").value;
+    const school = document.getElementById("school").value;
+    const topic = document.getElementById("topic").value;
+    const students = document.getElementById("students").value;
+    const custom = document.getElementById("customPrompt").value;
 
-    const teacher = document.getElementById("teacher").value.trim() || "المعلم";
-    const school = document.getElementById("school").value.trim() || "المدرسة";
-    const topic = document.getElementById("topic").value.trim() || "الدرس";
-
-    const students = (document.getElementById("students").value || "")
-        .split("\n")
-        .filter(x => x.trim());
-
-    const pdf = S.pdf || "";
-
-    const custom = document.getElementById("customPrompt").value.trim();
-
-    const base =
-`أنت نظام تعليمي مؤسسي.
-
+    const base = `
 المعلم: ${teacher}
 المدرسة: ${school}
 الموضوع: ${topic}
-
-الطلاب: ${JSON.stringify(students)}
-
-المرجع:
-${pdf}
+الطلاب: ${students}
 `;
 
-    const prompt = custom
-        ? base + "\nتنفيذ خاص:\n" + custom
-        : base + `
-المطلوب:
+    const prompt = custom ? base + custom : base + `
+أنشئ:
 - خطة درس
 - أوراق عمل
 - اختبار
-- رصد طلاب
-
-HTML فقط بدون شرح.
+- تقييم
+HTML فقط
 `;
 
     const result = await PRO.run(prompt);
 
-    printArea.innerHTML = result;
-
-    localStorage.setItem("last_result_html", result);
+    document.getElementById("completePrintPackage").innerHTML = result;
 
     document.getElementById("statusLog").innerText =
-        "✔ PRO v18 STABLE QUEUE ENGINE ACTIVE";
+        "✔ النظام جاهز";
 }
+
+</script>
+
+</body>
+</html>
