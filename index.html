@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher OS v13 - المؤسسة التعليمية الذكية</title>
+    <title>Teacher OS v13 - المؤسسة التعليمية الذكية المدعومة بالـ PDF</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
         /* ================= PREMIUM PRINT STANDARDS (A4) ================= */
         @media print {
@@ -14,7 +15,7 @@
                 font-family: "Times New Roman", Times, serif !important;
                 font-size: 12pt !important;
             }
-            header, aside, .no-print, button, select, input, textarea, #status {
+            header, aside, .no-print, button, select, input, textarea, #status, .pdf-layer-ui {
                 display: none !important;
             }
             .container {
@@ -59,7 +60,7 @@
     <header class="bg-slate-900 text-white p-4 shadow-md no-print">
         <div class="container mx-auto flex flex-col md:flex-row gap-4 justify-between items-center">
             <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold tracking-wide text-blue-400">🏛️ Teacher OS v13</h1>
+                <h1 class="text-xl font-bold tracking-wide text-blue-400">🏛️ Teacher OS v13 + PDF</h1>
                 <span class="text-xs bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-slate-400">الإصدار المؤسسي المطور</span>
             </div>
             
@@ -110,6 +111,40 @@
         </aside>
 
         <main class="flex-1 space-y-4">
+            
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-sm space-y-4 no-print pdf-layer-ui">
+                <h2 class="font-bold text-blue-900 border-b border-blue-200 pb-2 flex items-center gap-2">
+                    📂 وحدة معالجة المستندات (PDF Intelligence Layer)
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div>
+                        <label class="block text-xs font-bold text-blue-700 mb-1">اختر ملف المادة العلمية أو المنهاج (PDF):</label>
+                        <input type="file" id="pdfFileInput" accept=".pdf" class="w-full bg-white border p-2 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-blue-700 mb-1">المخرج التخطيطي المستهدف من المستند:</label>
+                        <select id="pdfTargetOutput" class="w-full bg-white border p-2 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="lesson_plan">A) بناء تحضير درس كامل وتفصيلي</option>
+                            <option value="unit_plan">B) بناء خطة وحدة دراسية متكاملة</option>
+                            <option value="semester_plan">C) بناء خطة فصل دراسي موزع زمنياً</option>
+                            <option value="year_plan">D) بناء خطة سنة دراسية شاملة ومستويات تعلم</option>
+                            <option value="worksheet">E) إنشاء ورقة عمل تطبيقية متميزة (٣ مستويات)</option>
+                            <option value="exam">F) تصميم نموذج اختبار شامل (متعدد، صح/خطأ، مقالي)</option>
+                            <option value="rubric">G) تشييد قوائم رصد مهارية ومستويات أداء أوتوماتيكية</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="processUploadedPDF()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded font-bold shadow transition flex items-center gap-1">
+                        ⚙️ استخراج النص ومعالجته محلياً
+                    </button>
+                    <button onclick="runAdvancedPDFIntelligence()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded font-bold shadow transition flex items-center gap-1">
+                        🧠 توليد المخرج التخطيطي عبر ذكاء المنظومة
+                    </button>
+                </div>
+                <div id="pdfMetadataDisplay" class="text-[11px] text-indigo-950 font-mono hidden bg-white p-2 rounded border border-indigo-200">
+                    </div>
+            </div>
             <div class="bg-white border rounded-xl p-4 shadow-sm space-y-4 no-print">
                 <h2 class="font-bold border-b pb-2 text-slate-700">سياق الحصة الذكي (Lesson Context)</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -140,7 +175,7 @@
                         <div id="printSchoolName" class="font-bold">المدرسة: ______</div>
                         <div id="printTeacherName" class="text-sm">المعلم: ______</div>
                     </div>
-                    <div class="print-title">خطة تحضير الحصة التنفيذية الشاملة</div>
+                    <div class="print-title" id="documentPrintTitle">خطة تحضير الحصة التنفيذية الشاملة</div>
                     <div class="text-left text-xs">التاريخ: ____/____/٢٠٢٦م</div>
                 </div>
 
@@ -151,7 +186,7 @@
                 </div>
                 
                 <div id="output" class="print-document font-mono text-sm leading-relaxed whitespace-pre-wrap pt-4">
-                    في انتظار معالجة البيانات وبناء مستند الحصة...
+                    في انتظار معالجة البيانات وبناء مستند الحصة أو المخرج التخطيطي المختار...
                 </div>
             </div>
             
@@ -160,9 +195,13 @@
     </div>
 
     <script>
+        /* Setup PDF.js Worker Channel globally */
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
         /* ================= STATE MANAGEMENT ================= */
         let STUDENTS = [];
         let API_KEY = localStorage.getItem("TEACHER_GEMINI_KEY") || "";
+        let EXTRACTED_PDF_DATA = { rawText: "", structuredText: "", cleanPagesCount: 0 };
 
         if(API_KEY) {
             document.getElementById("apiKeyField").value = "********";
@@ -184,6 +223,191 @@
 
         /* ================= UTILITIES ================= */
         function clean(text){ return (text || "").replace(/\s+/g,' ').trim(); }
+
+        /* ================= NEW MODULE: PDF INTELLIGENCE LAYER ENGINE ================= */
+        async function processUploadedPDF() {
+            const fileInput = document.getElementById("pdfFileInput");
+            const metaDisplay = document.getElementById("pdfMetadataDisplay");
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("الرجاء اختيار ملف PDF صالح أولاً للمعالجة.");
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            metaDisplay.classList.remove("hidden");
+            metaDisplay.innerText = "⏳ جاري قراءة حزم البيانات من المستند وهيكلة الصفحات محلياً...";
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const typedarray = new Uint8Array(e.target.result);
+                try {
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let fullText = "";
+                    
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageItems = textContent.items.map(item => item.str);
+                        
+                        // الحفاظ على ترتيب وهيكل الصفحات بشكل صارم
+                        fullText += `\n--- [بداية الصفحة الدراسية رقم: ${i}] ---\n`;
+                        fullText += pageItems.join(" ");
+                    }
+                    
+                    // طبقة التنظيف الشاملة من الفراغات والرموز العشوائية وتكرار الأسطر المتشابهة
+                    let cleanText = fullText
+                        .replace(/[\r\n]+/g, '\n')
+                        .replace(/[^\x00-\x7F\u0600-\u06FF\s\-().,;!?:]/g, '') // تنظيف الرموز المشوشة مع حفظ العربي والانجليزي
+                        .replace(/ {2,}/g, ' '); // إزالة الفراغات المزدوجة التكرارية
+                    
+                    EXTRACTED_PDF_DATA.rawText = fullText;
+                    EXTRACTED_PDF_DATA.structuredText = cleanText;
+                    EXTRACTED_PDF_DATA.cleanPagesCount = pdf.numPages;
+                    
+                    metaDisplay.innerText = `✅ تمت المعالجة بنجاح. عدد الصفحات المفهرسة: ${pdf.numPages} صفحة. المستند جاهز للتحويل والتوليد المستهدف.`;
+                    
+                    // إمداد حقل الملاحظات بجزء دلالي تلقائي لتوسيع السياق بدون مسح المحتوى الحالي
+                    const textSnippet = " [تمت قراءة مادة المنهاج من ملف PDF المرفق بنجاح] ";
+                    if(!document.getElementById("input").value.includes(textSnippet)){
+                        document.getElementById("input").value += "\n" + textSnippet;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    metaDisplay.innerText = "❌ فشل محرك PDF.js في معالجة وفهرسة هذا الملف. تأكد من أن الملف غير محمي بكلمة مرور.";
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function runAdvancedPDFIntelligence() {
+            const targetType = document.getElementById("pdfTargetOutput").value;
+            const topicData = document.getElementById("lessonTopic").value;
+            const metaDisplay = document.getElementById("pdfMetadataDisplay");
+            
+            if (!EXTRACTED_PDF_DATA.structuredText) {
+                alert("يرجى تحميل ومعالجة ملف الـ PDF أولاً عبر زر الاستخراج المخصص.");
+                return;
+            }
+            if (!API_KEY) {
+                alert("يرجى إدخال وتأمين مفتاح Gemini API في شريط الإعدادات العلوي أولاً لتشغيل البناء الذكي.");
+                return;
+            }
+
+            document.getElementById("status").innerText = "🔄 جاري ضخ محتوى الـ PDF للذكاء المركزي وبناء الوثيقة التربوية كاملة الفصول...";
+            document.getElementById("status").className = "text-xs text-center font-bold text-indigo-600";
+            
+            // تغيير الهيدر التكتيكي للطباعة بناء على رغبة المستخدم الحالية
+            const titlesMap = {
+                "lesson_plan": "خطة تحضير الحصة التنفيذية النموذجية (PDF)",
+                "unit_plan": "الخطة البنائية والزمنية للوحدة الدراسية الشاملة",
+                "semester_plan": "التوزيع الزمني الاستراتيجي لخطط الفصل الدراسي",
+                "year_plan": "المصفوفة السنوية الوزارية الشاملة ومراحل تعلم المادة",
+                "worksheet": "ورقة عمل تطبيقية وتقييمية متعددة المستويات المعرفية",
+                "exam": "نموذج الاختبار التحصيلي الرسمي الموحد والمعايير",
+                "rubric": "قوائم الرصد والتقييم المهاري ومستويات كفاءة الأداء"
+            };
+            document.getElementById("documentPrintTitle").innerText = titlesMap[targetType] || "وثيقة تخطيطية معتمدة";
+
+            updatePrintMetadata();
+
+            // بناء موجه الأوامر المتخصص بفصل وتفكيك وبناء المخرجات المعقدة السبعة بدون تداخل
+            let specializedPrompt = `أنت موجه تربوي وزاري وخبير في هندسة المناهج التعليمية وتحليل الوثائق.
+أمامك المادة العلمية المستخرجة بدقة من ملف الـ PDF التالي:
+${EXTRACTED_PDF_DATA.structuredText.substring(0, 7000)} 
+
+العنوان أو الموضوع المرجعي التوجيهي: ${topicData || "من واقع المستند المرفق"}
+عدد طلاب الصف المتابعين: ${STUDENTS.length} طالباً.
+
+المطلوب منك توليد المخرج البرمجي والتربوي التالي بشكل مفصل بالكامل دون أي اختصارات أو تعليقات مفقودة:
+
+`;
+
+            if(targetType === "lesson_plan") {
+                specializedPrompt += `[المخرج المطلوب: تحضير درس كامل وتفصيلي]
+يجب أن يحتوي البناء على هيكلية الحصة الدقيقة:
+- أهداف إجرائية سلوكية (معرفية، مهارية، وجدانية) قابلة للقياس.
+- التمهيد المباشر والجاذب لإثارة الانتباه (5 دقائق).
+- الشرح الإجرائي العميق لصلب الدرس وتفكيك المفاهيم.
+- النشاط التطبيقي التعاوني القائم على المجموعات.
+- التقويم التكويني واللحظي المباشر.
+- الإغلاق التلخيصي للحصة (3 دقائق).`;
+            } else if(targetType === "unit_plan") {
+                specializedPrompt += `[المخرج المطلوب: خطة وحدة دراسية متكاملة]
+يجب أن يتضمن البناء:
+- الأهداف الختامية الكبرى للوحدة الدراسية.
+- عدد الدروس المقترحة لتغطية المادة وسياقها الزمني.
+- تسلسل تدفق المفاهيم والمصطلحات من السهل إلى الصعب.
+- الأنشطة التراكمية المشتركة التي تربط دروس الوحدة ببعضها.`;
+            } else if(targetType === "semester_plan") {
+                specializedPrompt += `[المخرج المطلوب: خطة فصل دراسي كامل]
+يجب أن يتضمن البناء:
+- مصفوفة التوزيع الزمني للأسابيع والوحدات على مدار أشهر الفصل الدراسي.
+- زمن التنفيذ والحصص المخصصة لكل وحدة فرعية.
+- المهارات الكلية المستهدفة التي يجب على الطالب تمكينها بنهاية الفصل.`;
+            } else if(targetType === "year_plan") {
+                specializedPrompt += `[المخرج المطلوب: خطة سنة دراسية شاملة]
+يجب أن يتضمن البناء:
+- خطة التوزيع الشامل للمادة التعليمية على مدار العام الدراسي بالكامل.
+- تتابع مراحل التعلم والبناء المعرفي التراكمي.
+- استراتيجيات دمج وتنمية مهارات التفكير العليا (تحليل، تركيب، تقييم) عبر الفترات الدراسية.`;
+            } else if(targetType === "worksheet") {
+                specializedPrompt += `[المخرج المطلوب: أوراق عمل تطبيقية متميزة]
+يجب أن يتضمن البناء:
+- تصميم ورقة عمل جاهزة للطباعة تحتوي على أسئلة تطبيقية غنية ومتنوعة مقسمة بوضوح إلى ٣ مستويات معرفية متدرجة:
+  1) المستوى السهل (تذكر وفهم مباشر للمفاهيم).
+  2) المستوى المتوسط (تطبيق وتحليل المشكلات البسيطة).
+  3) المستوى الصعب (مهارات تفكير عليا وحل مشكلات مركبة لغرض التحدي الإثرائي).`;
+            } else if(targetType === "exam") {
+                specializedPrompt += `[المخرج المطلوب: نموذج اختبار تحصيلي رسمي]
+يجب أن يتضمن البناء صياغة اختبار شامل متوازن يحتوي على الأسئلة التالية مع ترك مساحات للإجابة:
+- القسم الأول: أسئلة اختيار من متعدد (Multiple Choice) مع أربعة خيارات دقيقة.
+- القسم الثاني: أسئلة الصواب والخطأ (True/False) مع طلب تصحيح الخطأ إن وجد.
+- القسم الثالث: أسئلة مقالية قصيرة تقيس الفهم والتعليل وتركيب الأفكار.`;
+            } else if(targetType === "rubric") {
+                specializedPrompt += `[المخرج المطلوب: قوائم رصد ومستويات أداء متكاملة]
+يجب أن يتضمن البناء:
+- جدول أو قائمة رصد مهارية واضحة المعايير ومستخرجة من صلب المنهاج المرفق بالـ PDF.
+- تحديد مستويات الأداء ومؤشرات التحقق بدقة لكل مهارة مستهدفة موزعة على المستويات الثلاثة: (ضعيف / جيد / ممتاز) لتقييم كفاءة الطلاب أثناء تنفيذ الحصص.`;
+            }
+
+            specializedPrompt += `\n\nاكتب الوثيقة المخرجة بلغة عربية تربوية رصينة وفخمة، واجعلها جاهزة للاستخدام والطباعة والاعتماد مباشرة بدون أي مقدمات نظرية أو حشو.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: specializedPrompt }] }]
+                    })
+                });
+
+                const jsonResult = await response.json();
+                const aiResponseText = jsonResult.candidates[0].content.parts[0].text;
+
+                document.getElementById("output").innerText = aiResponseText;
+
+                // نقل حزمة مستند الـ PDF المتكاملة والمعالجة عبر الجسر إلى النواة المركزية v18 للتخزين والتحليل المستمر
+                sendToCore({
+                    type: "pdf_intelligence_packet",
+                    data: {
+                        targetOutputType: targetType,
+                        pagesIndexed: EXTRACTED_PDF_DATA.cleanPagesCount,
+                        topic: topicData || "مادة مستند عامة",
+                        extractedContentLength: EXTRACTED_PDF_DATA.structuredText.length,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+
+                document.getElementById("status").innerText = "✔ تم معالجة وتوليد وثيقة الـ PDF الاستراتيجية وحفظها في النواة العقلية v18";
+                document.getElementById("status").className = "text-xs text-center font-bold text-green-600";
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById("status").innerText = "❌ فشل محرك الذكاء في معالجة طلب الـ PDF المتقدم. تحقق من شبكة الاتصال والمفتاح.";
+                document.getElementById("status").className = "text-xs text-center font-bold text-red-600";
+            }
+        }
 
         /* ================= STUDENT CORE MANAGEMENT ================= */
         function addStudent(){
@@ -270,7 +494,7 @@
 [10 د] 📘 الشرح الإجرائي: عرض المفاهيم المباشرة وتحقيق هدف (${decision.goal}).
 [20 د] 🧠 النشاط التطبيقي: توزيع المهام والعمل المستقل داخل المجموعات الـ ${groupsCount}.
 [07 د] 📊 القياس والتقويم: رصد الأداء اللحظي وجمع البيانات الاستدلالية.
-[03 د] 🏁 الغلق والإنهاء: تلخيص المكتسبات وتثبيت المهام القادمة.`;
+[03 د] 🏁 الغ الغلق والإنهاء: تلخيص المكتسبات وتثبيت المهام القادمة.`;
         }
 
         /* ================= NETWORK PROTOCOL BRIDGE ================= */
@@ -308,11 +532,12 @@
             const targetData = document.getElementById("lessonTarget").value;
 
             if(!inputData && !topicData){
-                document.getElementById("status").innerText = "⚠️ إدخال البيانات أو الموضوع إلزامي للتشغيل";
+                document.getElementById("status").innerText = "⚠️ إدخال البيانات أو الموضوع إلزامي للتشغيل المعياري";
                 document.getElementById("status").className = "text-xs text-center font-bold text-red-600";
                 return;
             }
 
+            document.getElementById("documentPrintTitle").innerText = "خطة تحضير الحصة التنفيذية الشاملة";
             updatePrintMetadata();
             const currentAnalysis = analyze(inputData, topicData, targetData);
             const currentDecision = decide(currentAnalysis, STUDENTS.length);
@@ -343,6 +568,7 @@
                 return;
             }
 
+            document.getElementById("documentPrintTitle").innerText = "خطة تحضير الحصة التنفيذية الشاملة";
             updatePrintMetadata();
             document.getElementById("status").innerText = "🔄 جاري الاتصال بخوادم جيميناي وبناء المستند عالي المعايير...";
             document.getElementById("status").className = "text-xs text-center font-bold text-indigo-600";
