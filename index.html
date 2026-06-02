@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO Teacher OS v18</title>
+<title>PRO Teacher OS FULL</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -11,16 +11,19 @@
 
 <div class="min-h-screen flex flex-col">
 
+<!-- ================= HEADER ================= -->
 <header class="bg-slate-900 text-white p-4">
 <div class="container mx-auto flex justify-between items-center">
-<h1>🏛️ PRO Teacher OS v18</h1>
+<h1>🏛️ PRO Teacher OS FULL SYSTEM</h1>
 <input id="teacher" placeholder="المعلم"
 class="bg-slate-800 px-3 py-1 rounded text-sm text-white">
 </div>
 </header>
 
+<!-- ================= LAYOUT ================= -->
 <div class="flex flex-1 container mx-auto gap-4 p-4">
 
+<!-- ================= SIDEBAR ================= -->
 <aside class="w-72 bg-white border rounded-xl p-3 space-y-3">
 
 <input id="school" placeholder="المدرسة"
@@ -33,16 +36,29 @@ class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">
 
 <div id="studentsList" class="text-sm"></div>
 
+<hr>
+
+<input type="file" id="fileInput" class="text-xs w-full">
+<div id="fileStatus" class="text-xs text-gray-500"></div>
+
+<hr>
+
+<div class="text-xs text-gray-500">
+📚 سجل النظام
+<div id="historyView"></div>
+</div>
+
 </aside>
 
+<!-- ================= MAIN ================= -->
 <main class="flex-1 space-y-4">
 
-<textarea id="customPrompt" rows="5"
+<textarea id="customPrompt" rows="6"
 class="w-full border p-2 rounded text-sm"></textarea>
 
 <button onclick="runSystem()"
 class="mt-3 bg-green-600 text-white px-4 py-2 rounded font-bold">
-تنفيذ
+تنفيذ النظام الكامل
 </button>
 
 <div id="output"
@@ -56,108 +72,70 @@ class="bg-white border rounded-xl p-4 min-h-[320px] text-sm whitespace-pre-wrap"
 
 <script>
 
-/* ================= STATE ================= */
+/* =========================================================
+======================== STATE ==============================
+========================================================= */
+
 let STUDENTS = [];
+let FILE_CONTENT = "";
 
-/* ================= HISTORY (v18 CORE) ================= */
-const HISTORY = (() => {
+/* =========================================================
+======================== CLEAN ==============================
+========================================================= */
 
-    const KEY = "PRO_HISTORY_V1";
+function clean(t){
+return (t || "").replace(/\s+/g,' ').trim();
+}
 
-    function load(){
-        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-        catch { return []; }
-    }
+/* =========================================================
+======================== V13 ===============================
+========================================================= */
 
-    function save(data){
-        try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
-    }
+function addStudent(){
+const n = prompt("اسم الطالب:");
+if(!n) return;
+STUDENTS.push(clean(n));
+renderStudents();
+}
 
-    function add(entry){
-        const data = load();
-        data.unshift({
-            ...entry,
-            time: new Date().toISOString()
-        });
-        save(data.slice(0,50));
-    }
+function renderStudents(){
+document.getElementById("studentsList").innerHTML =
+STUDENTS.map((s,i)=>`<div>${i+1}. ${s}</div>`).join("");
+}
 
-    return { load, add };
-})();
+document.getElementById("fileInput").addEventListener("change",(e)=>{
+const f = e.target.files[0];
+if(!f) return;
 
-/* ================= UTILS ================= */
-const clean = t => (t || "").replace(/\s+/g,' ').trim();
+const r = new FileReader();
+r.onload = ev=>{
+FILE_CONTENT = clean(ev.target.result || "");
+document.getElementById("fileStatus").innerText = "تم تحميل الملف";
+};
+r.readAsText(f);
+});
 
-/* ================= ANALYSIS CORE ================= */
+/* ---------- ANALYSIS ---------- */
 function analyze(text){
-const t = clean(text);
+
+const t = clean(text + " " + FILE_CONTENT);
 
 return {
-    t,
-    weak: /ضعيف/.test(t),
-    strong: /متفوق/.test(t),
-    review: /مراجعة/.test(t),
-    exam: /اختبار/.test(t),
-    worksheet: /ورقة/.test(t),
-    lesson: /درس/.test(t),
-    smart: /و[؟?]/.test(t)
+t,
+weak: /ضعيف/.test(t),
+strong: /متفوق/.test(t),
+review: /مراجعة/.test(t),
+exam: /اختبار/.test(t),
+worksheet: /ورقة/.test(t),
+lesson: /درس/.test(t),
+smart: /و[؟?]/.test(t)
 };
 }
 
-/* ================= DECISION ENGINE (v18 CORE) ================= */
-function PRO_ENGINE(a, studentCount){
+/* ---------- LESSON (V13) ---------- */
+function buildLessonV13(s, count){
 
-let type = "حصة درس";
-let goal = "تعلم أساسي";
-let mode = "عادي";
-
-if(a.exam) type = "حصة اختبار";
-else if(a.worksheet) type = "نشاط تطبيقي";
-else if(a.lesson) type = "حصة درس";
-
-if(a.smart){
-
-mode = "ذكي";
-
-const weight =
-a.t.length * 2 +
-studentCount * 15 +
-(a.weak ? 60 : 0) +
-(a.strong ? 70 : 0) +
-(a.review ? 40 : 0);
-
-if(a.weak){
-    type = "حصة علاجية";
-    goal = "رفع الفهم خطوة خطوة";
-}
-else if(a.strong){
-    type = "حصة إثرائية";
-    goal = "توسيع التفكير";
-}
-else if(a.review){
-    type = "حصة مراجعة";
-    goal = "تثبيت المعرفة";
-}
-else{
-    const pool = [
-        "حصة درس تطبيقي",
-        "حصة نشاط تعاوني",
-        "حصة اختبار قصير",
-        "حصة تدريب عملي"
-    ];
-
-    type = pool[weight % pool.length];
-    goal = "تنفيذ عملي داخل الصف";
-}
-}
-
-return {type, goal, mode};
-}
-
-/* ================= LESSON BUILDER ================= */
-function buildLesson(state, studentCount){
-
-const groups = Math.max(2, Math.ceil(studentCount / 5));
+const groups = Math.max(2, Math.ceil(count / 5));
 
 return `
 🕒 زمن الحصة: 45 دقيقة
@@ -169,67 +147,228 @@ return `
 🏁 إغلاق (3)
 
 🎯 الهدف:
-${state.goal}
+${s.goal}
 `;
 }
 
-/* ================= UI CORE ================= */
-function W_ENGINE(input){
+/* =========================================================
+======================== V18 ===============================
+========================================================= */
 
-if(!input.trim()) return "";
+const HISTORY = (()=>{
 
-const teacher = document.getElementById("teacher").value || "المعلم";
-const school = document.getElementById("school").value || "المدرسة";
+const KEY="PRO_HISTORY_V1";
 
-const a = analyze(input);
-const state = PRO_ENGINE(a, STUDENTS.length);
-const lesson = buildLesson(state, STUDENTS.length);
+function load(){
+try{return JSON.parse(localStorage.getItem(KEY))||[];}
+catch{return[];}
+}
 
-/* HISTORY SAVE (v18 feature) */
-HISTORY.add({
-    teacher,
-    school,
-    input: a.t,
-    type: state.type,
-    mode: state.mode,
-    students: STUDENTS.length
-});
+function save(d){
+try{localStorage.setItem(KEY,JSON.stringify(d));}catch{}
+}
 
-return `
-🏛️ PRO Teacher OS v18
+function add(e){
+const d=load();
+d.unshift({...e,time:new Date().toISOString()});
+save(d.slice(0,50));
+render();
+}
+
+function render(){
+const d=load();
+document.getElementById("historyView").innerHTML =
+d.slice(0,5).map(h=>`<div>• ${h.type} (${h.mode})</div>`).join("");
+}
+
+return {add,render,load};
+
+})();
+
+function PRO_ENGINE(a,studentCount){
+
+let type="حصة درس";
+let goal="تعلم أساسي";
+let mode="عادي";
+
+if(a.exam) type="حصة اختبار";
+else if(a.worksheet) type="نشاط تطبيقي";
+else if(a.lesson) type="حصة درس";
+
+if(a.smart){
+
+mode="ذكي";
+
+const weight=
+a.t.length*2+
+studentCount*15+
+(a.weak?60:0)+
+(a.strong?70:0)+
+(a.review?40:0);
+
+if(a.weak){type="حصة علاجية";goal="رفع الفهم";}
+else if(a.strong){type="حصة إثرائية";goal="توسيع التفكير";}
+else if(a.review){type="حصة مراجعة";goal="تثبيت المعرفة";}
+else{
+const pool=["درس","نشاط","اختبار قصير","تدريب"];
+type=pool[weight%pool.length];
+goal="تنفيذ عملي";
+}
+}
+
+return {type,goal,mode};
+}
+
+/* =========================================================
+======================== V19 ===============================
+========================================================= */
+
+function intentStrength(text){
+
+let score=0;
+
+if(text.length>80)score+=2;
+if(/شرح|كيف|لماذا/.test(text))score+=2;
+if(/اختبار|تقييم/.test(text))score+=3;
+if(/ضعف|مشكلة/.test(text))score+=3;
+
+return{
+score,
+level:score>=6?"مرتفع":score>=3?"متوسط":"بسيط"
+};
+}
+
+function studentProfile(list){
+
+let n=list.length;
+
+return{
+level:n<=10?"صغير":n<=25?"متوسط":"كبير",
+loadFactor:n<=10?1:n<=25?1.3:1.7
+};
+}
+
+function adaptLesson(text,f){
+
+if(f===1)return text;
+
+return text+`\n\n📌 تكيف: زيادة نشاط (${Math.round(5*f)}%)`;
+}
+
+/* =========================================================
+======================== V20 ===============================
+========================================================= */
+
+function classRiskProfile(n,intentScore){
+
+let r=(n<=10?1:n<=25?2:3)+(intentScore>=6?3:intentScore>=3?2:1);
+
+return{
+level:r<=2?"منخفض":r<=4?"متوسط":"مرتفع"
+};
+}
+
+function predictSuccess(state,n,intent){
+
+let base=state.mode==="ذكي"?70:60;
+
+base-=n*0.5;
+
+if(intent.level==="مرتفع")base+=10;
+if(intent.level==="بسيط")base-=5;
+
+return Math.max(20,Math.min(95,Math.round(base)));
+}
+
+function simulateStudents(list){
+
+return list.map(s=>({
+name:s,
+attention:s.length%3===0?"ضعيف":s.length%2===0?"متوسط":"جيد"
+}));
+}
+
+function recommendationEngine(risk,success){
+
+if(risk.level==="مرتفع")return"تقليل النشاط الجماعي";
+if(success<50)return"تبسيط المحتوى";
+return"استمرار مع مراقبة";
+}
+
+/* =========================================================
+======================== ENGINE ============================
+========================================================= */
+
+function LOOP_CONTROLLER(input){
+
+const a=analyze(input);
+const state=PRO_ENGINE(a,STUDENTS.length);
+
+const intent=intentStrength(input);
+const profile=studentProfile(STUDENTS);
+const risk=classRiskProfile(STUDENTS.length,intent.score);
+const success=predictSuccess(state,STUDENTS.length,intent);
+
+let lesson=buildLessonV13(state,STUDENTS.length);
+lesson=adaptLesson(lesson,profile.loadFactor);
+
+const sim=simulateStudents(STUDENTS);
+const rec=recommendationEngine(risk,success);
+
+const teacher=document.getElementById("teacher").value||"المعلم";
+const school=document.getElementById("school").value||"المدرسة";
+
+const output=`
+
+🏛️ PRO FULL SYSTEM
 
 👨‍🏫 ${teacher}
 🏫 ${school}
 
-📌 النوع: ${state.type}
-📍 الوضع: ${state.mode}
+📌 ${state.type} | ${state.mode}
+
+🎯 ${state.goal}
 
 ${lesson}
 
-👥 الطلاب (${STUDENTS.length})
-${STUDENTS.length ? STUDENTS.join(" - ") : "لا يوجد"}
+📊 الطلب: ${intent.level}
+👥 الصف: ${profile.level}
+⚠️ الخطر: ${risk.level}
+📈 نجاح: ${success}%
 
-📥 الطلب:
-${a.t}
+👥 الطلاب:
+${sim.map(s=>`- ${s.name}: ${s.attention}`).join("\n")}
+
+🎯 توصية:
+${rec}
+
+👥 (${STUDENTS.length})
+${STUDENTS.join(" - ")}
+
 `;
+
+HISTORY.add({type:state.type,mode:state.mode,students:STUDENTS.length});
+return output;
 }
 
-/* ================= RUN ================= */
+/* =========================================================
+======================== RUN ===============================
+========================================================= */
+
 function runSystem(){
-const input = document.getElementById("customPrompt").value;
-document.getElementById("output").innerText = W_ENGINE(input);
-document.getElementById("status").innerText = "✔ PRO SYSTEM v18 نشط";
+
+const input=document.getElementById("customPrompt").value;
+
+const result=LOOP_CONTROLLER(input);
+
+document.getElementById("output").innerText=result;
+
+document.getElementById("status").innerText="✔ FULL SYSTEM ACTIVE";
+
+HISTORY.render();
 }
 
-/* ================= STUDENTS ================= */
-function addStudent(){
-const n = prompt("اسم الطالب:");
-if(!n) return;
-STUDENTS.push(clean(n));
-
-document.getElementById("studentsList").innerHTML =
-STUDENTS.map((s,i)=>`<div>${i+1}. ${s}</div>`).join("");
-}
+HISTORY.render();
 
 </script>
 
