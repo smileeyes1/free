@@ -3,24 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO v18 CORE BRAIN - FULL INTELLIGENCE SYSTEM</title>
+    <title>PRO v18 CORE BRAIN - FULL INTELLIGENCE SYSTEM + PDF LAYER</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-900 text-gray-200 font-sans p-4 md:p-8">
     
     <header class="mb-8 border-b border-slate-700 pb-4 flex justify-between items-end">
         <div>
-            <h1 class="text-2xl font-bold text-blue-400">🧠 PRO v18 CORE BRAIN</h1>
-            <p class="text-xs text-slate-400 mt-1">المنظومة المركزية للتحليل والتتبع والتحسين المستمر للطلاب</p>
+            <h1 class="text-2xl font-bold text-blue-400">🧠 PRO v18 CORE BRAIN + PDF layer</h1>
+            <p class="text-xs text-slate-400 mt-1">المنظومة المركزية للتحليل والتتبع والتحسين المستمر وتخزين حزم الخطط المتقدمة</p>
         </div>
         <div id="bridgeStatus" class="text-xs px-3 py-1 bg-slate-800 rounded-full border border-slate-600 text-green-400 animate-pulse">
-            في وضع الاستماع والربط اللحظي المستمر (v13)...
+            في وضع الاستماع والربط اللحظي المستمر للمستندات العادية والـ PDF (v13)...
         </div>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <div class="col-span-1 lg:col-span-2 space-y-6">
+            
+            <div class="bg-slate-800 border-2 border-indigo-500/40 rounded-xl p-5 shadow-lg">
+                <h2 class="text-lg font-bold text-indigo-300 mb-4 border-b border-slate-700 pb-2 flex items-center gap-2">
+                    📂 سجل حزم ذكاء المستندات المؤرشفة (Processed PDF Intelligence Blocks)
+                </h2>
+                <div id="pdfBlocksLog" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                    <div class="text-slate-500 text-xs text-center py-6">لم يتم استقبال أو أرشفة أي وثائق استراتيجية مستخرجة من ملفات PDF حتى الآن.</div>
+                </div>
+            </div>
             <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
                 <h2 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">📊 طبقة تحليل ومعالجة الأحداث المباشرة (Event Intelligence)</h2>
                 <div id="eventsLog" class="space-y-3 max-h-96 overflow-y-auto pr-2">
@@ -54,9 +63,9 @@
         const STORE = {
             load(){
                 try {
-                    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { events: [], students: {}, feedbacks: [] };
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { events: [], students: {}, feedbacks: [], pdfBlocks: [] };
                 } catch {
-                    return { events: [], students: {}, feedbacks: [] };
+                    return { events: [], students: {}, feedbacks: [], pdfBlocks: [] };
                 }
             },
             save(data){
@@ -80,8 +89,18 @@
                 this.save(db);
                 this.renderFeedbacks();
             },
+            addPdfBlock(block) {
+                let db = this.load();
+                if(!db.pdfBlocks) db.pdfBlocks = [];
+                db.pdfBlocks.unshift({
+                    ...block,
+                    timeString: new Date().toLocaleTimeString('ar-EG')
+                });
+                this.save(db);
+                this.renderPdfBlocks();
+            },
             clearDB(){
-                if(confirm("سيتم تدمير كافة ملفات الطلاب المسجلة والتاريخ التعليمي المخزن نهائياً، هل تود الاستمرار؟")){
+                if(confirm("سيتم تدمير كافة ملفات الطلاب المسجلة والوثائق الاستراتيجية والتواريخ التعليمية نهائياً، هل تود الاستمرار؟")){
                     localStorage.removeItem(STORAGE_KEY);
                     location.reload();
                 }
@@ -103,6 +122,37 @@
                         </div>
                         <div class="text-sm text-slate-300 break-words font-mono text-xs">
                             ${JSON.stringify(e.data).replace(/["{}]/g, ' ')}
+                        </div>
+                    </div>
+                `).join("");
+            },
+            renderPdfBlocks() {
+                let db = this.load();
+                const container = document.getElementById("pdfBlocksLog");
+                if(!db.pdfBlocks || db.pdfBlocks.length === 0) {
+                    container.innerHTML = `<div class="text-slate-500 text-xs text-center py-6">لم يتم استقبال أو أرشفة أي وثائق استراتيجية مستخرجة من ملفات PDF حتى الآن.</div>`;
+                    return;
+                }
+                
+                const typeLabels = {
+                    "lesson_plan": "تحضير درس كامل",
+                    "unit_plan": "خطة وحدة دراسية",
+                    "semester_plan": "خطة فصل دراسي",
+                    "year_plan": "خطة سنة كاملة",
+                    "worksheet": "ورقة عمل مستويات",
+                    "exam": "نموذج اختبار منظم",
+                    "rubric": "قائمة رصد ومستويات"
+                };
+
+                container.innerHTML = db.pdfBlocks.map(b => `
+                    <div class="bg-slate-900/80 p-3 rounded-lg border-l-4 border-indigo-500 border-y border-r border-slate-700 space-y-1">
+                        <div class="flex justify-between items-center text-xs font-bold text-indigo-300">
+                            <span>📋 مخرج: ${typeLabels[b.targetOutputType] || b.targetOutputType}</span>
+                            <span>${b.timeString}</span>
+                        </div>
+                        <div class="text-xs text-slate-300">
+                            <div>📚 مادة الموضوع: <span class="text-white font-bold">${b.topic}</span></div>
+                            <div class="text-[11px] text-slate-400">حجم النص المعالج: ${b.extractedContentLength} حرفاً | الصفحات: ${b.pagesIndexed}</div>
                         </div>
                     </div>
                 `).join("");
@@ -137,7 +187,7 @@
             renderFeedbacks(){
                 let db = this.load();
                 const container = document.getElementById("feedbackLog");
-                if(db.feedbacks.length === 0){
+                if(!db.feedbacks || db.feedbacks.length === 0){
                     container.innerHTML = `<div class="text-slate-500 text-sm text-center py-4 col-span-2">لا توجد تغذية راجعة تحليلية مسجلة حالياً.</div>`;
                     return;
                 }
@@ -153,6 +203,7 @@
                 this.renderEvents();
                 this.renderStudents();
                 this.renderFeedbacks();
+                this.renderPdfBlocks();
             }
         };
 
@@ -232,6 +283,12 @@
                 
                 STORE.addEvent({ type: "v21_interpretation", data: { insight, recommendation } });
             }
+            
+            // إضافة تفسير تلقائي مخصص عند التقاط الحزم المعالجة من ملفات PDF المرفوعة
+            if(packet.type === "pdf_intelligence_packet") {
+                let pdfInsight = `تم استيعاب وفهرسة مادة تخطيطية من نمط [${packet.data.targetOutputType}] لعدد صفحات ${packet.data.pagesIndexed}`;
+                STORE.addEvent({ type: "pdf_core_interpretation", data: { pdfInsight, action: "تأمين الملف وتجهيز مصفوفات العرض المباشر للطباعة" } });
+            }
         }
 
         /* ================= CLOSED FEEDBACK LOOP ================= */
@@ -240,6 +297,13 @@
                 STORE.addFeedback({
                     status: `تحديث أثر التعلم لحصة: [${packet.data.topic || "بدون عنوان مخصص"}]`,
                     action: `إخضاع عدد (${packet.data.students_count}) طلاب للمراقبة التراكمية المستمرة وعكس التغذية الراجعة`
+                });
+            }
+            
+            if(packet.type === "pdf_intelligence_packet") {
+                STORE.addFeedback({
+                    status: `أرشفة مستند PDF لموضوع: [${packet.data.topic || "عام"}]`,
+                    action: `إنشاء طبقة محتوى جديدة متوافقة مع متطلبات التطوير التربوي للعام ٢٠٢٦م`
                 });
             }
         }
@@ -254,6 +318,11 @@
                 STORE.addEvent({ type: "core_decision_matrix", data: coreDecision });
             }
             
+            // فرز ومعالجة حزمة البيانات القادمة من طبقة الـ PDF
+            if(packet.type === "pdf_intelligence_packet") {
+                STORE.addPdfBlock(packet.data);
+            }
+            
             interpret(packet);
             feedbackLoop(packet);
             updateStudents(packet);
@@ -266,11 +335,11 @@
                     const parsedPacket = JSON.parse(event.newValue);
                     
                     const statusWidget = document.getElementById("bridgeStatus");
-                    statusWidget.innerText = "تم استقبال حزمة بيانات متزامنة بنجاح! ⚡";
+                    statusWidget.innerText = "تم استقبال حزمة بيانات متزامنة (PDF/عادي) بنجاح! ⚡";
                     statusWidget.className = "text-xs px-3 py-1 bg-green-900 rounded-full border border-green-600 text-green-200";
                     
                     setTimeout(() => {
-                        statusWidget.innerText = "في وضع الاستماع والربط اللحظي المستمر (v13)...";
+                        statusWidget.innerText = "في وضع الاستماع والربط اللحظي المستمر للمستندات العادية والـ PDF (v13)...";
                         statusWidget.className = "text-xs px-3 py-1 bg-slate-800 rounded-full border border-slate-600 text-green-400 animate-pulse";
                     }, 2000);
 
