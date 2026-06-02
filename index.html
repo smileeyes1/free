@@ -1,245 +1,158 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO+ V5 EDGE OPTIMIZED</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<style>
-body{margin:0;font-family:Segoe UI;background:#eef2f7}
-.container{max-width:1200px;margin:auto;padding:15px}
-header{background:#0b2f5c;color:#fff;padding:18px;border-radius:10px;text-align:center}
-.card{background:#fff;padding:15px;margin-top:12px;border-radius:10px;border:1px solid #ddd}
-input,textarea,select,button{width:100%;padding:10px;margin-top:6px;border-radius:6px;border:1px solid #ccc}
-button{background:#1d4ed8;color:#fff;border:none;cursor:pointer;font-weight:600}
-button:hover{opacity:.9}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tabs{display:flex;margin-top:12px;gap:5px}
-.tab{flex:1;text-align:center;padding:10px;background:#dbe2ef;cursor:pointer;border-radius:8px;font-weight:700}
-.tab.active{background:#0b2f5c;color:#fff}
-.section{display:none}
-.section.active{display:block}
-.loader{display:none;height:8px;background:#ddd;border-radius:10px;overflow:hidden;margin-top:10px}
-.loader div{width:100%;height:100%;background:linear-gradient(90deg,#1d4ed8,#60a5fa);animation:move 1s linear infinite}
-@keyframes move{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-small{color:#555}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الإنتاج التعليمي المتكامل - الإصدار الخامس المطور</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.0.2/tesseract.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f6f9;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-area { display: block !important; }
+            body { background-color: #ffffff; padding: 0; margin: 0; }
+            .page-break { page-break-after: always; break-after: page; }
+            .print-table { border: 1px solid #000000; width: 100%; border-collapse: collapse; }
+            .print-table th, .print-table td { border: 1px solid #000000; padding: 8px; text-align: right; }
+            .print-card { border: 2px solid #000000; padding: 20px; margin-bottom: 20px; page-break-inside: avoid; }
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
+<body class="text-gray-800 antialiased">
 
-<body>
+    <div id="app" class="min-h-screen flex flex-col no-print">
+        <header class="bg-blue-900 text-white shadow-xl p-4 sticky top-0 z-50">
+            <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    <span>📚</span> محرك المناهج والإنتاج التربوي الشامل <span class="text-xs bg-blue-700 px-2 py-1 rounded text-blue-200 font-mono">V5.0</span>
+                </h1>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <input type="password" id="apiKey" placeholder="أدخل مفتاح Gemini API هنا" class="flex-1 sm:w-64 bg-blue-950 border border-blue-700 text-white rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button onclick="openKeyGenerator()" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap transition">الحصول على مفتاح</button>
+                </div>
+            </div>
+        </header>
 
-<div class="container">
+        <div class="flex-1 flex flex-col lg:flex-row container mx-auto my-6 gap-6 px-4">
+            <aside class="w-full lg:w-72 bg-white rounded-xl shadow-md p-5 h-fit space-y-4">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-500 block">المعلم والمدرسة</label>
+                    <input type="text" id="teacher" placeholder="إسم المعلم الثلاثي" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <input type="text" id="school" placeholder="إسم المدرسة المشتركة" class="w-full border p-2 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none mt-2">
+                </div>
+                
+                <hr class="my-2">
+                
+                <div class="space-y-2">
+                    <button onclick="switchTab('upload-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold bg-blue-50 text-blue-800 border-r-4 border-blue-800 flex items-center gap-2 transition">
+                        <span>📂</span> رفع وتحليل المنهج الدراسي
+                    </button>
+                    <button onclick="switchTab('students-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition">
+                        <span>👥</span> إدارة بيانات ورصد الطلاب
+                    </button>
+                    <button onclick="switchTab('dashboard-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition">
+                        <span>📊</span> معالجة المخرجات والطباعة
+                    </button>
+                </div>
 
-<header>
-<h2>PRO+ V5 EDGE OPTIMIZED</h2>
-<small>AI Efficient • Cache • Local Intelligence • Minimal API</small>
-</header>
+                <hr class="my-2">
 
-<div class="card">
+                <div class="p-3 bg-gray-50 rounded-lg text-xs text-gray-500 space-y-1">
+                    <div class="font-bold text-gray-700">حالة موارد المتصفح:</div>
+                    <div id="cacheStatus">الكاش الذكي دائم ونشط</div>
+                    <div id="ocrStatus">محرّك الـ OCR مستقر</div>
+                </div>
+            </aside>
 
-<h3>الإعدادات الذكية</h3>
+            <main class="flex-1 bg-white rounded-xl shadow-md p-6">
+                <div id="upload-tab" class="tab-content active space-y-6">
+                    <h2 class="text-lg font-bold text-gray-800 border-b pb-2">📂 استيراد وتحليل المنهج المدرسي</h2>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center bg-gray-50 hover:bg-gray-100 transition relative">
+                        <div class="text-5xl mb-4">📄</div>
+                        <p class="text-sm text-gray-600 font-semibold mb-4">اسحب وأفلت كتاب المنهج الوزاري هنا أو اختر الملف مباشرة</p>
+                        <input type="file" id="pdfUpload" accept="application/pdf" class="hidden">
+                        <label for="pdfUpload" class="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2.5 rounded-lg cursor-pointer inline-block transition font-bold shadow-md">
+                            تصفح ملفات الجهاز
+                        </label>
+                        <div id="pdfProgress" class="mt-4 text-sm text-blue-700 hidden font-bold animate-pulse">جاري فحص التوقيع واستخراج المحتوى بدون استهلاك لـ API...</div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 block">أو حدد موضوعاً تعليمياً مستقلاً للإنتاج المباشر:</label>
+                        <textarea id="topic" rows="3" placeholder="مثال: درس القيمة المنزلية للأعداد ضمن ٩٩٩ للصف الثاني الأساسي..." class="w-full border p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+                    </div>
+                </div>
 
-<input id="apiKey" placeholder="Gemini API Key">
+                <div id="students-tab" class="tab-content space-y-6">
+                    <h2 class="text-lg font-bold text-gray-800 border-b pb-2">👥 منظومة رصد وإدارة الطلاب الصفية</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="border p-4 rounded-xl bg-gray-50 space-y-3">
+                            <h3 class="font-bold text-sm text-gray-700 flex items-center gap-1"><span>✏️</span> تسجيل يدوي فردي</h3>
+                            <div class="flex gap-2">
+                                <input type="text" id="studentNameInput" placeholder="اكتب اسم الطالب كاملاً" class="flex-1 border p-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button onclick="addStudentManual()" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-bold text-sm transition">إضافة</button>
+                            </div>
+                        </div>
+                        <div class="border p-4 rounded-xl bg-gray-50 space-y-3">
+                            <h3 class="font-bold text-sm text-gray-700 flex items-center gap-1"><span>📷</span> استخراج ذكي من كشف صورة (OCR)</h3>
+                            <input type="file" id="ocrUpload" accept="image/*" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                            <div id="ocrProgress" class="mt-2 text-xs text-purple-700 hidden font-bold animate-pulse">جاري معالجة الكشف واستخراج الأسماء محلياً بالكامل...</div>
+                        </div>
+                    </div>
 
-<select id="mode">
-<option value="eco">وضع اقتصادي (API أقل)</option>
-<option value="smart" selected>وضع ذكي (متوازن)</option>
-<option value="full">وضع قوي (API أعلى)</option>
-</select>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 block">القائمة المسجلة حالياً للطلاب:</label>
+                        <textarea id="students" rows="3" readonly class="w-full border p-3 rounded-lg bg-gray-50 text-sm font-mono focus:outline-none text-gray-600" placeholder="أسماء الطلاب ستظهر هنا تباعاً ومحفوظة تلقائياً..."></textarea>
+                    </div>
 
-<div class="grid">
-<input id="teacher" placeholder="المعلم">
-<input id="school" placeholder="المدرسة">
-</div>
+                    <div class="border rounded-xl overflow-hidden bg-white shadow-sm">
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 border-b border-gray-200">
+                                    <th class="p-3 text-xs font-bold text-gray-600 w-20">الرقم الرياضي</th>
+                                    <th class="p-3 text-xs font-bold text-gray-600">إسم الطالب الثلاثي</th>
+                                    <th class="p-3 text-xs font-bold text-gray-600 text-center w-24">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
 
-<textarea id="students" placeholder="الطلاب"></textarea>
+                <div id="dashboard-tab" class="tab-content space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <div>
+                            <h2 class="text-md font-bold text-blue-900">🖨️ منصة التوليد والإنتاج الفوري المستقر</h2>
+                            <p class="text-xs text-gray-600 mt-0.5">يقوم المحرك بفحص البصمة والذكاء الموضعي قبل طلب البيانات السحابية.</p>
+                        </div>
+                        <button onclick="executeProductionPipeline()" class="w-full sm:w-auto bg-purple-700 hover:bg-purple-800 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition flex items-center justify-center gap-2">
+                            <span>⚡</span> إنتاج وطباعة حزمة المنهاج الكاملة (A4)
+                        </button>
+                    </div>
 
-<button onclick="saveKey()">حفظ المفتاح</button>
-<button onclick="generateKey()">توليد مفتاح</button>
+                    <div class="border rounded-xl p-4 bg-gray-50 space-y-2">
+                        <h3 class="text-sm font-bold text-gray-700">المخرجات التربوية الحالية المتوفرة في الكاش:</h3>
+                        <div id="out" class="w-full min-h-[200px] max-h-[400px] overflow-y-auto bg-white border rounded-lg p-4 font-mono text-xs whitespace-pre-wrap text-gray-700">
+                            لا توجد نتائج مخزنة حالياً، يرجى ملء البيانات والضغط على معالجة وإنتاج المنهج.
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
-</div>
+    <div id="completePrintPackage" class="hidden print-area p-2"></div>
 
-<div class="card">
-<h3>الملفات</h3>
-<input type="file" id="file">
-<button onclick="runOCR()">OCR</button>
-<button onclick="loadPDF()">PDF</button>
-</div>
-
-<div class="card">
-<h3>التشغيل</h3>
-<input id="topic" placeholder="الموضوع">
-<button onclick="start()">تشغيل النظام الذكي</button>
-<div class="loader" id="loader"><div></div></div>
-</div>
-
-<div class="tabs">
-<div class="tab active" onclick="tab(0)">النتيجة</div>
-</div>
-
-<div class="card section active" id="out"></div>
-
-</div>
-
-<script>
-
-/* ================= STATE ================= */
-const S = {
-pdf:"",
-key:"",
-cache:{}
-};
-
-const loader = document.getElementById("loader");
-
-/* ================= UTILS ================= */
-const log = (t)=>out.innerText = t;
-
-/* ================= CACHE ================= */
-function getCache(key){
-return S.cache[key];
-}
-
-function setCache(key,val){
-S.cache[key]=val;
-}
-
-/* ================= KEY ================= */
-function saveKey(){
-S.key = apiKey.value.trim();
-localStorage.setItem("k",S.key);
-alert("تم الحفظ");
-}
-
-function generateKey(){
-apiKey.value = "GEM-" + crypto.randomUUID().slice(0,8);
-}
-
-/* ================= PDF MINIMIZER ================= */
-async function loadPDF(){
-const f=file.files[0];
-if(!f)return;
-
-loader.style.display="block";
-
-const buf = await f.arrayBuffer();
-const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-
-let text="";
-for(let i=1;i<=Math.min(25,pdf.numPages);i++){
-const p=await pdf.getPage(i);
-const c=await p.getTextContent();
-text+=c.items.map(x=>x.str).join(" ");
-}
-
-S.pdf = text.slice(0,6000);
-
-loader.style.display="none";
-}
-
-/* ================= OCR ================= */
-async function runOCR(){
-const f=file.files[0];
-if(!f)return;
-
-loader.style.display="block";
-
-const r = await Tesseract.recognize(f,"ara");
-students.value = r.data.text;
-
-loader.style.display="none";
-}
-
-/* ================= LOCAL INTELLIGENCE ================= */
-function localAnalyze(){
-return `
-تحليل محلي:
-- عدد الطلاب: ${(students.value||"").split("\n").length}
-- موضوع: ${topic.value}
-- سياق: ${S.pdf.length > 1000 ? "موجود" : "ضعيف"}
-`;
-}
-
-/* ================= DECISION ENGINE ================= */
-function shouldUseAPI(){
-const mode = document.getElementById("mode").value;
-
-if(mode === "eco") return false;
-if(mode === "full") return true;
-
-return S.pdf.length > 2000 || students.value.length > 50;
-}
-
-/* ================= SINGLE AI CALL ================= */
-async function AI(prompt){
-
-if(!shouldUseAPI()){
-return "LOCAL MODE:\n\n" + localAnalyze();
-}
-
-if(!S.key) return "NO API KEY";
-
-const cacheKey = btoa(prompt).slice(0,40);
-if(getCache(cacheKey)) return getCache(cacheKey);
-
-const r = await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${S.key}`,
-{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-contents:[{parts:[{text:prompt}]}]
-})
-});
-
-const d = await r.json();
-const res = d?.candidates?.[0]?.content?.parts?.[0]?.text || "error";
-
-setCache(cacheKey,res);
-return res;
-}
-
-/* ================= SINGLE BATCH PIPELINE ================= */
-async function start(){
-
-loader.style.display="block";
-
-/* 🔥 دمج كل الطلبات في طلب واحد فقط */
-const prompt = `
-أنت نظام تعليمي ذكي.
-
-المعلم: ${teacher.value}
-المدرسة: ${school.value}
-الطلاب: ${students.value}
-
-الموضوع: ${topic.value}
-
-المحتوى:
-${S.pdf}
-
-المطلوب:
-1- خطة درس
-2- أوراق عمل
-3- اختبار
-4- رصد طلاب
-
-أخرجها في أقسام واضحة.
-`;
-
-const result = await AI(prompt);
-
-out.innerText = result;
-
-loader.style.display="none";
-}
-
-/* ================= TAB ================= */
-function tab(){}
-
-</script>
-
+    <script src="logic.js"></script>
+    <script src="curriculum.js"></script>
 </body>
 </html>
