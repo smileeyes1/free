@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRO v18 CORE BRAIN - FULL INTELLIGENCE SYSTEM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-gray-200 font-sans p-4 md:p-8">
+    
+    <header class="mb-8 border-b border-slate-700 pb-4 flex justify-between items-end">
+        <div>
+            <h1 class="text-2xl font-bold text-blue-400">🧠 PRO v18 CORE BRAIN</h1>
+            <p class="text-xs text-slate-400 mt-1">المنظومة المركزية للتحليل والتتبع والتحسين المستمر للطلاب</p>
+        </div>
+        <div id="bridgeStatus" class="text-xs px-3 py-1 bg-slate-800 rounded-full border border-slate-600 text-green-400 animate-pulse">
+            في وضع الاستماع والربط اللحظي المستمر (v13)...
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="col-span-1 lg:col-span-2 space-y-6">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                <h2 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">📊 طبقة تحليل ومعالجة الأحداث المباشرة (Event Intelligence)</h2>
+                <div id="eventsLog" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                    </div>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                <h2 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">🔄 مصفوفة التغذية الراجعة والتحسين التلقائي (Feedback Loop)</h2>
+                <div id="feedbackLog" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    </div>
+            </div>
+        </div>
+
+        <div class="col-span-1">
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg sticky top-8">
+                <h2 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">👥 سجل ملفات الطلاب المستمر (Student Profiles)</h2>
+                <button onclick="STORE.clearDB()" class="w-full mb-4 bg-red-900 hover:bg-red-800 text-red-200 text-xs py-2 rounded transition font-bold">
+                    ⚠️ مسح وقرصنة الذاكرة المحلية بالكامل
+                </button>
+                <div id="studentsDb" class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                    </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ================= PERSISTENT STORAGE MANAGEMENT ================= */
+        const STORAGE_KEY = "V18_FULL_INTELLIGENCE";
+        
+        const STORE = {
+            load(){
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { events: [], students: {}, feedbacks: [] };
+                } catch {
+                    return { events: [], students: {}, feedbacks: [] };
+                }
+            },
+            save(data){
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            },
+            addEvent(event){
+                let db = this.load();
+                db.events.unshift({
+                    ...event,
+                    time: new Date().toLocaleTimeString('ar-EG'),
+                    date: new Date().toLocaleDateString('ar-EG')
+                });
+                if(db.events.length > 100) db.events.pop();
+                this.save(db);
+                this.renderEvents();
+            },
+            addFeedback(feedback){
+                let db = this.load();
+                db.feedbacks.unshift({ ...feedback, time: new Date().toLocaleTimeString('ar-EG') });
+                if(db.feedbacks.length > 15) db.feedbacks.pop();
+                this.save(db);
+                this.renderFeedbacks();
+            },
+            clearDB(){
+                if(confirm("سيتم تدمير كافة ملفات الطلاب المسجلة والتاريخ التعليمي المخزن نهائياً، هل تود الاستمرار؟")){
+                    localStorage.removeItem(STORAGE_KEY);
+                    location.reload();
+                }
+            },
+            
+            /* INTERFACE GRAPHICAL RENDERING */
+            renderEvents(){
+                let db = this.load();
+                const container = document.getElementById("eventsLog");
+                if(db.events.length === 0){
+                    container.innerHTML = `<div class="text-slate-500 text-sm text-center py-4">في انتظار ورود حزم تشغيلية من الواجهة...</div>`;
+                    return;
+                }
+                container.innerHTML = db.events.map(e => `
+                    <div class="bg-slate-700/40 p-3 rounded border border-slate-600/40 flex flex-col gap-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-blue-300">[${e.type.toUpperCase()}]</span>
+                            <span class="text-slate-400">${e.time}</span>
+                        </div>
+                        <div class="text-sm text-slate-300 break-words font-mono text-xs">
+                            ${JSON.stringify(e.data).replace(/["{}]/g, ' ')}
+                        </div>
+                    </div>
+                `).join("");
+            },
+            renderStudents(){
+                let db = this.load();
+                const container = document.getElementById("studentsDb");
+                const currentEntries = Object.entries(db.students);
+                
+                if(currentEntries.length === 0){
+                    container.innerHTML = `<div class="text-slate-500 text-sm text-center py-4">لم يتم رصد أو مزامنة أي طلاب حتى اللحظة.</div>`;
+                    return;
+                }
+                
+                container.innerHTML = currentEntries.map(([name, profile]) => `
+                    <div class="bg-slate-700 p-3 rounded-lg border border-slate-600 shadow-sm space-y-2">
+                        <div class="font-bold text-white flex justify-between items-center">
+                            <span>🎓 ${name}</span>
+                            <span class="text-xs bg-blue-900 text-blue-200 px-2 py-0.5 rounded font-mono">الدروس المتابعة: ${profile.lessons}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-slate-800 p-2 rounded text-red-400 font-bold">مؤشر التعثر: ${profile.weak}</div>
+                            <div class="bg-slate-800 p-2 rounded text-green-400 font-bold">مؤشر التقدم: ${profile.strong}</div>
+                        </div>
+                        ${profile.history.length > 0 ? `
+                        <div class="text-[10px] text-slate-400 border-t border-slate-600 pt-1">
+                            آخر نشاط متزامن: ${new Date(profile.history[profile.history.length - 1].time).toLocaleTimeString('ar-EG')}
+                        </div>` : ''}
+                    </div>
+                `).join("");
+            },
+            renderFeedbacks(){
+                let db = this.load();
+                const container = document.getElementById("feedbackLog");
+                if(db.feedbacks.length === 0){
+                    container.innerHTML = `<div class="text-slate-500 text-sm text-center py-4 col-span-2">لا توجد تغذية راجعة تحليلية مسجلة حالياً.</div>`;
+                    return;
+                }
+                container.innerHTML = db.feedbacks.map(f => `
+                    <div class="bg-slate-700 border-l-4 border-green-500 p-3 rounded shadow-sm">
+                        <div class="text-xs text-slate-400 mb-1">${f.time}</div>
+                        <div class="font-bold text-sm text-white">${f.status}</div>
+                        <div class="text-xs text-green-300 mt-1">قرار التحسين المباشر: ${f.action}</div>
+                    </div>
+                `).join("");
+            },
+            renderAll(){
+                this.renderEvents();
+                this.renderStudents();
+                this.renderFeedbacks();
+            }
+        };
+
+        /* ================= DEEP ANALYTICS LAYER ================= */
+        function analyzeCore(packet){
+            const dataDump = packet?.data?.text || packet?.data?.topic || "";
+            return {
+                length: dataDump.length,
+                weak: /ضعيف|علاج|تبسيط/.test(dataDump),
+                strong: /متفوق|إثراء|متقدم/.test(dataDump),
+                complex: dataDump.length > 100
+            };
+        }
+
+        /* ================= DECISION BACKBONE ================= */
+        function decideCore(coreAnalysis){
+            return {
+                mode: coreAnalysis.complex ? "ثقيل وعميق" : "اعتيادي متوازن",
+                risk: coreAnalysis.length > 120 ? "مرتفع الحساسية" : "مستقر ومنخفض"
+            };
+        }
+
+        /* ================= STUDENT INTEGRATED LOGIC ================= */
+        function updateStudents(packet){
+            let db = STORE.load();
+            
+            if(packet.type === "student_add"){
+                let studentName = packet.data.name;
+                if(!db.students[studentName]){
+                    db.students[studentName] = { weak: 0, strong: 0, lessons: 0, history: [] };
+                }
+                STORE.save(db);
+                STORE.renderStudents();
+            }
+
+            if(packet.type === "students_snapshot"){
+                let currentBatch = packet.data.students || [];
+                currentBatch.forEach(studentName => {
+                    if(!db.students[studentName]){
+                        db.students[studentName] = { weak: 0, strong: 0, lessons: 0, history: [] };
+                    }
+                    db.students[studentName].lessons++;
+                    db.students[studentName].history.push({ event: "lesson_sync", time: Date.now() });
+                });
+                STORE.save(db);
+                STORE.renderStudents();
+            }
+
+            if(packet.type === "analysis"){
+                Object.keys(db.students).forEach(studentName => {
+                    if(packet.data.weak || packet.data.target === "ضعيف"){
+                        db.students[studentName].weak++;
+                    }
+                    if(packet.data.strong || packet.data.target === "متفوق"){
+                        db.students[studentName].strong++;
+                    }
+                });
+                STORE.save(db);
+                STORE.renderStudents();
+            }
+        }
+
+        /* ================= INTERPRETATION PIPELINE ================= */
+        function interpret(packet){
+            let insight = "";
+            if(packet.type === "analysis"){
+                if(packet.data.weak || packet.data.target === "ضعيف"){
+                    insight = "رصد تعثر مؤقت: المتطلبات تحتاج تفتيت وتبسيط أمثلة";
+                } else if(packet.data.strong || packet.data.target === "متفوق"){
+                    insight = "رصد كفاءة متقدمة: البيئة تحتاج مهام إضافية وتفكير علوي";
+                } else {
+                    insight = "الحالة مستقرة: استمرار التوزيع المنهجي القياسي الحالي";
+                }
+                
+                let recommendation = insight.includes("تبسيط") ? "توصية الأنظمة: تفعيل مجموعات الدعم وتأخير التقييم المعقد" : 
+                                   insight.includes("متقدم") ? "توصية الأنظمة: ضخ مراجع إضافية وفتح مسار القيادة الطلابية" : "توصية الأنظمة: الالتزام بالخطة الزمنية";
+                
+                STORE.addEvent({ type: "v21_interpretation", data: { insight, recommendation } });
+            }
+        }
+
+        /* ================= CLOSED FEEDBACK LOOP ================= */
+        function feedbackLoop(packet){
+            if(packet.type === "lesson_impact"){
+                STORE.addFeedback({
+                    status: `تحديث أثر التعلم لحصة: [${packet.data.topic || "بدون عنوان مخصص"}]`,
+                    action: `إخضاع عدد (${packet.data.students_count}) طلاب للمراقبة التراكمية المستمرة وعكس التغذية الراجعة`
+                });
+            }
+        }
+
+        /* ================= INCOMING PROTOCOL PARSER ================= */
+        function processIncomingPacket(packet){
+            STORE.addEvent(packet);
+            const coreAnalysis = analyzeCore(packet);
+            const coreDecision = decideCore(coreAnalysis);
+            
+            if(packet.type === "analysis" || packet.type === "lesson"){
+                STORE.addEvent({ type: "core_decision_matrix", data: coreDecision });
+            }
+            
+            interpret(packet);
+            feedbackLoop(packet);
+            updateStudents(packet);
+        }
+
+        /* ================= LOCAL STORAGE REALTIME EVENT BRIDGE ================= */
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'V18_BRIDGE' && event.newValue) {
+                try {
+                    const parsedPacket = JSON.parse(event.newValue);
+                    
+                    const statusWidget = document.getElementById("bridgeStatus");
+                    statusWidget.innerText = "تم استقبال حزمة بيانات متزامنة بنجاح! ⚡";
+                    statusWidget.className = "text-xs px-3 py-1 bg-green-900 rounded-full border border-green-600 text-green-200";
+                    
+                    setTimeout(() => {
+                        statusWidget.innerText = "في وضع الاستماع والربط اللحظي المستمر (v13)...";
+                        statusWidget.className = "text-xs px-3 py-1 bg-slate-800 rounded-full border border-slate-600 text-green-400 animate-pulse";
+                    }, 2000);
+
+                    processIncomingPacket(parsedPacket);
+                } catch(err) {
+                    console.error("Critical Protocol Error: Failed to parse sync packet.");
+                }
+            }
+        });
+
+        // تشغيل الرندرة الأولية للمصفوفة عند الإقلاع
+        STORE.renderAll();
+    </script>
+</body>
+</html>
