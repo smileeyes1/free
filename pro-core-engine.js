@@ -1,137 +1,235 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO+ Educational Engine</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-</head>
-
-<body class="bg-slate-100 text-gray-800">
-
-<!-- ================= HEADER ================= -->
-<header class="bg-slate-900 text-white p-4 flex justify-between items-center">
-
-    <h1 class="font-bold">PRO+ Engine</h1>
-
-    <div class="flex gap-2 items-center">
-
-        <input type="password" id="apiKey"
-            placeholder="Gemini API Key"
-            class="px-2 py-1 rounded text-black text-sm w-64">
-
-        <button onclick="saveApiKey()"
-            class="bg-green-600 px-3 py-1 rounded text-sm font-bold">
-            حفظ
-        </button>
-
-        <button onclick="openKeyGenerator()"
-            class="bg-blue-600 px-3 py-1 rounded text-sm font-bold">
-            توليد مفتاح
-        </button>
-
-    </div>
-
-</header>
-
-<!-- ================= INPUTS ================= -->
-<main class="p-4 space-y-3">
-
-    <input id="teacher" placeholder="المعلم" class="w-full p-2 rounded border">
-    <input id="school" placeholder="المدرسة" class="w-full p-2 rounded border">
-    <textarea id="topic" placeholder="الموضوع" class="w-full p-2 rounded border"></textarea>
-
-    <textarea id="students" placeholder="الطلاب" class="w-full p-2 rounded border"></textarea>
-
-    <textarea id="customPrompt" placeholder="طلب خاص" class="w-full p-2 rounded border"></textarea>
-
-    <button onclick="executeProductionPipeline()"
-        class="bg-indigo-600 text-white px-4 py-2 rounded font-bold">
-        تشغيل النظام
-    </button>
-
-    <div id="statusLog" class="text-sm font-bold text-blue-600"></div>
-
-</main>
-
-<!-- ================= OUTPUT ================= -->
-<div contenteditable="true"
-     id="completePrintPackage"
-     class="m-4 p-4 bg-white border rounded min-h-[300px]">
-</div>
-
-<script>
 /* =========================================================
-   API KEY SYSTEM
+   PRO SYSTEM v18 — FULL UNIFIED ENGINE
+   Cache + Queue + History + Insight + Action + Adaptive
 ========================================================= */
 
-function saveApiKey() {
-    const key = document.getElementById("apiKey").value.trim();
-    if (!key) return alert("أدخل المفتاح أولاً");
-    localStorage.setItem("GEMINI_KEY", key);
-    document.getElementById("statusLog").innerText = "✔ تم حفظ المفتاح";
-}
+/* ================= HISTORY ================= */
+const HISTORY = (() => {
 
-function loadApiKey() {
-    const key = localStorage.getItem("GEMINI_KEY");
-    if (key) document.getElementById("apiKey").value = key;
-}
+    const KEY = "PRO_HISTORY_V1";
 
-function openKeyGenerator() {
-    window.open("https://makersuite.google.com/app/apikey", "_blank");
-}
+    function load() {
+        try {
+            return JSON.parse(localStorage.getItem(KEY)) || [];
+        } catch {
+            return [];
+        }
+    }
 
-/* override key access */
-function key() {
-    return localStorage.getItem("GEMINI_KEY")?.trim();
-}
+    function save(data) {
+        try {
+            localStorage.setItem(KEY, JSON.stringify(data));
+        } catch {}
+    }
 
-window.onload = loadApiKey;
+    function add(entry) {
+        const data = load();
 
-/* =========================================================
-   PRO ENGINE (SIMPLIFIED STABLE VERSION)
-========================================================= */
+        data.unshift({
+            ...entry,
+            time: new Date().toISOString()
+        });
 
+        save(data.slice(0, 50));
+    }
+
+    function getAll() {
+        return load();
+    }
+
+    return { add, getAll };
+
+})();
+
+
+/* ================= INSIGHT ================= */
+const INSIGHT = (() => {
+
+    function generate(teacher) {
+
+        const data = HISTORY.getAll()
+            .filter(x => x.teacher === teacher)
+            .slice(0, 10);
+
+        if (!data.length) return "لا يوجد تاريخ كافٍ";
+
+        const freq = {};
+
+        data.forEach(x => {
+            freq[x.topic] = (freq[x.topic] || 0) + 1;
+        });
+
+        let top = "";
+        let max = 0;
+
+        for (const k in freq) {
+            if (freq[k] > max) {
+                max = freq[k];
+                top = k;
+            }
+        }
+
+        return top ? `أكثر موضوع تكرار: ${top}` : "لا نمط واضح";
+    }
+
+    return { generate };
+
+})();
+
+
+/* ================= ACTION ================= */
+const ACTION = (() => {
+
+    function generate(teacher, topic) {
+
+        const last = HISTORY.getAll()
+            .filter(x => x.teacher === teacher)[0];
+
+        if (!last) return "ابدأ بخطة درس أساسية";
+
+        if (last.topic === topic) {
+            return "طوّر نشاط مختلف لنفس الدرس لرفع الفهم";
+        }
+
+        return "ابدأ بتمهيد يربط الدرس السابق بالجديد";
+    }
+
+    return { generate };
+
+})();
+
+
+/* ================= ADAPTIVE ================= */
+const ADAPTIVE = (() => {
+
+    function build(students) {
+
+        if (!students?.length) return "";
+
+        const weak = [];
+        const medium = [];
+        const strong = [];
+
+        students.forEach((s, i) => {
+
+            const mod = i % 3;
+
+            if (mod === 0) weak.push(s);
+            else if (mod === 1) medium.push(s);
+            else strong.push(s);
+        });
+
+        return `
+تصنيف الطلاب:
+
+🔴 ضعيف:
+${weak.join(", ") || "-"}
+
+🟡 متوسط:
+${medium.join(", ") || "-"}
+
+🟢 متقدم:
+${strong.join(", ") || "-"}
+`;
+    }
+
+    return { build };
+
+})();
+
+
+/* ================= PRO ENGINE ================= */
 const PRO = (() => {
+
+    const PRIMARY_MODEL = "gemini-2.5-flash";
+    const FALLBACK_MODEL = "gemini-1.5-flash";
 
     let running = false;
 
-    function log(m) {
-        document.getElementById("statusLog").innerText = m;
+    const cache = new Map();
+
+    const log = (m) => {
+        const el = document.getElementById("statusLog");
+        if (el) el.innerText = m;
+    };
+
+    const key = () =>
+        document.getElementById("apiKey")?.value?.trim();
+
+    async function hash(t) {
+        const e = new TextEncoder().encode(t);
+        const b = await crypto.subtle.digest("SHA-256", e);
+        return [...new Uint8Array(b)]
+            .map(x => x.toString(16).padStart(2, "0"))
+            .join("");
+    }
+
+    function getCache(k) {
+        try {
+            return cache.get(k) ||
+                JSON.parse(localStorage.getItem("PRO_CACHE_" + k));
+        } catch {
+            return null;
+        }
+    }
+
+    function setCache(k, v) {
+        cache.set(k, v);
+        try {
+            localStorage.setItem("PRO_CACHE_" + k, JSON.stringify(v));
+        } catch {}
     }
 
     function validate(text) {
-        if (!text || text.length < 20) return false;
-        const bad = ["error", "undefined", "null", "failed"];
+        if (!text || typeof text !== "string") return false;
+        if (text.length < 30) return false;
+
+        const bad = ["error", "undefined", "null", "system failed"];
         return !bad.some(x => text.toLowerCase().includes(x));
     }
 
-    async function call(prompt) {
+    function timeout(ms = 20000) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), ms);
+        return { controller, timer };
+    }
+
+    async function call(model, prompt) {
 
         const apiKey = key();
         if (!apiKey) throw new Error("NO_KEY");
 
-        const res = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
-                })
+        const { controller, timer } = timeout();
+
+        try {
+
+            const res = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+                {
+                    method: "POST",
+                    signal: controller.signal,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok || data.error) {
+                throw new Error(data?.error?.message || "API_ERROR");
             }
-        );
 
-        const data = await res.json();
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            if (!validate(text)) throw new Error("INVALID_OUTPUT");
 
-        if (!res.ok || !validate(text)) {
-            throw new Error("API_FAIL");
+            return text;
+
+        } finally {
+            clearTimeout(timer);
         }
-
-        return text;
     }
 
     async function run(prompt) {
@@ -141,39 +239,62 @@ const PRO = (() => {
 
         try {
 
-            log("🧠 processing...");
+            const h = await hash(prompt);
+            const cached = getCache(h);
 
-            const result = await call(prompt);
+            if (cached) {
+                log("⚡ cache hit");
+                return cached;
+            }
 
-            log("✅ success");
+            log("🧠 generating...");
 
-            return result;
+            let result;
 
-        } catch (e) {
+            try {
+                result = await call(PRIMARY_MODEL, prompt);
+            } catch {
+                log("⚠ fallback triggered");
 
-            log("❌ error → fallback");
+                try {
+                    result = await call(FALLBACK_MODEL, prompt);
+                } catch {
+                    return "SYSTEM FAILED SAFE MODE";
+                }
+            }
+
+            setCache(h, result);
+
+            /* ================= CONTEXT LAYER ================= */
 
             try {
 
-                const result = await fetch(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key(),
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    }
-                );
+                const teacher =
+                    document.getElementById("teacher")?.value || "unknown";
 
-                const data = await result.json();
+                const topic =
+                    document.getElementById("topic")?.value || "unknown";
 
-                return data?.candidates?.[0]?.content?.parts?.[0]?.text || "SYSTEM FAILED";
+                const students =
+                    (document.getElementById("students")?.value || "")
+                        .split("\n")
+                        .filter(x => x.trim());
 
-            } catch {
+                HISTORY.add({ teacher, topic, output: result });
 
-                return "SYSTEM FAILED SAFE MODE";
-            }
+                const insight = INSIGHT.generate(teacher);
+                const action = ACTION.generate(teacher, topic);
+                const adaptive = ADAPTIVE.build(students);
+
+                console.log("INSIGHT:", insight);
+                console.log("ACTION:", action);
+                console.log("ADAPTIVE:", adaptive);
+
+                log(`✔ ${insight} | ${action}`);
+
+            } catch {}
+
+            return result;
 
         } finally {
             running = false;
@@ -184,43 +305,57 @@ const PRO = (() => {
 
 })();
 
-/* =========================================================
-   PIPELINE
-========================================================= */
 
+/* ================= PIPELINE ================= */
 async function executeProductionPipeline() {
 
-    const teacher = document.getElementById("teacher").value;
-    const school = document.getElementById("school").value;
-    const topic = document.getElementById("topic").value;
-    const students = document.getElementById("students").value;
-    const custom = document.getElementById("customPrompt").value;
+    const printArea = document.getElementById("completePrintPackage");
 
-    const base = `
+    const teacher = document.getElementById("teacher").value.trim() || "المعلم";
+    const school = document.getElementById("school").value.trim() || "المدرسة";
+    const topic = document.getElementById("topic").value.trim() || "الدرس";
+
+    const students = (document.getElementById("students").value || "")
+        .split("\n")
+        .filter(x => x.trim());
+
+    const pdf = S.pdf || "";
+
+    const custom = document.getElementById("customPrompt").value.trim();
+
+    const base =
+`أنت نظام تعليمي مؤسسي عالي الدقة.
+
 المعلم: ${teacher}
 المدرسة: ${school}
 الموضوع: ${topic}
-الطلاب: ${students}
+
+الطلاب: ${JSON.stringify(students)}
+
+${ADAPTIVE.build(students)}
+
+المرجع:
+${pdf}
 `;
 
-    const prompt = custom ? base + custom : base + `
-أنشئ:
+    const prompt = custom
+        ? base + "\nتنفيذ خاص:\n" + custom
+        : base + `
+المطلوب:
 - خطة درس
 - أوراق عمل
 - اختبار
-- تقييم
-HTML فقط
+- رصد طلاب
+
+HTML فقط بدون شرح.
 `;
 
     const result = await PRO.run(prompt);
 
-    document.getElementById("completePrintPackage").innerHTML = result;
+    printArea.innerHTML = result;
+
+    localStorage.setItem("last_result_html", result);
 
     document.getElementById("statusLog").innerText =
-        "✔ النظام جاهز";
+        "✔ PRO v18 FULL SYSTEM ACTIVE";
 }
-
-</script>
-
-</body>
-</html>
