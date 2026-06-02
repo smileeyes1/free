@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teacher OS v13</title>
+<title>PRO Teacher OS v18</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -13,7 +13,7 @@
 
 <header class="bg-slate-900 text-white p-4">
 <div class="container mx-auto flex justify-between items-center">
-<h1>🏛️ Teacher OS v13</h1>
+<h1>🏛️ PRO Teacher OS v18</h1>
 <input id="teacher" placeholder="المعلم"
 class="bg-slate-800 px-3 py-1 rounded text-sm text-white">
 </div>
@@ -32,11 +32,6 @@ class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">
 </button>
 
 <div id="studentsList" class="text-sm"></div>
-
-<hr>
-
-<input type="file" id="fileInput" class="text-xs w-full">
-<div id="fileStatus" class="text-xs text-gray-500"></div>
 
 </aside>
 
@@ -63,101 +58,96 @@ class="bg-white border rounded-xl p-4 min-h-[320px] text-sm whitespace-pre-wrap"
 
 /* ================= STATE ================= */
 let STUDENTS = [];
-let FILE_CONTENT = "";
 
-/* ================= CLEAN ================= */
+/* ================= HISTORY (v18 CORE) ================= */
+const HISTORY = (() => {
+
+    const KEY = "PRO_HISTORY_V1";
+
+    function load(){
+        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+        catch { return []; }
+    }
+
+    function save(data){
+        try { localStorage.setItem(KEY, JSON.stringify(data)); } catch {}
+    }
+
+    function add(entry){
+        const data = load();
+        data.unshift({
+            ...entry,
+            time: new Date().toISOString()
+        });
+        save(data.slice(0,50));
+    }
+
+    return { load, add };
+})();
+
+/* ================= UTILS ================= */
 const clean = t => (t || "").replace(/\s+/g,' ').trim();
 
-/* ================= STUDENTS ================= */
-function addStudent(){
-const n = prompt("اسم الطالب:");
-if(!n) return;
-STUDENTS.push(clean(n));
-renderStudents();
-}
-
-function renderStudents(){
-document.getElementById("studentsList").innerHTML =
-STUDENTS.map((s,i)=>`<div>${i+1}. ${s}</div>`).join("");
-}
-
-/* ================= FILE ================= */
-document.getElementById("fileInput").addEventListener("change",(e)=>{
-const f = e.target.files[0];
-if(!f) return;
-
-const r = new FileReader();
-r.onload = ev=>{
-FILE_CONTENT = clean(ev.target.result || "");
-document.getElementById("fileStatus").innerText = "تم تحميل الملف";
-};
-r.readAsText(f);
-});
-
-/* ================= ANALYZER ================= */
+/* ================= ANALYSIS CORE ================= */
 function analyze(text){
-
-const t = clean(text + " " + FILE_CONTENT);
+const t = clean(text);
 
 return {
-t,
-weak: /ضعيف/.test(t),
-strong: /متفوق/.test(t),
-review: /مراجعة/.test(t),
-exam: /اختبار/.test(t),
-worksheet: /ورقة/.test(t),
-lesson: /درس/.test(t),
-smart: /و[؟?]/.test(t)
+    t,
+    weak: /ضعيف/.test(t),
+    strong: /متفوق/.test(t),
+    review: /مراجعة/.test(t),
+    exam: /اختبار/.test(t),
+    worksheet: /ورقة/.test(t),
+    lesson: /درس/.test(t),
+    smart: /و[؟?]/.test(t)
 };
 }
 
-/* ================= DECISION CORE ================= */
-function decide(a, count){
+/* ================= DECISION ENGINE (v18 CORE) ================= */
+function PRO_ENGINE(a, studentCount){
 
 let type = "حصة درس";
 let goal = "تعلم أساسي";
 let mode = "عادي";
 
-/* routing ثابت */
 if(a.exam) type = "حصة اختبار";
 else if(a.worksheet) type = "نشاط تطبيقي";
 else if(a.lesson) type = "حصة درس";
 
-/* smart mode */
 if(a.smart){
 
 mode = "ذكي";
 
 const weight =
 a.t.length * 2 +
-count * 15 +
+studentCount * 15 +
 (a.weak ? 60 : 0) +
 (a.strong ? 70 : 0) +
 (a.review ? 40 : 0);
 
-/* حالات واضحة أولاً */
 if(a.weak){
-type = "حصة علاجية";
-goal = "رفع الفهم خطوة خطوة";
+    type = "حصة علاجية";
+    goal = "رفع الفهم خطوة خطوة";
 }
 else if(a.strong){
-type = "حصة إثرائية";
-goal = "توسيع التفكير";
+    type = "حصة إثرائية";
+    goal = "توسيع التفكير";
 }
 else if(a.review){
-type = "حصة مراجعة";
-goal = "تثبيت المعرفة";
+    type = "حصة مراجعة";
+    goal = "تثبيت المعرفة";
 }
 else{
-const pool = [
-"حصة درس تطبيقي",
-"حصة نشاط تعاوني",
-"حصة اختبار قصير",
-"حصة تدريب عملي"
-];
+    const pool = [
+        "حصة درس تطبيقي",
+        "حصة نشاط تعاوني",
+        "حصة اختبار قصير",
+        "حصة تدريب عملي"
+    ];
 
-type = pool[weight % pool.length];
-goal = "تنفيذ مباشر داخل الصف";
+    type = pool[weight % pool.length];
+    goal = "تنفيذ عملي داخل الصف";
 }
 }
 
@@ -165,9 +155,9 @@ return {type, goal, mode};
 }
 
 /* ================= LESSON BUILDER ================= */
-function buildLesson(s, count){
+function buildLesson(state, studentCount){
 
-const groups = Math.max(2, Math.ceil(count / 5));
+const groups = Math.max(2, Math.ceil(studentCount / 5));
 
 return `
 🕒 زمن الحصة: 45 دقيقة
@@ -179,11 +169,11 @@ return `
 🏁 إغلاق (3)
 
 🎯 الهدف:
-${s.goal}
+${state.goal}
 `;
 }
 
-/* ================= ENGINE ================= */
+/* ================= UI CORE ================= */
 function W_ENGINE(input){
 
 if(!input.trim()) return "";
@@ -192,11 +182,21 @@ const teacher = document.getElementById("teacher").value || "المعلم";
 const school = document.getElementById("school").value || "المدرسة";
 
 const a = analyze(input);
-const state = decide(a, STUDENTS.length);
+const state = PRO_ENGINE(a, STUDENTS.length);
 const lesson = buildLesson(state, STUDENTS.length);
 
+/* HISTORY SAVE (v18 feature) */
+HISTORY.add({
+    teacher,
+    school,
+    input: a.t,
+    type: state.type,
+    mode: state.mode,
+    students: STUDENTS.length
+});
+
 return `
-🏛️ Teacher OS v13
+🏛️ PRO Teacher OS v18
 
 👨‍🏫 ${teacher}
 🏫 ${school}
@@ -218,7 +218,17 @@ ${a.t}
 function runSystem(){
 const input = document.getElementById("customPrompt").value;
 document.getElementById("output").innerText = W_ENGINE(input);
-document.getElementById("status").innerText = "✔ نظام v13 مستقر";
+document.getElementById("status").innerText = "✔ PRO SYSTEM v18 نشط";
+}
+
+/* ================= STUDENTS ================= */
+function addStudent(){
+const n = prompt("اسم الطالب:");
+if(!n) return;
+STUDENTS.push(clean(n));
+
+document.getElementById("studentsList").innerHTML =
+STUDENTS.map((s,i)=>`<div>${i+1}. ${s}</div>`).join("");
 }
 
 </script>
