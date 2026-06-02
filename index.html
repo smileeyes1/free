@@ -1,137 +1,227 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محرك الإنتاج التربوي المؤسسي - V6.0</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.0.2/tesseract.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher OS v13</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="text-gray-800 antialiased">
 
-    <div id="app" class="min-h-screen flex flex-col no-print">
-        
-        <header class="bg-slate-900 text-white shadow-lg p-4 sticky top-0 z-50">
-            <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    <span>🏛️</span> المنظومة التربوية المؤسسية <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-200 font-mono">V6.0 Modular</span>
-                </h1>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <input type="password" id="apiKey" placeholder="مفتاح Gemini API" class="flex-1 sm:w-64 bg-slate-800 border border-slate-600 text-white rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-400">
-                    <button onclick="openKeyGenerator()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs font-bold transition">توليد مفتاح</button>
-                </div>
-            </div>
-        </header>
+<body class="bg-gray-50 text-gray-800">
 
-        <div class="flex-1 flex flex-col lg:flex-row container mx-auto my-6 gap-6 px-4">
-            
-            <aside class="w-full lg:w-72 bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-fit space-y-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 block">البيانات الإدارية (تُحفظ تلقائياً)</label>
-                    <input type="text" id="teacher" placeholder="إسم المعلم / المعلمة" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:border-blue-500 focus:outline-none">
-                    <input type="text" id="school" placeholder="إسم المدرسة / المؤسسة" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:border-blue-500 focus:outline-none mt-2">
-                </div>
-                
-                <hr class="border-gray-100">
-                
-                <div class="space-y-2">
-                    <button onclick="switchTab('upload-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold bg-blue-50 text-blue-800 border-r-4 border-blue-800 transition">📂 المنهج والموضوع</button>
-                    <button onclick="switchTab('students-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition">👥 سجلات الطلاب</button>
-                    <button onclick="switchTab('dashboard-tab')" class="tab-btn w-full text-right px-4 py-2.5 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition">📊 الطلب والتوليد</button>
-                </div>
-            </aside>
+<div class="min-h-screen flex flex-col">
 
-            <main class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-hidden flex flex-col">
-                
-                <div id="upload-tab" class="tab-content active space-y-6">
-                    <h2 class="text-lg font-bold text-gray-800 border-b pb-2">استيراد المرجعية التعليمية</h2>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-slate-50 hover:bg-slate-100 transition">
-                        <div class="text-4xl mb-3">📚</div>
-                        <p class="text-sm text-gray-600 font-bold mb-4">ارفع ملف PDF للكتاب المدرسي ليتم الاستناد إليه كمرجع حصري</p>
-                        <input type="file" id="pdfUpload" accept="application/pdf" class="hidden">
-                        <label for="pdfUpload" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-lg cursor-pointer inline-block transition font-bold text-sm shadow">اختيار ملف الكتاب</label>
-                        <div id="pdfProgress" class="mt-4 text-xs text-blue-700 hidden font-bold animate-pulse">جاري التحليل والفهرسة الموضعية...</div>
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 block">الموضوع / الدرس المراد العمل عليه حالياً:</label>
-                        <textarea id="topic" rows="2" placeholder="اكتب اسم الدرس أو الوحدة بوضوح..." class="w-full border border-gray-300 p-3 rounded-lg text-sm focus:border-blue-500 focus:outline-none"></textarea>
-                    </div>
-                </div>
+<header class="bg-slate-900 text-white p-4">
+<div class="container mx-auto flex justify-between items-center">
+<h1>🏛️ Teacher OS v13</h1>
+<input id="teacher" placeholder="المعلم"
+class="bg-slate-800 px-3 py-1 rounded text-sm text-white">
+</div>
+</header>
 
-                <div id="students-tab" class="tab-content space-y-6">
-                    <h2 class="text-lg font-bold text-gray-800 border-b pb-2">سجل الطلاب والرصد</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="border border-gray-200 p-4 rounded-xl bg-slate-50 space-y-3">
-                            <h3 class="font-bold text-sm text-gray-700">إضافة يدوية</h3>
-                            <div class="flex gap-2">
-                                <input type="text" id="studentNameInput" placeholder="اسم الطالب" class="flex-1 border p-2 rounded text-sm focus:outline-none focus:border-blue-500">
-                                <button onclick="addStudentManual()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold">إضافة</button>
-                            </div>
-                        </div>
-                        <div class="border border-gray-200 p-4 rounded-xl bg-slate-50 space-y-3">
-                            <h3 class="font-bold text-sm text-gray-700">قراءة كشف مصور (OCR)</h3>
-                            <input type="file" id="ocrUpload" accept="image/*" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer">
-                            <div id="ocrProgress" class="mt-2 text-xs text-purple-700 hidden font-bold">جاري القراءة البصرية...</div>
-                        </div>
-                    </div>
-                    <textarea id="students" rows="3" class="w-full border border-gray-300 p-3 rounded-lg text-sm text-gray-600 hidden"></textarea>
-                    <div class="border border-gray-200 rounded-xl overflow-y-auto max-h-60">
-                        <table class="w-full text-right border-collapse">
-                            <thead class="bg-slate-100 border-b border-gray-200 sticky top-0">
-                                <tr>
-                                    <th class="p-3 text-xs font-bold text-gray-600 w-16 text-center">م</th>
-                                    <th class="p-3 text-xs font-bold text-gray-600">اسم الطالب</th>
-                                    <th class="p-3 text-xs font-bold text-gray-600 w-20 text-center">إجراء</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="flex flex-1 container mx-auto gap-4 p-4">
 
-                <div id="dashboard-tab" class="tab-content flex-1 flex flex-col space-y-4">
-                    <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl space-y-2">
-                        <label class="text-sm font-bold text-indigo-900 flex items-center gap-2">
-                            <span>🎯</span> خانة الطلب والتوجيه المخصص (نفذ بدقة تامة)
-                        </label>
-                        <p class="text-xs text-indigo-700 mb-2">اكتب ما تريده بدقة ليتم تنفيذه على مستوى مؤسسي (مثال: صمم ورقة عمل تفاعلية، خطة درس علاجية، بنك أسئلة...).</p>
-                        <textarea id="customPrompt" rows="3" placeholder="اكتب طلبك التفصيلي هنا لتقوم المنظومة بإنتاجه وهندسته مباشرة للطباعة..." class="w-full border border-indigo-200 p-3 rounded-lg text-sm focus:border-indigo-500 focus:outline-none bg-white"></textarea>
-                    </div>
+<aside class="w-72 bg-white border rounded-xl p-3 space-y-3">
 
-                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-100 p-4 rounded-xl border border-slate-200">
-                        <div class="text-xs text-slate-600 font-semibold">
-                            💡 تلميح: بعد صدور المخرجات، انقر فوق المتن لتعديله أو كتابة ما تريد قبل تفعيل الطباعة.
-                        </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <button onclick="executeProductionPipeline()" class="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition flex items-center justify-center gap-2">
-                                <span>⚡</span> معالجة وتوليد
-                            </button>
-                            <button onclick="window.print()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow transition flex items-center justify-center gap-2">
-                                <span>🖨️</span> طباعة فورية
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="statusLog" class="text-xs font-bold text-indigo-600 text-center"></div>
-                </div>
-            </main>
-        </div>
-    </div>
+<input id="school" placeholder="المدرسة"
+class="w-full border p-2 rounded text-sm">
 
-    <div class="container mx-auto px-4 pb-10 no-print">
-        <h3 class="text-sm font-bold text-gray-500 mb-2 mt-4 flex items-center gap-2">
-            <span>✍️</span> مساحة التحرير المؤسسي (متن نظيف قابل للتعديل الفوري)
-        </h3>
-        <div id="completePrintPackage" contenteditable="true" class="print-area p-8 border border-gray-300 rounded-xl bg-white text-black min-h-[500px]">
-            </div>
-    </div>
+<button onclick="addStudent()"
+class="w-full bg-blue-600 text-white py-2 rounded text-sm font-bold">
+➕ إضافة طالب
+</button>
 
-    <script src="logic.js"></script>
-    <script src="api.js"></script>
+<div id="studentsList" class="text-sm"></div>
+
+<hr>
+
+<input type="file" id="fileInput" class="text-xs w-full">
+<div id="fileStatus" class="text-xs text-gray-500"></div>
+
+</aside>
+
+<main class="flex-1 space-y-4">
+
+<textarea id="customPrompt" rows="5"
+class="w-full border p-2 rounded text-sm"></textarea>
+
+<button onclick="runSystem()"
+class="mt-3 bg-green-600 text-white px-4 py-2 rounded font-bold">
+تنفيذ
+</button>
+
+<div id="output"
+class="bg-white border rounded-xl p-4 min-h-[320px] text-sm whitespace-pre-wrap"></div>
+
+<div id="status" class="text-xs text-center text-blue-600"></div>
+
+</main>
+</div>
+</div>
+
+<script>
+
+/* ================= STATE ================= */
+let STUDENTS = [];
+let FILE_CONTENT = "";
+
+/* ================= CLEAN ================= */
+const clean = t => (t || "").replace(/\s+/g,' ').trim();
+
+/* ================= STUDENTS ================= */
+function addStudent(){
+const n = prompt("اسم الطالب:");
+if(!n) return;
+STUDENTS.push(clean(n));
+renderStudents();
+}
+
+function renderStudents(){
+document.getElementById("studentsList").innerHTML =
+STUDENTS.map((s,i)=>`<div>${i+1}. ${s}</div>`).join("");
+}
+
+/* ================= FILE ================= */
+document.getElementById("fileInput").addEventListener("change",(e)=>{
+const f = e.target.files[0];
+if(!f) return;
+
+const r = new FileReader();
+r.onload = ev=>{
+FILE_CONTENT = clean(ev.target.result || "");
+document.getElementById("fileStatus").innerText = "تم تحميل الملف";
+};
+r.readAsText(f);
+});
+
+/* ================= ANALYZER ================= */
+function analyze(text){
+
+const t = clean(text + " " + FILE_CONTENT);
+
+return {
+t,
+weak: /ضعيف/.test(t),
+strong: /متفوق/.test(t),
+review: /مراجعة/.test(t),
+exam: /اختبار/.test(t),
+worksheet: /ورقة/.test(t),
+lesson: /درس/.test(t),
+smart: /و[؟?]/.test(t)
+};
+}
+
+/* ================= DECISION CORE ================= */
+function decide(a, count){
+
+let type = "حصة درس";
+let goal = "تعلم أساسي";
+let mode = "عادي";
+
+/* routing ثابت */
+if(a.exam) type = "حصة اختبار";
+else if(a.worksheet) type = "نشاط تطبيقي";
+else if(a.lesson) type = "حصة درس";
+
+/* smart mode */
+if(a.smart){
+
+mode = "ذكي";
+
+const weight =
+a.t.length * 2 +
+count * 15 +
+(a.weak ? 60 : 0) +
+(a.strong ? 70 : 0) +
+(a.review ? 40 : 0);
+
+/* حالات واضحة أولاً */
+if(a.weak){
+type = "حصة علاجية";
+goal = "رفع الفهم خطوة خطوة";
+}
+else if(a.strong){
+type = "حصة إثرائية";
+goal = "توسيع التفكير";
+}
+else if(a.review){
+type = "حصة مراجعة";
+goal = "تثبيت المعرفة";
+}
+else{
+const pool = [
+"حصة درس تطبيقي",
+"حصة نشاط تعاوني",
+"حصة اختبار قصير",
+"حصة تدريب عملي"
+];
+
+type = pool[weight % pool.length];
+goal = "تنفيذ مباشر داخل الصف";
+}
+}
+
+return {type, goal, mode};
+}
+
+/* ================= LESSON BUILDER ================= */
+function buildLesson(s, count){
+
+const groups = Math.max(2, Math.ceil(count / 5));
+
+return `
+🕒 زمن الحصة: 45 دقيقة
+
+🟡 تمهيد (5)
+📘 شرح (10)
+🧠 نشاط (${groups} مجموعات)
+📊 تقويم (7)
+🏁 إغلاق (3)
+
+🎯 الهدف:
+${s.goal}
+`;
+}
+
+/* ================= ENGINE ================= */
+function W_ENGINE(input){
+
+if(!input.trim()) return "";
+
+const teacher = document.getElementById("teacher").value || "المعلم";
+const school = document.getElementById("school").value || "المدرسة";
+
+const a = analyze(input);
+const state = decide(a, STUDENTS.length);
+const lesson = buildLesson(state, STUDENTS.length);
+
+return `
+🏛️ Teacher OS v13
+
+👨‍🏫 ${teacher}
+🏫 ${school}
+
+📌 النوع: ${state.type}
+📍 الوضع: ${state.mode}
+
+${lesson}
+
+👥 الطلاب (${STUDENTS.length})
+${STUDENTS.length ? STUDENTS.join(" - ") : "لا يوجد"}
+
+📥 الطلب:
+${a.t}
+`;
+}
+
+/* ================= RUN ================= */
+function runSystem(){
+const input = document.getElementById("customPrompt").value;
+document.getElementById("output").innerText = W_ENGINE(input);
+document.getElementById("status").innerText = "✔ نظام v13 مستقر";
+}
+
+</script>
+
 </body>
 </html>
