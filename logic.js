@@ -1,130 +1,70 @@
-const S = { pdf: "", pdfHash: "" };
-let OCRWorker = null;
-
-async function cacheSet(key, value) {
-    try { localStorage.setItem("cache_" + key, value); } catch (e) {}
-}
-
-async function cacheGet(key) {
-    return localStorage.getItem("cache_" + key);
-}
-
-async function hashText(text) {
-    const data = new TextEncoder().encode(text);
-    const hash = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function compressText(text) {
-    if (!text) return "";
-    return text.split(/\n+/).filter(x => x.trim().length > 4).slice(0, 150).join("\n");
-}
-
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('bg-blue-50', 'text-blue-800', 'border-r-4', 'border-blue-800');
-        b.classList.add('text-gray-600');
-    });
-    document.getElementById(tabId).classList.add('active');
-    const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
-    if (activeBtn) {
-        activeBtn.classList.remove('text-gray-600');
-        activeBtn.classList.add('bg-blue-50', 'text-blue-800', 'border-r-4', 'border-blue-800');
-    }
-}
-
-function addStudentManual() {
-    const input = document.getElementById('studentNameInput');
-    const list = document.getElementById('students');
-    if (!input.value.trim()) return;
-    let arr = list.value.split('\n').filter(x => x.trim().length > 0);
-    arr.push(input.value.trim());
-    list.value = arr.join('\n');
-    localStorage.setItem("students", list.value);
-    input.value = "";
-    renderStudentsGrid();
-}
-
-function deleteStudent(index) {
-    const list = document.getElementById('students');
-    let arr = list.value.split('\n').filter(x => x.trim().length > 0);
-    arr.splice(index, 1);
-    list.value = arr.join('\n');
-    localStorage.setItem("students", list.value);
-    renderStudentsGrid();
-}
-
-function renderStudentsGrid() {
-    const list = document.getElementById('students').value;
-    const tbody = document.getElementById('studentsTableBody');
-    tbody.innerHTML = "";
-    let arr = list.split('\n').filter(x => x.trim().length > 0);
-    if (arr.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-xs text-gray-400">لا يوجد طلاب.</td></tr>`;
-        return;
-    }
-    arr.forEach((student, index) => {
-        const easternIndex = (index + 1).toString().replace(/[0-9]/g, w => ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][+w]);
-        tbody.innerHTML += `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-2 text-center font-mono text-xs">${easternIndex}</td>
-                <td class="p-2 font-bold text-sm">${student}</td>
-                <td class="p-2 text-center">
-                    <button onclick="deleteStudent(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold">حذف</button>
-                </td>
-            </tr>`;
-    });
-}
-
-async function initOCR() {
-    if (OCRWorker) return;
-    OCRWorker = await Tesseract.createWorker("ara");
-}
-
-document.getElementById('ocrUpload').addEventListener('change', async function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const prog = document.getElementById('ocrProgress');
-    prog.classList.remove('hidden');
-    try {
-        await initOCR();
-        const { data: { text } } = await OCRWorker.recognize(file);
-        prog.classList.add('hidden');
-        let names = text.split('\n').map(l => l.trim()).filter(l => l.length > 3);
-        if (names.length > 0) {
-            let arr = document.getElementById('students').value.split('\n').filter(x => x.trim().length > 0);
-            document.getElementById('students').value = arr.concat(names).join('\n');
-            localStorage.setItem("students", document.getElementById('students').value);
-            renderStudentsGrid();
-        } else throw new Error("فارغ");
-    } catch (err) {
-        prog.classList.add('hidden');
-        const backup = ["أحمد محمود", "خليل محمد", "مريم وجيه"];
-        document.getElementById('students').value = backup.join('\n');
-        localStorage.setItem("students", document.getElementById('students').value);
-        renderStudentsGrid();
-    }
-});
-
-["teacher", "school", "topic", "customPrompt"].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) {
-        el.addEventListener("input", e => localStorage.setItem(id, e.target.value));
-    }
-});
-
-window.onload = () => {
-    ["apiKey", "teacher", "school", "topic", "students", "customPrompt"].forEach(id => {
-        const val = localStorage.getItem(id === "apiKey" ? "k" : id);
-        if(val && document.getElementById(id)) document.getElementById(id).value = val;
-    });
-    document.getElementById("apiKey").addEventListener("input", e => localStorage.setItem("k", e.target.value));
-    const lastHTML = localStorage.getItem("last_result_html");
-    if (lastHTML) document.getElementById("completePrintPackage").innerHTML = lastHTML;
-    renderStudentsGrid();
+window.S = {
+pdf:"",
+pdfHash:"",
+cache:new Map(),
+useAPI:true
 };
 
-function openKeyGenerator() {
-    window.open("https://aistudio.google.com/app/apikey", "_blank");
+function cacheSet(k,v){ S.cache.set(k,v); }
+function cacheGet(k){ return S.cache.get(k); }
+
+async function hashText(text){
+const data=new TextEncoder().encode(text);
+const hash=await crypto.subtle.digest("SHA-256",data);
+return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function compressText(text){
+return text.split(/\n+/).slice(0,120).join("\n");
+}
+
+function log(msg){
+document.getElementById("statusLog").innerText=msg;
+}
+
+/* قرار ذكي لتقليل API */
+function shouldUseAPI(){
+const mode = "smart";
+if(!S.pdf || S.pdf.length < 1500) return false;
+return true;
+}
+
+/* كاش ذكي للمطالب */
+async function cachedAI(key, fn){
+if(S.cache.has(key)) return S.cache.get(key);
+const res = await fn();
+S.cache.set(key,res);
+return res;
+}
+
+function buildPrompt(){
+return `
+نظام تعليمي مؤسسي:
+
+المعلم:${teacher.value}
+المدرسة:${school.value}
+الموضوع:${topic.value}
+
+النص:
+${S.pdf}
+
+أخرج:
+1- خطة درس
+2- أوراق عمل
+3- اختبار
+4- تقييم
+`;
+}
+
+function generateKey(){
+apiKey.value = "GEM-" + crypto.randomUUID().slice(0,10);
+}
+
+function saveKey(){
+localStorage.setItem("gemini_key",apiKey.value);
+log("تم حفظ المفتاح");
+}
+
+function getKey(){
+return localStorage.getItem("gemini_key") || apiKey.value;
 }
